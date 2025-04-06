@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
+             xmlns:views="clr-namespace:GlyphViewer.Views"
+             xmlns:text="clr-namespace:GlyphViewer.Text"
+             x:Class="GlyphViewer.Views.MainPage"
+             x:DataType="viewmodel:MainViewModel">
+
+    <Grid ColumnDefinitions="Auto, *, Auto">
+        
+        <ListView x:Name="Fonts"
+                  Grid.Column="0"
+                  ItemsSource="{Binding FontFamilies}"
+                  SelectionMode="Single"
+                  SelectedItem="{Binding SelectedFontFamily, Mode=TwoWay}"
+                  />
+
+        <views:GlyphsView Grid.Column="1" 
+                          Items="{Binding Glyphs, Mode=OneWay}"
+                          ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
+                          BackgroundColor="Transparent"
+                          SelectedItem="{Binding SelectedGlyph, Mode=TwoWay}"
+                          SelectedItemMetrics="{Binding SelectedGlyphMetrics}"
+                          />
+
+        <StackLayout Orientation="Vertical"
+                     Spacing="5"
+                     VerticalOptions="Start"
+                     Grid.Column="2"
+                     >
+  
+            <views:GlyphView Glyph="{Binding SelectedGlyph, Mode=OneWay}"
+                             FontSize="128"
+                             BackgroundColor="WhiteSmoke"
+                             LineColor="Red"
+                             BaselineColor="Green"
+                             MinimumHeightRequest="200"
+                             MinimumWidthRequest="200"
+                             />
+
+            <views:MetricsView x:DataType="text:GlyphMetricProperties"
+                               BindingContext="{Binding SelectedGlyphProperties}"
+                               />
+
+        </StackLayout>
+
+    </Grid>
+</ContentPage>
