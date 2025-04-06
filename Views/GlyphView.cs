@@ -228,7 +228,6 @@ public class GlyphView : SKCanvasView
         InvalidateSurface();
     }
 
-
     protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
     {
         SKCanvas canvas = e.Surface.Canvas;
@@ -247,7 +246,7 @@ public class GlyphView : SKCanvasView
             {
                 // ISSUE: Is this correct? (i.e., points versus pixels)
                 font.Size = FontSize.ToPixels();
-                using (SKPaint paint = new() { IsAntialias = true })
+                using (SKPaint paint = new() { IsAntialias = true, Style = SKPaintStyle.Fill })
                 {
                     // Draw the glyph
                     Draw(canvas, font, paint);
@@ -269,7 +268,7 @@ public class GlyphView : SKCanvasView
         float top = (height - metrics.Size.Height) / 2;
         float left = (width - metrics.Size.Width) / 2;
         float start = left - metrics.Left;
-        float right = start + metrics.Size.Width;
+        float right = left + metrics.Size.Width;
         float baseline = top - metrics.Ascent;
         float ascent = baseline + metrics.Ascent;
         float descent = baseline + metrics.Descent;

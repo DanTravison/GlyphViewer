@@ -69,16 +69,28 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Drawing\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiXaml Update="Controls\Grid.xaml">
+	  <MauiXaml Update="Controls\Grid\Grid.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\MetricsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.StartsWith('net9.0-windows')) != true">
+		<Compile Remove="**\**\*.windows.cs" />
+		<None Include="**\**\*.windows.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.StartsWith('net9.0-android')) != true">
+		<Compile Remove="**\**\*.android.cs" />
+		<None Include="**\**\*.android.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+	</ItemGroup>
+
+	<!-- Both iOS and Mac Catalyst -->
+	<ItemGroup Condition="$(TargetFramework.StartsWith('net9.0-ios')) != true AND $(TargetFramework.StartsWith('net9.0-maccatalyst')) != true">
+		<Compile Remove="**\**\*.maciOS.cs" />
+		<None Include="**\**\*.maciOS.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
 	</ItemGroup>
 
 </Project>

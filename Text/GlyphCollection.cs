@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.Text.Unicode;
 using SkiaSharp;
 using System.Collections;
 using System.Globalization;
@@ -95,12 +96,36 @@ class GlyphCollection : IReadOnlyList<Glyph>
     /// </summary>
     /// <param name="typeface">The <see cref="SKTypeface"/> to use to populate the collection.</param>
     /// <returns>A new instance of a <see cref="GlyphCollection"/>.</returns>
-    public static GlyphCollection CreateInstance(SKTypeface typeface)
+    public static GlyphCollection CreateInstance(SKTypeface typeface, params UnicodeCategory[] filter)
     {
-        List<Glyph> glyphs = typeface.Glyphs(UnicodeCategory.Control);
-        glyphs.Sort(GlyphComparer.Comparer);
+        List<Glyph> glyphs = new();
+        for (ushort id = 0; id < 0xFFFF; id++)
+        {
+            char ch = (char)id;
+            ushort codepoint = typeface.GetGlyph(ch);
+            if (codepoint == 0)
+            {
+                continue;
+            }
+            Range range = Ranges.Find((ushort)ch);
+            if (range is null)
+            {
+                continue;
+            }
+            UnicodeCategory category = char.GetUnicodeCategory(ch);
+            if (filter != null && filter.Length > 0)
+            {
+                if (filter.Contains(category))
+                {
+                    continue;
+                }
+            }
+            Glyph glyph = new(typeface.FamilyName, ch, codepoint, category, range);
+            glyphs.Add(glyph);
+        }
         return new GlyphCollection(typeface, glyphs);
+
     }
 
-    #endregion CreateInstance
+#endregion CreateInstance
 }

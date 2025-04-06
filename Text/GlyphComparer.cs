@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace GlyphViewer.Text;
 
 public sealed class GlyphComparer : IComparer<Glyph>
@@ -28,10 +23,7 @@ public sealed class GlyphComparer : IComparer<Glyph>
         {
             return 1;
         }
-        else
-        {
-            return x.CodePoint - y.CodePoint;
-        }
+        return x.Char - y.Char;
     }
 }
 

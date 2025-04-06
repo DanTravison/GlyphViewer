@@ -4,6 +4,7 @@
              xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
              xmlns:views="clr-namespace:GlyphViewer.Views"
              xmlns:text="clr-namespace:GlyphViewer.Text"
+             xmlns:controls="clr-namespace:GlyphViewer.Controls"
              x:Class="GlyphViewer.Views.MainPage"
              x:DataType="viewmodel:MainViewModel">
 
@@ -16,13 +17,26 @@
                   SelectedItem="{Binding SelectedFontFamily, Mode=TwoWay}"
                   />
 
-        <views:GlyphsView Grid.Column="1" 
-                          Items="{Binding Glyphs, Mode=OneWay}"
-                          ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
-                          BackgroundColor="Transparent"
-                          SelectedItem="{Binding SelectedGlyph, Mode=TwoWay}"
-                          SelectedItemMetrics="{Binding SelectedGlyphMetrics}"
-                          />
+        <Grid Grid.Column="1" 
+              ColumnDefinitions="*, Auto">
+            
+            <views:GlyphsView Grid.Column="0" 
+                              Items="{Binding Glyphs, Mode=OneWay}"
+                              ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
+                              BackgroundColor="Transparent"
+                              SelectedItem="{Binding SelectedGlyph, Mode=TwoWay}"
+                              SelectedItemMetrics="{Binding SelectedGlyphMetrics}"
+                              Row="{Binding Row}"
+                              Rows="{Binding Rows, Mode=OneWayToSource}"
+                              />
+            <controls:Slider Grid.Column="1"
+                             Minimum="0"
+                             Maximum="{Binding MaxRow, Mode=OneWay}"
+                             Interval="1"
+                             Value="{Binding Row, Mode=TwoWay}"
+                             Orientation="Vertical"
+                             />
+        </Grid>
 
         <StackLayout Orientation="Vertical"
                      Spacing="5"
@@ -35,14 +49,13 @@
                              BackgroundColor="WhiteSmoke"
                              LineColor="Red"
                              BaselineColor="Green"
-                             MinimumHeightRequest="200"
-                             MinimumWidthRequest="200"
+                             MinimumHeightRequest="300"
+                             MinimumWidthRequest="300"
                              />
 
             <views:MetricsView x:DataType="text:GlyphMetricProperties"
                                BindingContext="{Binding SelectedGlyphProperties}"
                                />
-
         </StackLayout>
 
     </Grid>

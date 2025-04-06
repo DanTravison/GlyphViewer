@@ -14,8 +14,9 @@ internal sealed class MainViewModel : ObservableObject
     GlyphCollection _glyphs;
     Glyph _selectedGlyph;
     GlyphMetrics _selectedGlyphMetrics;
-    bool _isBusy = false;
     readonly IDispatcher _dispatcher;
+    int _row;
+    int _rows;
 
     #endregion Fields
 
@@ -26,21 +27,33 @@ internal sealed class MainViewModel : ObservableObject
 
     #region Properties
 
-    public bool IsBusy
+    public int Row
     {
-        get => _isBusy;
+        get => _row;
+        set => SetProperty(ref _row, value, RowChangedEventArgs);
+    }
+
+    /// <summary>
+    /// Gets or sets the number of rows.
+    /// </summary>
+    public int Rows
+    {
+        get => _rows;
         set
         {
-            if (SetProperty(ref _isBusy, value, IsBusyChangedEventArgs))
+            if (SetProperty(ref _rows, value, RowsChangedEventArgs))
             {
-                OnPropertyChanged(IsEnabledChangedEventArgs);
+                OnPropertyChanged(MaxRowChangedEventArgs);
             }
         }
     }
 
-    public bool IsEnabled
+    /// <summary>
+    /// Gets or sets the maximum row number.
+    /// </summary>
+    public int MaxRow
     {
-        get => !_isBusy;
+        get => _rows > 0 ? _rows - 1 : 0;
     }
 
     public IEnumerable<string> FontFamilies
@@ -124,7 +137,6 @@ internal sealed class MainViewModel : ObservableObject
 
     public void LoadFonts(IDispatcher dispatcher)
     {
-        IsBusy = true;
         List<string> fontFamilies = Fonts.GetFontFamilies();
         fontFamilies.Sort(StringComparer.OrdinalIgnoreCase);
         _ = dispatcher.DispatchAsync(() =>
@@ -166,8 +178,9 @@ internal sealed class MainViewModel : ObservableObject
     static readonly PropertyChangedEventArgs SelectedGlyphChangedEventArgs = new(nameof(SelectedGlyph));
     static readonly PropertyChangedEventArgs SelectedGlyphPropertiesChangedEventArgs = new(nameof(SelectedGlyphProperties));
 
-    static readonly PropertyChangedEventArgs IsBusyChangedEventArgs = new(nameof(IsBusy));
-    static readonly PropertyChangedEventArgs IsEnabledChangedEventArgs = new(nameof(IsEnabled));
+    static readonly PropertyChangedEventArgs RowChangedEventArgs = new(nameof(Row));
+    static readonly PropertyChangedEventArgs RowsChangedEventArgs = new(nameof(Rows));
+    static readonly PropertyChangedEventArgs MaxRowChangedEventArgs = new(nameof(MaxRow));
 
     #endregion PropertyChangedEventArgs
 

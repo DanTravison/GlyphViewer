@@ -39,7 +39,7 @@ class GlyphsView : SKCanvasView
     const double DefaultSpacing = 5.0;
     const float MinimumItemSize = 12f;
     const double MinimumFontSize = 12f;
-    const double DefaultFontSize = 48f;
+    const double DefaultFontSize = 64f;
     static readonly Color DefaultItemColor = Colors.Black;
     static readonly Color DefaultSelectedItemColor = Colors.Plum;
 
@@ -50,6 +50,11 @@ class GlyphsView : SKCanvasView
     // The number of rows based on the _columnCount
     // Updated by LayoutItems.
     int _rows;
+
+    /// <summary>
+    /// The row to display at the top of the canvas.
+    /// </summary>
+    int _firstRow;
 
     /// <summary>
     /// The height of a row in pixels
@@ -71,22 +76,7 @@ class GlyphsView : SKCanvasView
     // Updated by LayoutItems.
     int _columns;
 
-    /// <summary>
-    /// The number of items displayed on a page (CanvasSize.Height);
-    /// </summary>
-    int _pageRows;
-
-    /// <summary>
-    /// The number of pages based on the CanvasSize.Height.
-    /// </summary>
-    int _pages;
-
     bool _needsLayout = false;
-
-    /// <summary>
-    /// The row to display at the top of the canvas.
-    /// </summary>
-    int _firstRow;
 
     /// <summary>
     /// The <see cref="SKFont"/> to use to draw the glyph.
@@ -107,7 +97,6 @@ class GlyphsView : SKCanvasView
     {
         base.EnableTouchEvents = true;
     }
-
 
     #region Properties
 
@@ -344,20 +333,6 @@ class GlyphsView : SKCanvasView
         }
     );
 
-    static bool CanDisplay(UnicodeCategory category)
-    {
-        if 
-        (
-            category == UnicodeCategory.Control ||
-            category == UnicodeCategory.Format ||
-            category == UnicodeCategory.NonSpacingMark
-        )
-        {
-            return false;
-        }
-        return true;
-    }
-
     void OnItemsChanged()
     {
         _items.Clear();
@@ -411,12 +386,98 @@ class GlyphsView : SKCanvasView
             _glyphFont?.Dispose();
             _glyphFont = null;
         }
-        _firstRow = 0;
+        Row = 0;
         _needsLayout = true;
         InvalidateSurface();
     }
 
     #endregion Items
+
+    #region Row
+
+    /// <summary>
+    /// Gets or sets the first row to display.
+    /// </summary>
+    public int Row
+    {
+        get => (int)GetValue(RowProperty);
+        set => SetValue(RowProperty, value);
+    }
+
+    /// <summary>
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="Row"/> property.
+    /// </summary>
+    public static readonly BindableProperty RowProperty = BindableProperty.Create
+    (
+        nameof(RowProperty),
+        typeof(int),
+        typeof(GlyphsView),
+        0,
+        BindingMode.TwoWay,
+        coerceValue: (bindable, value) =>
+        {
+            if (bindable is GlyphsView view)
+            {
+                List<GlyphInfo> items = view._items;
+                if (items.Count > 0 && value is int row)
+                {
+                    if (row < 0)
+                    {
+                        row = 0;
+                    }
+                    else if (row >= items.Count)
+                    {
+                        row = items.Count - 1;
+                    }
+                    return row;
+                }
+            }
+            return 0;
+        },
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            if (bindable is GlyphsView view)
+            {
+                view.OnRowChanged();
+            }
+        }
+    );
+
+    void OnRowChanged()
+    {
+        if (_firstRow != Row)
+        {
+            _firstRow = Row;
+            InvalidateSurface();
+        }
+    }
+
+    #endregion Row
+
+    #region Rows
+
+    /// <summary>
+    /// Gets or sets the the number of rows
+    /// </summary>
+    public int Rows
+    {
+        get => (int)GetValue(RowsProperty);
+        private set => SetValue(RowsProperty, value);
+    }
+
+    /// <summary>
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="Rows"/> property.
+    /// </summary>
+    public static readonly BindableProperty RowsProperty = BindableProperty.Create
+    (
+        nameof(Rows),
+        typeof(int),
+        typeof(GlyphsView),
+        0,
+        BindingMode.OneWayToSource
+    );
+
+    #endregion Rows
 
     #region SelectedItemMetrics
 
@@ -518,7 +579,7 @@ class GlyphsView : SKCanvasView
 
     #endregion Properties
 
-    #region Touch
+    #region Touch Interaction
 
     protected override void OnTouch(SKTouchEventArgs e)
     {
@@ -529,6 +590,22 @@ class GlyphsView : SKCanvasView
                 SKPoint point = e.Location;
                 GlyphInfo info = HitTest(point.X, point.Y);
                 SelectedItem = info.Glyph;
+            }
+        }
+        else if (e.ActionType == SKTouchAction.WheelChanged)
+        {
+            int row = Row;
+            if (e.WheelDelta > 0)
+            {
+                row--;
+            }
+            else
+            {
+                row++;
+            }
+            if (row >= 0 && row < _rows)
+            {
+                Row = row;
             }
         }
         e.Handled = true;
@@ -550,7 +627,7 @@ class GlyphsView : SKCanvasView
         return _items[index];
     }
 
-    #endregion Touch
+    #endregion Touch Interaction
 
     #region Layout
 
@@ -558,8 +635,6 @@ class GlyphsView : SKCanvasView
     {
         int rows = 0;
         int columns = 0;
-        int pages = 0;
-        int pageRows = 0;
 
         if (_items.Count > 0)
         {
@@ -569,18 +644,19 @@ class GlyphsView : SKCanvasView
             {
                 rows++;
             }
-            pageRows = (int)(size.Height / _rowHeight);
-            pages = rows / pageRows;
-            if (rows % pageRows != 0)
-            {
-                pages++;
-            }
             _needsLayout = false;
         }
         _columns = columns;
+        if (rows > 0)
+        {
+            Row = Math.Min(_firstRow, rows - 1);
+        }
+        else
+        {
+            Row = 0;
+        }
         _rows = rows;
-        _pages = pages;
-        _pageRows = pageRows;
+        Rows = rows;
     }
 
     protected override Size ArrangeOverride(Rect bounds)
@@ -631,8 +707,9 @@ class GlyphsView : SKCanvasView
                 Style = SKPaintStyle.Fill
             })
             {
+                int firstIndex = _firstRow * columnCount;
                 // TODO: set index to the first item in the first displayed row.
-                for (int index = 0; index < _items.Count; index++)
+                for (int index = firstIndex; index < _items.Count; index++)
                 { 
                     GlyphInfo info = _items[index];
 

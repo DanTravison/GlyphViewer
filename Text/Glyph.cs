@@ -7,7 +7,7 @@ using System.Text;
 /// <summary>
 /// Defines a font family and text for a glyph.
 /// </summary>
-[DebuggerDisplay("({CodePoint,nq}) {Text}")]
+[DebuggerDisplay("({codepoint,nq}) {Text}")]
 public class Glyph : IEquatable<Glyph>
 {
     #region Fields
@@ -29,22 +29,20 @@ public class Glyph : IEquatable<Glyph>
         FontFamily = string.Empty;
         Text = string.Empty;
         Code = string.Empty;
+        Char = '\0';
         IsEmpty = true;
         CodePoint = 0;
+        Range = Unicode.Range.Empty;
     }
 
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="fontFamily">The font family to use to draw the text.</param>
-    /// <param name="codePoint">The glyph code point.</param>
-    public Glyph(string fontFamily, ushort codePoint)
+    public Glyph(string fontFamily, char ch, ushort codepoint, UnicodeCategory category, Unicode.Range range)
     {
         FontFamily = fontFamily;
-        CodePoint = codePoint;
-        Text = char.ConvertFromUtf32(codePoint);
-        Category = Char.GetUnicodeCategory((char)codePoint);
-        
+        Text = char.ConvertFromUtf32(ch);
+        CodePoint = codepoint;
+        Char = ch;
+        Category = category;
+        IsEmpty = false;
         StringBuilder sb = new();
         foreach (char c in Text)
         {
@@ -55,6 +53,7 @@ public class Glyph : IEquatable<Glyph>
             sb.AppendFormat("U+{0:X4}", (int)c);
         }
         Code = sb.ToString();
+        Range = range;
     }
 
     #endregion Constructors
@@ -77,6 +76,11 @@ public class Glyph : IEquatable<Glyph>
     public readonly string Text;
 
     /// <summary>
+    /// Gets the unicode character for the glyph.
+    /// </summary>
+    public readonly Char Char;
+
+    /// <summary>
     /// Gets the glyph code point.
     /// </summary>
     public readonly ushort CodePoint;
@@ -90,6 +94,11 @@ public class Glyph : IEquatable<Glyph>
     /// Gets the <see cref="UnicodeCategory"/>.
     /// </summary>
     public readonly UnicodeCategory Category;
+
+    /// <summary>
+    /// Gets the unicode range for the <see cref="Char"/>.
+    /// </summary>
+    public readonly Unicode.Range Range;
 
     #endregion Properties
 
@@ -150,7 +159,7 @@ public class Glyph : IEquatable<Glyph>
     /// <returns>true if the two <see cref="Glyph"/> structures are equal; otherwise, false.</returns>
     public static bool operator ==(Glyph left, Glyph right)
     {
-        return left.Equals(right);
+        return left is not null && left.Equals(right);
     }
 
     /// <summary>
@@ -161,7 +170,7 @@ public class Glyph : IEquatable<Glyph>
     /// <returns>true if the two <see cref="Glyph"/> structures are not equal; otherwise, false.</returns>
     public static bool operator !=(Glyph left, Glyph right)
     {
-        return !(left.Equals(right));
+        return !(left is not null && left.Equals(right));
     }
 
     #endregion Operator overloads

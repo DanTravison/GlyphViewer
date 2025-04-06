@@ -13,6 +13,10 @@
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"/>
         </Style>
 
+        <Style TargetType="Label" x:Key="GlyphExtendedPropertyStyle">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"/>
+        </Style>
         <DataTemplate x:Key="NameTemplate"
                       x:DataType="text:GlyphMetricProperty"
                       >
@@ -27,15 +31,33 @@
 
     </ContentView.Resources>
 
-    <controls:Grid RowHeight="Auto"
+    <VerticalStackLayout Spacing="3">
+        <controls:Grid RowHeight="Auto"
                    ColumnSpacing="3"
                    ItemsSource="{Binding}">
-        <controls:Grid.ColumnDefinitions>
-            <controls:ColumnDefinition Width="Auto"
+            <controls:Grid.ColumnDefinitions>
+                <controls:ColumnDefinition Width="Auto"
                                        ItemTemplate="{StaticResource NameTemplate}"/>
-            <controls:ColumnDefinition Width="Auto"
+                <controls:ColumnDefinition Width="Auto"
                                        ItemTemplate="{StaticResource ValueTemplate}"/>
-        </controls:Grid.ColumnDefinitions>
+            </controls:Grid.ColumnDefinitions>
 
-    </controls:Grid>
+        </controls:Grid>
+        <BoxView HeightRequest="1"
+                 Margin="5"
+                 HorizontalOptions="Fill"
+                 VerticalOptions="Center"
+                 Color="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray100}}"
+                 />
+        <Label Text="{Binding FontFamily}"
+               Style="{StaticResource GlyphExtendedPropertyStyle}"
+               />
+        <Label Text="{Binding Category}"
+               Style="{StaticResource GlyphExtendedPropertyStyle}"
+               />
+        <Label Text="{Binding Range}"
+               Style="{StaticResource GlyphExtendedPropertyStyle}"
+               />
+    </VerticalStackLayout>
+
 </ContentView>

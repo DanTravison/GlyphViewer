@@ -9,8 +9,26 @@ public sealed class GlyphMetricProperties : IEnumerable<GlyphMetricProperty>
     public GlyphMetricProperties(GlyphMetrics metrics)
     {
         _properties = GlyphMetricProperty.CreateInstance(metrics);
+        Category = metrics.Glyph.Category.ToString();
+        Range = metrics.Glyph.Range.Name;
+        FontFamily = metrics.Glyph.FontFamily;
     }
-    
+
+    public string FontFamily
+    {
+        get;
+    }
+
+    public string Category
+    {
+        get;
+    }
+
+    public string Range
+    {
+        get;
+    }
+
     public IReadOnlyList<GlyphMetricProperty> Properties
     {
         get;
