@@ -6,6 +6,17 @@
 
     <x:String x:Key="DefaultFontFamily">OpenSansRegular</x:String>
     <x:Double x:Key="DefaultFontSize">14</x:Double>
+    
+    <Style TargetType="ContentPage" 
+           ApplyToDerivedTypes="True"
+           >
+        <Setter Property="NavigationPage.HasBackButton"
+                Value="False"/>
+        <Setter Property="NavigationPage.HasNavigationBar"
+                Value="False" />
+        <Setter Property="Padding"
+                Value="0" />
+    </Style>
 
     <Style TargetType="ActivityIndicator">
         <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource White}}" />
