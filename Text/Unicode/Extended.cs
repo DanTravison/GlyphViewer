@@ -6,6 +6,7 @@
 /// <remarks>
 /// Extracted from https://github.com/character-map-uwp/Character-Map-UWP
 /// See the LICENSE file in the project root for license information.
+/// This is currently unused but remains in the project for future extensions.
 /// </remarks>
 static class Extended
 {

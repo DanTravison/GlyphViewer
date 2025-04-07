@@ -9,7 +9,7 @@ internal sealed class MainViewModel : ObservableObject
 {
     #region Fields
 
-    IEnumerable<string> _fontFamilies;
+    FontFamilyCollection _fontFamilies;
     string _selectedFontFamily;
     GlyphCollection _glyphs;
     Glyph _selectedGlyph;
@@ -56,7 +56,7 @@ internal sealed class MainViewModel : ObservableObject
         get => _rows > 0 ? _rows - 1 : 0;
     }
 
-    public IEnumerable<string> FontFamilies
+    public FontFamilyCollection FontFamilies
     {
         get => _fontFamilies;
         private set
@@ -137,11 +137,10 @@ internal sealed class MainViewModel : ObservableObject
 
     public void LoadFonts(IDispatcher dispatcher)
     {
-        List<string> fontFamilies = Fonts.GetFontFamilies();
-        fontFamilies.Sort(StringComparer.OrdinalIgnoreCase);
+        FontFamilyCollection families = FontFamilyCollection.CreateInstance();
         _ = dispatcher.DispatchAsync(() =>
         {
-            FontFamilies = fontFamilies as IEnumerable<string>;
+            FontFamilies = families;
         });
     }
 

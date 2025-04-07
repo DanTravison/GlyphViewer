@@ -8,14 +8,54 @@
              x:Class="GlyphViewer.Views.MainPage"
              x:DataType="viewmodel:MainViewModel">
 
+    <ContentPage.Resources>
+        <Style TargetType="Label" x:Key="FamilyNameStyle">
+            <Setter Property="FontSize" Value="{StaticResource DefaultFontSize}"/>
+            <Setter Property="Margin" Value="5, 0, 5, 5"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                        Value="SkyBlue" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
+    
     <Grid ColumnDefinitions="Auto, *, Auto">
-        
-        <ListView x:Name="Fonts"
-                  Grid.Column="0"
-                  ItemsSource="{Binding FontFamilies}"
-                  SelectionMode="Single"
-                  SelectedItem="{Binding SelectedFontFamily, Mode=TwoWay}"
-                  />
+
+        <CollectionView Grid.Column="0"
+                        ItemsSource="{Binding FontFamilies.Groups}"
+                        SelectionMode="Single"
+                        SelectedItem="{Binding SelectedFontFamily, Mode=TwoWay}"
+                        IsGrouped="true"
+                        >
+            <CollectionView.GroupHeaderTemplate>
+                <DataTemplate x:DataType="text:FontFamilyGroup">
+                    <Label Text="{Binding Name}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           Margin="0"
+                           TextColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
+                           />
+                </DataTemplate>
+            </CollectionView.GroupHeaderTemplate>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <Label Text="{Binding}"
+                           Style="{StaticResource FamilyNameStyle}"
+                           TextColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
+                           />
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
         <Grid Grid.Column="1" 
               ColumnDefinitions="*, Auto">

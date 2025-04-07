@@ -1,3 +1,6 @@
+Provides links to the various Unicode ranges on www.unicode.org
+
+
 https://www.unicode.org/charts/PDF/U10FF80.pdf
 https://www.unicode.org/charts/PDF/U100000.pdf
 https://www.unicode.org/charts/PDF/10FF80.pdf
