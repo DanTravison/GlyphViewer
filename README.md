@@ -11,27 +11,39 @@ The need for this came out of another project where I display a piano keyboard
 and associated sheet music.  
 
 I had been using [Character Map UWP](https://github.com/character-map-uwp/Character-Map-UWP)
-to survey the various open source fonts
+to survey the various open source fonts but found I needed to visualize the metrics (e.g. baseline,
+ascent, descent, etc.) for the glyphs in a typeface to determine how to align the glyphs on 
+the staff lines.
 
 For example, some glyphs need to be centered on the staff lines using the glyph's height, 
 while others need the baseline aligned to a staff line, space, or ledger line, and 
-and a few needed custom logic.
-
-Finally, while the project is currently tested only on Windows, my intent is to 
-test on iOS, MacCatalyst, and Android to aid in my testing of the sheet music rendering
-on those platforms.
+and a few needed custom logic.  Finally, some annotations need to be aligned relative
+to the staff itself or notes, such as articulations, accidentals, tempo and dynamic markings.
 
 The resulting Glyph and Metrics visualization:
 ![Glyph View](images/GlyphView.png)
 
-## The project structure
+# Status
+* The project is a work in progress.
+  * The logic for enumerating glyphs in a typeface is a work in progress. 
+  * The range of Unicode characters is current 0x0000-0xFFFF.
+* Testing is manual on Windows.
+  * Testing on iOS, MacCatalyst, and Android is planned.
+* The GlyphsView is still rather minimal. I'm considering the following changes:
+  * Group glyphs by Unicode range and jump list support.
+  * Display the text code for each glyph.
+
+# The project structure
 
 ## Views
 * MainPage: The application's main page
-  * Presents the font family list, GlyphsView, GlyphView and MetricsView 
-* GlyphsView: The view of the glyphs rendered on a SkCanvasView
+  * Presents the HeaderView, FontFamiliesView, GlyphsView, GlyphView and MetricsView 
+* GlyphsView: The view of the glyphs in a typeface rendered on a SkCanvasView
 * GlyphView: The view of the selected glyph rendered on a SkCanvasView
 * MetricsView: The view of the glyph properties.
+* FontFamiliesView: The list of available fonts (typefaces) grouped by the first letter of the typeface name..
+* FamilyGroupPicker: A jump list to select a font family group.
+* HeaderView: The header for the main page.
 
 ## Text
 Contains the various Glyph classes:
@@ -48,20 +60,21 @@ Contains the various Glyph classes:
 * Range: A Unicode range
 * Ranges: the set of Unicode ranges in 0x0000-0xFFFF
 * Extended: The set of Unicode ranges from 0x10000 through 0x100000
-  * NOTE: These are from [Character Map UWP](https://github.com/character-map-uwp/Character-Map-UWP) 
+  * NOTE: These are extracted from [Character Map UWP](https://github.com/character-map-uwp/Character-Map-UWP) 
+  * See the associated [LICENSE](https://github.com/character-map-uwp/Character-Map-UWP/blob/master/LICENSE) 
 
-## Controls\Grid
+# Controls\Grid
 A derived Maui grid that supports data binding.
-The top portion of the Glyph metrics is displayed using this control.
+This is used to display the list of glyph metric properties.
+Most of the capabilities for column sizing are not being used.
 
 ## Controls\Slider
 A simple slider that supports vertical and horizontal orientations.
-I needed an alternative to a ScrollView so I can, essentially, virtualize
-the SKCanvas instead of creating a canvas sufficient to display all items.
+This is used to scroll the GlyphsView content versus scrolling a large SKCanvasView.
 
 ## Other
 * ExtendedUnicode.txt: A text file containing links to the Unicode ranges on www.unicode.org
-* ObjectModel/ObservableObject: A simple implementation of INotifyPropertyChanged
+* ObjectModel/ObservableObject: An implementation of INotifyPropertyChanged
 
 ## Dependencies
 * SkiaSharp.Views.Maui.Controls: 3.116.1

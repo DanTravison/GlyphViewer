@@ -1,6 +1,6 @@
 ﻿namespace GlyphViewer;
 
-using CodeCadence.Resources;
+using GlyphViewer.Resources;
 using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 

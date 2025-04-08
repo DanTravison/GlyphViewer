@@ -8,92 +8,22 @@
              x:Class="GlyphViewer.Views.MainPage"
              x:DataType="viewmodel:MainViewModel">
 
-    <ContentPage.Resources>
-        <Style TargetType="Label" x:Key="FamilyNameStyle">
-            <Setter Property="FontSize" Value="{StaticResource DefaultFontSize}"/>
-            <Setter Property="Margin" Value="5, 0, 5, 5"/>
-            <Setter Property="VisualStateManager.VisualStateGroups">
-                <VisualStateGroupList>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="Normal" />
-                        <VisualState x:Name="PointerOver">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor"
-                                        Value="SkyBlue" />
-                            </VisualState.Setters>
-                        </VisualState>
+    <!-- NOTE: Placing ContentView directly in a '*' row can cause
+         the content to overflow the row. Use 'Auto,*' as a workaround.
+    -->
+    <Grid RowDefinitions="Auto, Auto, *">
+        
+        <views:HeaderView Grid.Row="0"/>
+ 
+        <Grid Grid.Row="1" 
+              Grid.RowSpan="2"
+              ColumnDefinitions="Auto, *, Auto, Auto"
+              Margin="10, 5, 10, 5">
+        
+            <views:FontFamiliesView Grid.Column="0"
+                                    BindingContext="{Binding}"/>
 
-                    </VisualStateGroup>
-                </VisualStateGroupList>
-            </Setter>
-        </Style>
-
-        <Style TargetType="Label" x:Key="TitleLabelStyle">
-            <Setter Property="FontSize" Value="24"/>
-            <Setter Property="FontAttributes" Value="Bold"/>
-            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
-        </Style>
-    </ContentPage.Resources>
-    
-    <Grid ColumnDefinitions="Auto, *, Auto"
-          RowDefinitions="Auto, *"
-          Margin="10, 5, 10, 5">
-        <Grid ColumnDefinitions="1*,2*, 1*"
-              RowDefinitions="Auto, Auto"
-              Grid.Row="0"
-              Grid.Column="0"
-              Grid.ColumnSpan="3">
-            <Label Text="Glyph Viewer"
-                   Style="{StaticResource TitleLabelStyle}"
-                   Grid.Column="0"
-                   Grid.Row="0"
-                   />
-            <Label Text="{Binding SelectedFontFamily}"
-                   Style="{StaticResource TitleLabelStyle}"
-                   HorizontalOptions="Center"
-                   Grid.Column="1"
-                   Grid.Row="0"
-                   />
-            <BoxView Grid.Row="1"
-                     Grid.Column="0"
-                     Grid.ColumnSpan="3"
-                     HeightRequest="2"
-                     Margin="0,0,0,5"
-                     Color="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray100}}"
-                     />
-        </Grid>
-        <CollectionView Grid.Column="0"
-                        Grid.Row="1"
-                        ItemsSource="{Binding FontFamilies.Groups}"
-                        SelectionMode="Single"
-                        SelectedItem="{Binding SelectedFontFamily, Mode=TwoWay}"
-                        IsGrouped="true"
-                        >
-            <CollectionView.GroupHeaderTemplate>
-                <DataTemplate x:DataType="text:FontFamilyGroup">
-                    <Label Text="{Binding Name}"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           Margin="0"
-                           TextColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
-                           />
-                </DataTemplate>
-            </CollectionView.GroupHeaderTemplate>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="x:String">
-                    <Label Text="{Binding}"
-                           Style="{StaticResource FamilyNameStyle}"
-                           TextColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
-                           />
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-        <Grid Grid.Column="1" 
-              Grid.Row="1"
-              ColumnDefinitions="*, Auto">
-            
-            <views:GlyphsView Grid.Column="0" 
+            <views:GlyphsView Grid.Column="1"
                               Items="{Binding Glyphs, Mode=OneWay}"
                               ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               BackgroundColor="Transparent"
@@ -102,35 +32,31 @@
                               Row="{Binding Row}"
                               Rows="{Binding Rows, Mode=OneWayToSource}"
                               />
-            <controls:Slider Grid.Column="1"
+            <controls:Slider Grid.Column="2"
                              Minimum="0"
                              Maximum="{Binding MaxRow, Mode=OneWay}"
                              Interval="1"
                              Value="{Binding Row, Mode=TwoWay}"
                              Orientation="Vertical"
                              />
+
+            <Grid RowDefinitions="Auto, *" 
+                  Grid.Column="3"
+                  RowSpacing="5"
+                  >
+                <views:GlyphView Grid.Row="0" Glyph="{Binding SelectedGlyph, Mode=OneWay}"
+                                   FontSize="128"
+                                   BackgroundColor="WhiteSmoke"
+                                   LineColor="Red"
+                                   BaselineColor="Green"
+                                   MinimumHeightRequest="300"
+                                   MinimumWidthRequest="300"
+                                   />
+
+                <views:MetricsView Grid.Row="1" x:DataType="text:GlyphMetricProperties"
+                                   BindingContext="{Binding SelectedGlyphProperties}"
+                                   />
+            </Grid>
         </Grid>
-
-        <StackLayout Orientation="Vertical"
-                     Spacing="5"
-                     VerticalOptions="Start"
-                     Grid.Column="2"
-                     Grid.Row="1"
-                     >
-  
-            <views:GlyphView Glyph="{Binding SelectedGlyph, Mode=OneWay}"
-                             FontSize="128"
-                             BackgroundColor="WhiteSmoke"
-                             LineColor="Red"
-                             BaselineColor="Green"
-                             MinimumHeightRequest="300"
-                             MinimumWidthRequest="300"
-                             />
-
-            <views:MetricsView x:DataType="text:GlyphMetricProperties"
-                               BindingContext="{Binding SelectedGlyphProperties}"
-                               />
-        </StackLayout>
-
     </Grid>
 </ContentPage>

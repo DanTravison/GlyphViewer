@@ -3,7 +3,7 @@
 // Font Source: https://github.com/microsoft/fluentui-system-icons v1.1.201
 // See https://github.com/microsoft/fluentui-system-icons/blob/main/LICENSE
 // for licensing.
-namespace CodeCadence.Resources;
+namespace GlyphViewer.Resources;
 
 internal static class FluentUI
 {

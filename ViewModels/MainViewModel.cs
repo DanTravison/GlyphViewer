@@ -4,12 +4,14 @@ using GlyphViewer.ObjectModel;
 using GlyphViewer.Text;
 using SkiaSharp;
 using System.ComponentModel;
+using System.Windows.Input;
 
 internal sealed class MainViewModel : ObservableObject
 {
     #region Fields
 
     FontFamilyCollection _fontFamilies;
+    FontFamilyGroup _selectedGroup;
     string _selectedFontFamily;
     GlyphCollection _glyphs;
     Glyph _selectedGlyph;
@@ -23,9 +25,15 @@ internal sealed class MainViewModel : ObservableObject
     public MainViewModel(IDispatcher dispatcher)
     {
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
+        GroupHeaderTapCommand = new Command(OnTapHeader);
     }
 
     #region Properties
+
+    public ICommand GroupHeaderTapCommand
+    {
+        get;
+    }
 
     public int Row
     {
@@ -131,7 +139,29 @@ internal sealed class MainViewModel : ObservableObject
         private set;
     }
 
+    public FontFamilyGroup SelectedFamilyGroup
+    {
+        get => _selectedGroup;
+        set
+        {
+            if (!ReferenceEquals(_selectedGroup, value))
+            {
+                _selectedGroup = value;
+                /*
+                if (_selectedGroup is not null)
+                {
+                    SelectedFontFamily = _selectedGroup[0];
+                }
+                */
+                OnPropertyChanged(SelectedFamilyGroupChangedEventArgs);
+            }
+        }
+    }
+
     #endregion Properties
+
+    void OnTapHeader()
+    { }
 
     #region Font Info Loading
 
@@ -173,6 +203,8 @@ internal sealed class MainViewModel : ObservableObject
     static readonly PropertyChangedEventArgs FontFamiliesChangedEventArgs = new(nameof(FontFamilies));
     static readonly PropertyChangedEventArgs SelectedFontChangedEventArgs = new(nameof(SelectedFontFamily));
     static readonly PropertyChangedEventArgs GlyphsChangedEventArgs = new(nameof(Glyphs));
+
+    public static readonly PropertyChangedEventArgs SelectedFamilyGroupChangedEventArgs = new(nameof(SelectedFamilyGroup));
 
     static readonly PropertyChangedEventArgs SelectedGlyphChangedEventArgs = new(nameof(SelectedGlyph));
     static readonly PropertyChangedEventArgs SelectedGlyphPropertiesChangedEventArgs = new(nameof(SelectedGlyphProperties));
