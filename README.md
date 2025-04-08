@@ -21,7 +21,7 @@ and a few needed custom logic.  Finally, some annotations need to be aligned rel
 to the staff itself or notes, such as articulations, accidentals, tempo and dynamic markings.
 
 The resulting Glyph and Metrics visualization:
-![Glyph View](images/GlyphView.png)
+![Glyph View](Images/GlyphView.png)
 
 # Status
 * The project is a work in progress.
