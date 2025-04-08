@@ -78,8 +78,15 @@ internal class SliderDrawable
         set
         {
             value = Math.Max(0, value - _parent.Minimum);
-            ThumbLocation = (float)Scale(value, _parent.Maximum - _parent.Minimum, _drawRegion.Range)
+            if (value > 0)
+            {
+                ThumbLocation = (float)Scale(value, _parent.Maximum - _parent.Minimum, _drawRegion.Range)
                 + _drawRegion.Start;
+            }
+            else
+            {
+                ThumbLocation = _drawRegion.Start;
+            }
         }
     }
 
