@@ -20,15 +20,15 @@ while others need the baseline aligned to a staff line, space, or ledger line, a
 and a few needed custom logic.  Finally, some annotations need to be aligned relative
 to the staff itself or notes, such as articulations, accidentals, tempo and dynamic markings.
 
-<div align="center">
-<p>The resulting Glyph and Metrics visualization</p>
+<p align="center">The resulting Glyph and Metrics visualization</p>
+<p align="center">
 <img src="https://github.com/DanTravison/GlyphViewer/blob/main/Images/GlyphView.png" width="25%" height="25%">
-</div>
+</p>
 
 # Status
 * The project is a work in progress.
   * The logic for enumerating glyphs in a typeface is a work in progress. 
-  * The range of Unicode characters is current 0x0000-0xFFFF.
+  * The range of Unicode characters is currently 0x0000-0xFFFF.
 * Testing is manual on Windows.
   * Testing on iOS, MacCatalyst, and Android is planned.
 * The GlyphsView is still rather minimal. I'm considering the following changes:
@@ -65,7 +65,7 @@ Contains the various Glyph classes:
   * NOTE: These are extracted from [Character Map UWP](https://github.com/character-map-uwp/Character-Map-UWP) 
   * See the associated [LICENSE](https://github.com/character-map-uwp/Character-Map-UWP/blob/master/LICENSE) 
 
-# Controls\Grid
+## Controls\Grid
 A derived Maui grid that supports data binding.
 This is used to display the list of glyph metric properties.
 Most of the capabilities for column sizing are not being used.
