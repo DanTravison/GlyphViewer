@@ -20,8 +20,10 @@ while others need the baseline aligned to a staff line, space, or ledger line, a
 and a few needed custom logic.  Finally, some annotations need to be aligned relative
 to the staff itself or notes, such as articulations, accidentals, tempo and dynamic markings.
 
-The resulting Glyph and Metrics visualization:
-![Glyph View](Images/GlyphView.png)
+<div align="center">
+<p>The resulting Glyph and Metrics visualization</p>
+<img src="https://github.com/DanTravison/GlyphViewer/blob/main/Images/GlyphView.png" width="25%" height="25%">
+</div>
 
 # Status
 * The project is a work in progress.
