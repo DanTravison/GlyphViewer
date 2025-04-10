@@ -18,11 +18,13 @@ class HeaderRow : GlyphRowBase, IGlyphRow
     /// </summary>
     /// <param name="context">The <see cref="DrawContext"/> to use to draw the row.</param>
     /// <param name="range">The <see cref="Text.Unicode.Range"/> of the <see cref="HeaderRow"/>.</param>
-    public HeaderRow(DrawContext context, Text.Unicode.Range range)
+    /// <param name="previous">The previous <see cref="HeaderRow"/>.</param>
+    public HeaderRow(DrawContext context, Text.Unicode.Range range, HeaderRow previous)
         : base(context)
     {
         Name = range.Name;
         Id = range.Id;
+        Previous = previous;
     }
 
     #region Properties
@@ -41,9 +43,9 @@ class HeaderRow : GlyphRowBase, IGlyphRow
     public string Name { get; }
 
     /// <summary>
-    /// Gets the next <see cref="HeaderRow"/>
+    /// Gets the previous <see cref="HeaderRow"/>
     /// </summary>
-    public HeaderRow Next
+    public HeaderRow Previous
     {
         get;
         private set;
@@ -62,24 +64,35 @@ class HeaderRow : GlyphRowBase, IGlyphRow
     {
         _metrics = new SKTextMetrics(Name, Context.HeaderFont);
         float height = _metrics.Size.Height + Context.VerticalSpacing * 2;
-        _baseLine = location.Y + Context.VerticalSpacing - _metrics.Ascent;
+        _baseLine = Context.VerticalSpacing - _metrics.Ascent;
         Bounds = new SKRect(location.X, location.Y, location.X + width, location.Y + height);
     }
 
     /// <summary>
-    /// Draws the <see cref="HeaderRow"/> on the specified canvas.
+    /// Draws the <see cref="HeaderRow"/> on the specified canvas at the current <see cref="GlyphRowBase.Bounds"/>.
     /// </summary>
     /// <param name="canvas">The <see cref="SKCanvas"/> to draw to.</param>
     /// <param name="paint">The <see cref="SKPaint"/> to use to draw.</param>
     public void Draw(SKCanvas canvas, SKPaint paint)
     {
+        Draw(canvas, paint, Bounds.Location);
+    }
+
+    /// <summary>
+    /// Draws the <see cref="HeaderRow"/> on the specified canvas at the specified <paramref name="location"/>.
+    /// </summary>
+    /// <param name="canvas">The <see cref="SKCanvas"/> to draw to.</param>
+    /// <param name="paint">The <see cref="SKPaint"/> to use to draw.</param>
+    /// <param name="location"> The location to draw the <see cref="HeaderRow"/>.</param>
+    public void Draw(SKCanvas canvas, SKPaint paint, SKPoint location)
+    {
         paint.Color = Context.HeaderColor;
         canvas.DrawText
         (
-            Name, 
-            Bounds.Left, 
-            _baseLine, 
-            Context.HeaderFont, 
+            Name,
+            location.X,
+            location.Y + _baseLine,
+            Context.HeaderFont,
             paint
         );
     }

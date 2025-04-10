@@ -7,7 +7,6 @@ using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using System.Text.Json.Serialization;
 using Range = Text.Unicode.Range;
 
 /// <summary>
@@ -860,6 +859,7 @@ public sealed class GlyphsView : SKCanvasView
             GlyphRow row = null; 
             float columnWidth = _context.ColumnWidth;
             Range currentRange = Range.Empty;
+            HeaderRow header = null;
 
             for (int i = 0; i < _items.Count; i++)
             { 
@@ -867,9 +867,14 @@ public sealed class GlyphsView : SKCanvasView
                 Range range = metrics.Glyph.Range;
                 if (range != currentRange)
                 {
-                    HeaderRow header = new(_context, range);
+                    header = new(_context, range, header);
                     _headers.Add(header.Id, header);
-                    _rows.Add(header);
+                    // NOTE: The header row for the first row is not added to the list.
+                    // To avoid the header being drawn twice for the first glyph group.
+                    if (_rows.Count > 0)
+                    {
+                        _rows.Add(header);
+                    }
                     currentRange = range;
                     row = null;
                 }
@@ -935,6 +940,15 @@ public sealed class GlyphsView : SKCanvasView
                 Style = SKPaintStyle.Fill
             })
             {
+                HeaderRow header = GetHeaderRow();
+                if (header is not null)
+                {
+                    // Draw the header row in the header area
+                    // above the list.
+                    header.Arrange(new SKPoint(x, y), width);
+                    header.Draw(canvas, paint);
+                    y += header.Bounds.Height;
+                }
                 for (int i = _firstRow; i < _rows.Count; i++)
                 {
                     IGlyphRow row = _rows[i];
@@ -950,38 +964,37 @@ public sealed class GlyphsView : SKCanvasView
         }
     }
 
-#if (false)
-    void DrawGlyph(GlyphMetrics metrics, SKCanvas canvas, SKPaint paint, float x, float y)
+    HeaderRow GetHeaderRow()
     {
-        float top = y + (_rowHeight - metrics.Size.Height) / 2;
-        float start = x + (_columnWidth - metrics.Size.Width) / 2;
-        float baseLine = top - metrics.Ascent;
-        float strokeWidth = 2;
-
-        paint.Style = SKPaintStyle.Fill;
-        paint.Color = ItemColor.ToSKColor();
-        canvas.DrawText(metrics.Glyph.Text, start, baseLine, SKTextAlign.Left, _glyphFont, paint);
-
-        if (ReferenceEquals(_selectedItem.Glyph, metrics.Glyph))
+        HeaderRow result = null;
+        do
         {
-            float horizontalSpacing = (float)HorizontalSpacing;
-            float verticalSpacing = (float)VerticalSpacing;
-            SKRect bounds = new SKRect
-            (
-                x + strokeWidth / 2,
-                y + strokeWidth / 2,
-                x + _columnWidth - strokeWidth / 2,
-                y + _rowHeight - strokeWidth / 2
-            );
-            paint.Color = SelectedItemColor.ToSKColor();
-            paint.Style = SKPaintStyle.Stroke;
-            paint.StrokeWidth = 2;
+            if (_rows.Count == 0)
+            {
+                break;
+            }
 
-            canvas.DrawRect(bounds, paint);
-        }
+            IGlyphRow row = _rows[_firstRow];
+            if (row is GlyphRow glyphRow)
+            {
+                uint id = glyphRow[0].Glyph.Range.Id;
+                result = _headers[id];
+                break;
+            }
 
+            if (row is HeaderRow headerRow)
+            {
+                // NOTE: We don't update the header area until the first row is a GlyphRow.
+                // otherwise, the top of the list will be a  duplicate of the header area.
+                // Also, if there is no previous row, we are at the first group in the list.
+                result = headerRow.Previous ?? headerRow;
+            }
+
+        } while (false);
+
+        return result;
     }
-#endif
+
 
     #endregion Draw
 }
