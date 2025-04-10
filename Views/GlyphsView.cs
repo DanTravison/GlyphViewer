@@ -7,6 +7,7 @@ using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using Range = Text.Unicode.Range;
 
 /// <summary>
@@ -109,6 +110,7 @@ public sealed class GlyphsView : SKCanvasView
     readonly Dictionary<ushort, GlyphMetrics> _glyphs = [];
     readonly List<IGlyphRow> _rows = [];
     readonly DrawContext _context;
+    readonly Dictionary<uint, HeaderRow> _headers = [];
 
     #endregion Fields
 
@@ -851,6 +853,7 @@ public sealed class GlyphsView : SKCanvasView
     void LayoutItems(SKSize size)
     {
         _rows.Clear();
+        _headers.Clear();
 
         if (_items.Count > 0)
         {
@@ -864,7 +867,8 @@ public sealed class GlyphsView : SKCanvasView
                 Range range = metrics.Glyph.Range;
                 if (range != currentRange)
                 {
-                    HeaderRow header = new(_context, range.Name);
+                    HeaderRow header = new(_context, range);
+                    _headers.Add(header.Id, header);
                     _rows.Add(header);
                     currentRange = range;
                     row = null;
