@@ -17,19 +17,37 @@ class HeaderRow : GlyphRowBase, IGlyphRow
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="context">The <see cref="DrawContext"/> to use to draw the row.</param>
-    /// <param name="name">The <see cref="Text.Unicode.Range.Name"/> of the <see cref="HeaderRow"/>.</param>
-    public HeaderRow(DrawContext context, string name)
+    /// <param name="range">The <see cref="Text.Unicode.Range"/> of the <see cref="HeaderRow"/>.</param>
+    public HeaderRow(DrawContext context, Text.Unicode.Range range)
         : base(context)
     {
-        Name = name;
+        Name = range.Name;
+        Id = range.Id;
     }
 
     #region Properties
 
     /// <summary>
+    /// Gets the <see cref="Text.Unicode.Range.Id"/> for the associated Glyphs.
+    /// </summary>
+    public uint Id
+    {
+        get;
+    }
+
+    /// <summary>
     /// Gets the name of the <see cref="Glyph"/> group.
     /// </summary>
     public string Name { get; }
+
+    /// <summary>
+    /// Gets the next <see cref="HeaderRow"/>
+    /// </summary>
+    public HeaderRow Next
+    {
+        get;
+        private set;
+    }
 
     #endregion Properties
 
