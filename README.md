@@ -1,4 +1,5 @@
 # GlyphViewer
+
 Provides an experimental view of individual glyphs in a typeface 
 displaying the Glyph and associated metrics using SkiaSharp.
 
@@ -47,10 +48,20 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * FamilyGroupPicker: A jump list to select a font family group.
 * HeaderView: The header for the main page.
 
+## Views/Renderers
+* IGlyphRow: Interface for the GlyphRow and HeaderRow classes
+* GlyphRowBase: Base class for header and glyph rows
+* HeaderRow: A row in the GlyphsView for each Unicode range.
+* GlyphRow: A row in the Glyphs
+* DrawingContext: The context for drawing the glyphs and rows
+  * Contains the various fonts, colors, and spacing metrics used by the renderers
+  * Called by various GlyphsView properties to synchronize changes needed for rendering.
+
 ## Text
 Contains the various Glyph classes:
 * Glyph: The basic Glyph class
-* GlyphMetrics: Metrics for the glyph derived from measuring the associated text.
+* SKTextMetrics: Provides general text measurement metrics.
+* GlyphMetrics: Provides text metrics for the glyph.
 * GlyphProperty: A simple name/value class for a given property on the Glyph and GlyphMetrics
 * GlyphMetricsProperties: A simple collection of GlyphProperty
 * Fonts: A couple of extension methods.

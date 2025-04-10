@@ -8,7 +8,7 @@ using System.Globalization;
 /// <summary>
 /// Provides a <see cref="Glyph"/> collection for the glyphs in a <see cref="SKTypeface"/>.
 /// </summary>
-class GlyphCollection : IReadOnlyList<Glyph>
+public sealed class GlyphCollection : IReadOnlyList<Glyph>
 {
     #region Fields
 
@@ -127,5 +127,5 @@ class GlyphCollection : IReadOnlyList<Glyph>
 
     }
 
-#endregion CreateInstance
+    #endregion CreateInstance
 }
