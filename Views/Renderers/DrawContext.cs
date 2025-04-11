@@ -10,7 +10,7 @@ sealed class DrawContext : IDisposable
 
     SKFont _headerFont;
     SKFont _itemFont;
- 
+
     delegate void PropertyChangedHandler(GlyphsView view, DrawContext context);
     static readonly Dictionary<string, PropertyChangedHandler> _handlers = new(StringComparer.Ordinal);
 
@@ -81,7 +81,7 @@ sealed class DrawContext : IDisposable
             if (_headerFont is null)
             {
                 _headerFont = GetFont(HeaderFontFamily, HeaderFontSize, HeaderFontStyle);
-            }   
+            }
             return _headerFont;
         }
     }
@@ -129,7 +129,7 @@ sealed class DrawContext : IDisposable
     }
     static void OnHeaderColorChanged(GlyphsView view, DrawContext context)
     {
-        context.HeaderColor =  view.HeaderColor.ToSKColor();
+        context.HeaderColor = view.HeaderColor.ToSKColor();
     }
 
     public SKColor HeaderBackgroundColor

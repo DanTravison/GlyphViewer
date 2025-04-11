@@ -2,7 +2,8 @@
 <?xaml-comp compile="true" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:GlyphViewer.Controls">
 
     <x:String x:Key="DefaultFontFamily">OpenSansRegular</x:String>
     <x:Double x:Key="DefaultFontSize">14</x:Double>
@@ -18,9 +19,10 @@
                 Value="0" />
     </Style>
 
-    <Style TargetType="Label" x:Key="FamilyNameStyle">
+    <Style TargetType="Label" x:Key="NameStyle">
         <Setter Property="FontSize" Value="{StaticResource DefaultFontSize}"/>
         <Setter Property="Margin" Value="5, 0, 5, 5"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
@@ -34,6 +36,15 @@
                 </VisualStateGroup>
             </VisualStateGroupList>
         </Setter>
+    </Style>
+
+    <Style TargetType="controls:JumpList">
+        <Setter Property="BackgroundColor"
+                Value="{AppThemeBinding Light=WhiteSmoke, Dark={StaticResource PrimaryDarkText}}"/>
+    </Style>
+    
+    <Style TargetType="Label" x:Key="JumpListItemStyle" BasedOn="{StaticResource NameStyle}">
+        <Setter Property="HorizontalTextAlignment" Value="Center"/>
     </Style>
 
     <Style TargetType="ActivityIndicator">

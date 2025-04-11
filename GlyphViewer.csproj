@@ -72,7 +72,7 @@
 	  <MauiXaml Update="Controls\Grid\Grid.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\FamilyGroupPicker.xaml">
+	  <MauiXaml Update="Controls\JumpList.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\FontFamiliesView.xaml">

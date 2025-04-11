@@ -56,14 +56,14 @@ public class GlyphMetrics : SKTextMetrics, IEquatable<GlyphMetrics>
     /// <returns>true if the specified <paramref name="other"/> is equal to the current instance; otherwise, false.</returns>
     public bool Equals(GlyphMetrics other)
     {
-        return 
+        return
         (
             other is not null
             &&
-            Glyph == other.Glyph 
-            && 
-            FontSize == other.FontSize 
-            && 
+            Glyph == other.Glyph
+            &&
+            FontSize == other.FontSize
+            &&
             FamilyName == other.FamilyName
         );
     }

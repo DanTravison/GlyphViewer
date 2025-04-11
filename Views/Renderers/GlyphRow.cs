@@ -4,7 +4,7 @@ using GlyphViewer.Text;
 using SkiaSharp;
 using System.Diagnostics;
 
-[DebuggerDisplay("{StartIndex, nq}->{EndIndex, nq} ({Count, nq})")]
+[DebuggerDisplay("GlyphRow [{Count, nq}]")]
 class GlyphRow : GlyphRowBase, IGlyphRow
 {
     #region Fields
@@ -35,7 +35,7 @@ class GlyphRow : GlyphRowBase, IGlyphRow
     {
         get => _items[column];
         set => _items[column] = value;
-    }   
+    }
 
     /// <summary>
     /// Gets the number of glyphs in the row.

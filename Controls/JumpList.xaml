@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:GlyphViewer.Controls"
+             xmlns:res="clr-namespace:GlyphViewer.Resources"
+             x:Class="GlyphViewer.Controls.JumpList"
+             IsVisible="False"
+             ZIndex="-1"
+             x:DataType="local:JumpList"
+             >
+    <ContentView.Resources>
+        <Style TargetType="Button" x:Key="JumpListCloseButtonStyle">
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
+            <Setter Property="BackgroundColor" Value="Transparent"/>
+            <Setter Property="FontFamily" Value="FluentUI"/>
+            <Setter Property="FontSize" Value="30"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="Text" Value="{x:Static res:FluentUI.DismissCircle}"/>
+        </Style>
+    </ContentView.Resources>
+    
+    <ContentView.ControlTemplate>
+        <ControlTemplate>
+            <Grid ColumnDefinitions="*, Auto"
+                  RowDefinitions="Auto, *">
+                <CollectionView Grid.Column="0"
+                                Grid.Row="0"
+                                Grid.RowSpan="2"
+                                ItemsSource="{TemplateBinding ItemsSource, Mode=OneWay}"
+                                SelectedItem="{TemplateBinding SelectedItem, Mode=OneWayToSource}"
+                                ItemTemplate="{TemplateBinding ItemTemplate}"
+                                SelectionMode="Single"
+                                SelectionChanged="OnClose"
+                                />
+                <Button Grid.Column="1"
+                        Grid.Row="0"
+                        Style="{StaticResource JumpListCloseButtonStyle}"
+                        Clicked="OnClose"
+                        />
+            </Grid>
+        </ControlTemplate>
+    </ContentView.ControlTemplate>
+</ContentView>

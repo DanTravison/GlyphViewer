@@ -7,6 +7,7 @@ using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using Range = Text.Unicode.Range;
 
 /// <summary>
@@ -110,6 +111,8 @@ public sealed class GlyphsView : SKCanvasView
     readonly List<IGlyphRow> _rows = [];
     readonly DrawContext _context;
     readonly Dictionary<uint, HeaderRow> _headers = [];
+    readonly List<Range> _unicodeRanges = [];
+    HeaderRow _currentHeader;
 
     #endregion Fields
 
@@ -165,7 +168,7 @@ public sealed class GlyphsView : SKCanvasView
                 }
             }
             return MinimumSpacing;
-         }, 
+        },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
             if (bindable is GlyphsView view)
@@ -539,6 +542,31 @@ public sealed class GlyphsView : SKCanvasView
 
     #endregion HeaderFontAttributes
 
+    #region HeaderClickedCommand
+
+    /// <summary>
+    /// Gets or sets the <see cref="ICommand"/> to invoke when a header is clicked.
+    /// </summary>
+    public ICommand HeaderClickedCommand
+    {
+        get => GetValue(HeaderClickedCommandProperty) as ICommand;
+        set => SetValue(HeaderClickedCommandProperty, value);
+    }
+
+    /// <summary>
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="HeaderClickedCommand"/> property.
+    /// </summary>
+    public static readonly BindableProperty HeaderClickedCommandProperty = BindableProperty.Create
+    (
+        nameof(HeaderClickedCommandProperty),
+        typeof(ICommand),
+        typeof(GlyphsView),
+        null,
+        BindingMode.OneWay
+    );
+
+    #endregion HeaderClickedCommand
+
     #region Items
 
     /// <summary>
@@ -573,10 +601,12 @@ public sealed class GlyphsView : SKCanvasView
         _items.Clear();
         _glyphs.Clear();
         _rows.Clear();
+        List<Range> ranges = [];
         if (Items is not null && Items.Count > 0)
         {
             float height = 0;
             float width = 0;
+            Range range = Range.Empty;
             using (SKPaint paint = new SKPaint() { IsAntialias = true })
             {
                 foreach (Glyph glyph in Items)
@@ -591,6 +621,11 @@ public sealed class GlyphsView : SKCanvasView
                     if (metrics.Size.Height == 0)
                     {
                         continue;
+                    }
+                    if (metrics.Glyph.Range != range)
+                    {
+                        range = metrics.Glyph.Range;
+                        ranges.Add(range);
                     }
                     height = Math.Max(metrics.Size.Height, height);
                     width = Math.Max(metrics.TextWidth, width);
@@ -608,6 +643,7 @@ public sealed class GlyphsView : SKCanvasView
             _glyphFont?.Dispose();
             _glyphFont = null;
         }
+        UnicodeRanges = ranges;
         Row = 0;
         _needsLayout = true;
         InvalidateSurface();
@@ -699,7 +735,7 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public GlyphMetrics SelectedItemMetrics
     {
-        get => (GlyphMetrics) GetValue(SelectedItemMetricsProperty);
+        get => (GlyphMetrics)GetValue(SelectedItemMetricsProperty);
         set => SetValue(SelectedItemMetricsProperty, value);
     }
 
@@ -790,6 +826,90 @@ public sealed class GlyphsView : SKCanvasView
 
     #endregion SelectedItem
 
+    #region UnicodeRanges
+
+    /// <summary>
+    /// Gets or sets the the number of rows
+    /// </summary>
+    public IReadOnlyList<Range> UnicodeRanges
+    {
+        get => GetValue(UnicodeRangesProperty) as IReadOnlyList<Range>;
+        private set => SetValue(UnicodeRangesProperty, value);
+    }
+
+    /// <summary>
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="UnicodeRanges"/> property.
+    /// </summary>
+    public static readonly BindableProperty UnicodeRangesProperty = BindableProperty.Create
+    (
+        nameof(UnicodeRanges),
+        typeof(IReadOnlyList<Range>),
+        typeof(GlyphsView),
+        null,
+        BindingMode.OneWayToSource
+    );
+
+    #endregion UnicodeRanges
+
+    #region SelectedUnicodeRange
+
+    /// <summary>
+    /// Gets or sets the selected unicode range.
+    /// </summary>
+    public Range SelectedUnicodeRange
+    {
+        get => GetValue(SelectedUnicodeRangeProperty) as Range;
+        private set => SetValue(SelectedUnicodeRangeProperty, value);
+    }
+
+    /// <summary>
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="SelectedUnicodeRange"/> property.
+    /// </summary>
+    public static readonly BindableProperty SelectedUnicodeRangeProperty = BindableProperty.Create
+    (
+        nameof(SelectedUnicodeRange),
+        typeof(Range),
+        typeof(GlyphsView),
+        Range.Empty,
+        BindingMode.OneWay,
+        coerceValue: (bindable, value) =>
+        {
+            if (value is Range range)
+            {
+                return range;
+            }
+            return Range.Empty;
+        },
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            if (bindable is GlyphsView view)
+            {
+                view.OnSelectedUnicodeRangeChanged();
+            }
+        }
+    );
+
+    void OnSelectedUnicodeRangeChanged()
+    {
+        Range range = SelectedUnicodeRange;
+        if (!range.IsEmpty && _headers.TryGetValue(range.Id, out HeaderRow header))
+        {
+            int row = _rows.IndexOf(header);
+            if (row >= 0 && row < _rows.Count - 1)
+            {
+                // if not the first row
+                if (row > 0)
+                {
+                    // go to the first row after the header row.
+                    row++;
+                }
+                Row = row;
+            }
+        }
+    }
+
+    #endregion SelectedUnicodeRange
+
     #endregion Properties
 
     #region Touch Interaction
@@ -803,11 +923,14 @@ public sealed class GlyphsView : SKCanvasView
                 SKPoint point = e.Location;
                 if (HitTest(point.X, point.Y, out IGlyphRow row, out GlyphMetrics metrics))
                 {
-                    if (!metrics.IsEmpty)
+                    if (row is HeaderRow)
+                    {
+                        HeaderClickedCommand?.Execute(row);
+                    }
+                    else if (!metrics.IsEmpty)
                     {
                         SelectedItem = metrics.Glyph;
                     }
-                    // TODO: Implement jump list for rows.
                 }
             }
         }
@@ -832,6 +955,12 @@ public sealed class GlyphsView : SKCanvasView
 
     bool HitTest(float x, float y, out IGlyphRow row, out GlyphMetrics metrics)
     {
+        if (_currentHeader is not null && _currentHeader.HitTest(new SKPoint(x, y), out metrics))
+        {
+            row = _currentHeader;
+            metrics = null;
+            return true;
+        }
         for (int i = _firstRow; i < _rows.Count; i++)
         {
             row = _rows[i];
@@ -856,13 +985,13 @@ public sealed class GlyphsView : SKCanvasView
 
         if (_items.Count > 0)
         {
-            GlyphRow row = null; 
+            GlyphRow row = null;
             float columnWidth = _context.ColumnWidth;
             Range currentRange = Range.Empty;
             HeaderRow header = null;
 
             for (int i = 0; i < _items.Count; i++)
-            { 
+            {
                 GlyphMetrics metrics = _items[i];
                 Range range = metrics.Glyph.Range;
                 if (range != currentRange)
@@ -933,21 +1062,21 @@ public sealed class GlyphsView : SKCanvasView
             float x = 0;
             float y = 0;
 
-            using (SKPaint paint = new() 
-            { 
-                IsAntialias = true, 
-                Color = ItemColor.ToSKColor(), 
+            using (SKPaint paint = new()
+            {
+                IsAntialias = true,
+                Color = ItemColor.ToSKColor(),
                 Style = SKPaintStyle.Fill
             })
             {
-                HeaderRow header = GetHeaderRow();
-                if (header is not null)
+                _currentHeader = GetHeaderRow();
+                if (_currentHeader is not null)
                 {
                     // Draw the header row in the header area
                     // above the list.
-                    header.Arrange(new SKPoint(x, y), width);
-                    header.Draw(canvas, paint);
-                    y += header.Bounds.Height;
+                    _currentHeader.Arrange(new SKPoint(x, y), width);
+                    _currentHeader.Draw(canvas, paint);
+                    y += _currentHeader.Bounds.Height;
                 }
                 for (int i = _firstRow; i < _rows.Count; i++)
                 {

@@ -146,14 +146,14 @@ public class SKTextMetrics : IEquatable<SKTextMetrics>
     /// </returns>
     public bool Equals(SKTextMetrics other)
     {
-        return 
+        return
         (
-            other is not null 
-            && 
-            Text == other.Text 
-            && 
-            FamilyName == other.FamilyName 
-            && 
+            other is not null
+            &&
+            Text == other.Text
+            &&
+            FamilyName == other.FamilyName
+            &&
             FontSize == other.FontSize
         );
     }

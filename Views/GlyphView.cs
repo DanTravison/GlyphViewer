@@ -133,8 +133,8 @@ public class GlyphView : SKCanvasView
         typeof(GlyphView),
         DefaultTextColor,
         BindingMode.OneWay,
-        propertyChanged: (bindable, oldValue, newValue) => 
-        { 
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
             if (bindable is GlyphView view)
             {
                 view.InvalidateSurface();

@@ -38,7 +38,7 @@ public sealed class GlyphMetricProperties : IEnumerable<GlyphMetricProperty>
     {
         return _properties.GetEnumerator();
     }
-    
+
     IEnumerator IEnumerable.GetEnumerator()
     {
         return ((IEnumerable)_properties).GetEnumerator();

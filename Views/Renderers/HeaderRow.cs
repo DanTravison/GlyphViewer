@@ -7,7 +7,7 @@ using System.Diagnostics;
 /// <summary>
 /// Provides a renderer for drawing a Glyph group header.
 /// </summary>
-[DebuggerDisplay("{Name, nq}")]
+[DebuggerDisplay("HeaderRow:{Name, nq}")]
 class HeaderRow : GlyphRowBase, IGlyphRow
 {
     SKTextMetrics _metrics = null;

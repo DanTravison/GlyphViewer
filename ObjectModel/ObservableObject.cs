@@ -89,5 +89,10 @@ public abstract class ObservableObject : INotifyPropertyChanged
         return true;
     }
 
+    /// <summary>
+    /// Provides a default <see cref="IEqualityComparer{T}"/> for comparing reference types.
+    /// </summary>
+    protected readonly IEqualityComparer<object> ReferenceComparer = ReferenceEqualityComparer.Instance;
+
     #endregion SetProperty
 }

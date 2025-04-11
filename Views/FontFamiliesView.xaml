@@ -4,8 +4,10 @@
              xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
              xmlns:views="clr-namespace:GlyphViewer.Views"
              xmlns:text="clr-namespace:GlyphViewer.Text"
+             xmlns:controls="clr-namespace:GlyphViewer.Controls"
              x:Class="GlyphViewer.Views.FontFamiliesView"
-             x:DataType="viewmodel:MainViewModel">
+             x:DataType="viewmodel:MainViewModel"
+             x:Name="this">
 
     <ContentView.Resources>
 
@@ -25,6 +27,11 @@
             </Setter>
         </Style>
 
+        <DataTemplate x:DataType="text:FontFamilyGroup" x:Key="JumpListItemTemplate">
+            <Label Text="{Binding Name}"
+                   Style="{StaticResource JumpListItemStyle}"/>
+        </DataTemplate>
+
     </ContentView.Resources>
 
     <!-- NOTE: Placing ContentView directly in a '*' row can cause
@@ -33,8 +40,16 @@
     <Grid RowDefinitions="Auto, *">
 
         <!-- NOTE: Placing Families and GroupPicker in the same row/column.
-             Using GroupPicker.ZIndex to show/hide the picker.
+             Using JumpList.ZIndex to show/hide the picker.
         -->
+        <controls:JumpList x:Name="GroupPicker" 
+                           Grid.Row="0"
+                           Grid.RowSpan="2"
+                           ItemsSource="{Binding FontFamilies.Groups}"
+                           SelectedItem="{Binding SelectedFamilyGroup, Mode=OneWayToSource}"
+                           ItemTemplate="{StaticResource JumpListItemTemplate}"
+                           />
+
         <CollectionView x:Name="Families"
                         Grid.Row="0"
                         Grid.RowSpan="2"
@@ -45,8 +60,7 @@
                         >
             <CollectionView.GroupHeaderTemplate>
                 <DataTemplate x:DataType="text:FontFamilyGroup">
-                    <HorizontalStackLayout Style="{StaticResource GroupHeaderStyle}"
-                                           >
+                    <HorizontalStackLayout Style="{StaticResource GroupHeaderStyle}">
                         <Label Text="{Binding Name}"
                            FontSize="18"
                            FontAttributes="Bold"
@@ -54,7 +68,8 @@
                            TextColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                            />
                         <HorizontalStackLayout.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnGroupHeaderTapped"/>
+                            <!-- TODO: convert this to a command -->
+                            <TapGestureRecognizer Tapped="OnPickGroup"/>
                         </HorizontalStackLayout.GestureRecognizers>
                     </HorizontalStackLayout>
                 </DataTemplate>
@@ -62,18 +77,12 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="x:String">
                     <Label Text="{Binding}"
-                           Style="{StaticResource FamilyNameStyle}"
-                           TextColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
+                           Style="{StaticResource NameStyle}"
                            />
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <views:FamilyGroupPicker x:Name="GroupPicker" 
-                                 Grid.Row="0"
-                                 Grid.RowSpan="2"
-                                 ZIndex="-1"
-                                 />
     </Grid>
 
 </ContentView>
