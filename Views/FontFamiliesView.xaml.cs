@@ -7,10 +7,10 @@ public partial class FontFamiliesView : ContentView
 {
     MainViewModel _model;
 
-	public FontFamiliesView()
-	{
-		InitializeComponent();
-	}
+    public FontFamiliesView()
+    {
+        InitializeComponent();
+    }
 
     protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
@@ -36,14 +36,13 @@ public partial class FontFamiliesView : ContentView
             if (_model.SelectedFamilyGroup is not null)
             {
                 string fontFamily = _model.SelectedFamilyGroup[0];
-                // _model.SelectedFontFamily = fontFamily;
                 Families.ScrollTo(fontFamily, _model.SelectedFamilyGroup, ScrollToPosition.Start, false);
             }
         }
     }
 
-    private void OnGroupHeaderTapped(object sender, TappedEventArgs e)
+    private void OnPickGroup(object sender, TappedEventArgs e)
     {
-        GroupPicker.ShowPicker();
+        GroupPicker.IsOpen = true;
     }
 }

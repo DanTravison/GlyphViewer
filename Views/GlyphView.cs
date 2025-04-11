@@ -133,8 +133,8 @@ public class GlyphView : SKCanvasView
         typeof(GlyphView),
         DefaultTextColor,
         BindingMode.OneWay,
-        propertyChanged: (bindable, oldValue, newValue) => 
-        { 
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
             if (bindable is GlyphView view)
             {
                 view.InvalidateSurface();
@@ -259,7 +259,7 @@ public class GlyphView : SKCanvasView
     {
         if (_metrics.IsEmpty)
         {
-            _metrics = GlyphMetrics.CreateInstance(paint, font, Glyph);
+            _metrics = GlyphMetrics.CreateInstance(Glyph, font, paint);
         }
         GlyphMetrics metrics = _metrics;
         float width = CanvasSize.Width;
@@ -268,14 +268,15 @@ public class GlyphView : SKCanvasView
         float top = (height - metrics.Size.Height) / 2;
         float left = (width - metrics.Size.Width) / 2;
         float start = left - metrics.Left;
-        float right = left + metrics.Size.Width;
         float baseline = top - metrics.Ascent;
-        float ascent = baseline + metrics.Ascent;
-        float descent = baseline + metrics.Descent;
 
         // Draw the bounding lines of the glyph metrics. 
         using (SKPathEffect effect = SKPathEffect.CreateDash(new float[] { 10, 10 }, 0))
         {
+            float right = left + metrics.Size.Width;
+            float ascent = baseline + metrics.Ascent;
+            float descent = baseline + metrics.Descent;
+
             paint.StrokeWidth = 1;
             paint.Style = SKPaintStyle.Stroke;
             paint.Color = LineColor.ToSKColor();

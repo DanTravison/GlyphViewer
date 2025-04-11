@@ -1,8 +1,11 @@
 ﻿namespace GlyphViewer.Text.Unicode;
 
+using System.Diagnostics;
+
 /// <summary>
 /// Defines a Unicode range.
 /// </summary>
+[DebuggerDisplay("{Name, nq}[{Length,nq}]")]
 public sealed class Range : IEquatable<Range>
 {
     #region Fields
@@ -30,7 +33,10 @@ public sealed class Range : IEquatable<Range>
     /// <summary>
     /// Gets the name of the range.
     /// </summary>
-    public readonly string Name;
+    public string Name
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the identifier for the range.
@@ -38,6 +44,14 @@ public sealed class Range : IEquatable<Range>
     public uint Id
     {
         get => First;
+    }
+
+    /// <summary>
+    /// Gets the value indicating if this is an <see cref="Empty"/> instance.
+    /// </summary>
+    public bool IsEmpty
+    {
+        get => Id == 0;
     }
 
     #endregion Fields

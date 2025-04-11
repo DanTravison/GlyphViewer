@@ -90,7 +90,7 @@ public sealed class Slider : SKCanvasView
     protected override Size MeasureOverride(double widthConstraint, double heightConstraint)
     {
         Size size = base.MeasureOverride(widthConstraint, heightConstraint);
-        
+
         double minDimension;
         if (this.ThumbStyle == ThumbStyle.Circle)
         {
@@ -100,7 +100,7 @@ public sealed class Slider : SKCanvasView
         {
             minDimension = TrackSize * 1.5;
         }
-        
+
         if (Orientation == StackOrientation.Vertical)
         {
             if (size.Width < minDimension)

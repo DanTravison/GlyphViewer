@@ -60,7 +60,7 @@ internal class SliderDrawable
             if (value.Width != _size.Width || value.Height != Size.Height || _drawRegion.IsEmpty)
             {
                 _size = value;
-                _drawRegion = new DrawRegion(_parent.Orientation, _parent.ThumbStyle, value, (float)_parent.TrackSize, (float) _parent.Radius);
+                _drawRegion = new DrawRegion(_parent.Orientation, _parent.ThumbStyle, value, (float)_parent.TrackSize, (float)_parent.Radius);
                 Value = _parent.Value;
             }
         }
@@ -268,7 +268,7 @@ internal class SliderDrawable
 
         SKPaint paint = new SKPaint()
         {
-            Color =_parent.TrackColor.ToSKColor(),
+            Color = _parent.TrackColor.ToSKColor(),
             Style = SKPaintStyle.Stroke,
             StrokeWidth = _drawRegion.TrackSize,
             StrokeCap = SKStrokeCap.Butt,
@@ -278,7 +278,7 @@ internal class SliderDrawable
 
         Color color = (_parent.IsEnabled ? _parent.ThumbColor : _parent.DisabledColor);
         if (color != Colors.Transparent)
-        { 
+        {
             paint.Style = SKPaintStyle.Fill;
             paint.Color = color.ToSKColor();
 

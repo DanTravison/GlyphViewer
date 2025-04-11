@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace GlyphViewer.Text;
+﻿namespace GlyphViewer.Text;
 
 public sealed class GlyphMetricProperty
 {
