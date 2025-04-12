@@ -67,13 +67,14 @@
                   RowSpacing="5"
                   >
                 <views:GlyphView Grid.Row="0" Glyph="{Binding SelectedGlyph, Mode=OneWay}"
-                                   FontSize="128"
-                                   BackgroundColor="WhiteSmoke"
-                                   LineColor="Red"
-                                   BaselineColor="Green"
-                                   MinimumHeightRequest="300"
-                                   MinimumWidthRequest="300"
-                                   />
+                                 FontSize="128"
+                                 TextColor="{AppThemeBinding Light=White, Dark={StaticResource PrimaryDarkText}}"
+                                 BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
+                                 LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"
+                                 BaselineColor="{AppThemeBinding Light=LightGreen, Dark=Green}"
+                                 MinimumHeightRequest="300"
+                                 MinimumWidthRequest="300"
+                                 />
 
                 <views:MetricsView Grid.Row="1" x:DataType="text:GlyphMetricProperties"
                                    BindingContext="{Binding SelectedGlyphProperties}"

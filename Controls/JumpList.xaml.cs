@@ -9,11 +9,18 @@ using System.Windows.Input;
 public partial class JumpList : ContentView
 {
     readonly ObjectModel.Command _openCommand;
+    CollectionView _items;
 
     public JumpList()
     {
         InitializeComponent();
         OpenCommand = _openCommand = new ObjectModel.Command(OnOpen);
+    }
+
+    protected override void OnApplyTemplate()
+    {
+        _items = GetTemplateChild("Items") as CollectionView;
+        base.OnApplyTemplate();
     }
 
     #region ItemsSource
@@ -119,8 +126,15 @@ public partial class JumpList : ContentView
         }
     );
 
+    bool _isOpening;
     void OnIsOpenChanged()
     {
+        if (IsOpen)
+        {
+            _isOpening = true;
+            _items.SelectedItem = null;
+            _isOpening = false;
+        }
         ZIndex = IsOpen ? 1 : -1;
         IsVisible = IsOpen;
         _openCommand.IsEnabled = !IsOpen;
@@ -157,7 +171,10 @@ public partial class JumpList : ContentView
 
     void OnClose(object sender, EventArgs e)
     {
-        IsOpen = false;
+        if (!_isOpening)
+        {
+            IsOpen = false;
+        }
     }
 
     void OnOpen()

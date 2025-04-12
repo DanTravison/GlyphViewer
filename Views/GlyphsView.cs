@@ -111,7 +111,6 @@ public sealed class GlyphsView : SKCanvasView
     readonly List<IGlyphRow> _rows = [];
     readonly DrawContext _context;
     readonly Dictionary<uint, HeaderRow> _headers = [];
-    readonly List<Range> _unicodeRanges = [];
     HeaderRow _currentHeader;
 
     #endregion Fields
@@ -894,16 +893,21 @@ public sealed class GlyphsView : SKCanvasView
         Range range = SelectedUnicodeRange;
         if (!range.IsEmpty && _headers.TryGetValue(range.Id, out HeaderRow header))
         {
-            int row = _rows.IndexOf(header);
-            if (row >= 0 && row < _rows.Count - 1)
+            int row;
+            // Since the first unicode range header is not in the _rows list,
+            // go to row 0
+            if (header.Id == _items[0].Glyph.Range.Id)
             {
-                // if not the first row
-                if (row > 0)
+                Row = 0;
+            }
+            else
+            {
+                // go to the first row after the header row.
+                row = _rows.IndexOf(header);
+                if (row > 0 && row < _rows.Count - 1)
                 {
-                    // go to the first row after the header row.
-                    row++;
+                    Row = row + 1;
                 }
-                Row = row;
             }
         }
     }
@@ -998,8 +1002,8 @@ public sealed class GlyphsView : SKCanvasView
                 {
                     header = new(_context, range, header);
                     _headers.Add(header.Id, header);
-                    // NOTE: The header row for the first row is not added to the list.
-                    // To avoid the header being drawn twice for the first glyph group.
+                    // NOTE: The header row for the first row is not added to the _rows list.
+                    // to avoid the header being drawn twice for the first glyph group.
                     if (_rows.Count > 0)
                     {
                         _rows.Add(header);

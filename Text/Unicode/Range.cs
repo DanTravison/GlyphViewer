@@ -51,7 +51,7 @@ public sealed class Range : IEquatable<Range>
     /// </summary>
     public bool IsEmpty
     {
-        get => Id == 0;
+        get => Length == 0;
     }
 
     #endregion Fields
@@ -85,12 +85,12 @@ public sealed class Range : IEquatable<Range>
     /// <param name="first">The first code point in the range.</param>
     /// <param name="last">The last code point in the range.</param>
     /// <param name="name">The name of the range.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="last"/> is less than <paramref name="first"/>.</exception>
     internal Range(uint first, uint last, string name)
     {
-        // This construct is used for extended ranges.
         if (last < first)
         {
-            throw new ArgumentOutOfRangeException(nameof(first));
+            throw new ArgumentOutOfRangeException(nameof(last));
         }
         First = first;
         Last = last;
