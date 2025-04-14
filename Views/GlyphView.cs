@@ -244,8 +244,7 @@ public class GlyphView : SKCanvasView
         {
             using (SKFont font = _typeface.ToFont())
             {
-                // ISSUE: Is this correct? (i.e., points versus pixels)
-                font.Size = FontSize.ToPixels();
+                font.Size = (float)FontSize;
                 using (SKPaint paint = new() { IsAntialias = true, Style = SKPaintStyle.Fill })
                 {
                     // Draw the glyph
@@ -271,7 +270,7 @@ public class GlyphView : SKCanvasView
         float baseline = top - metrics.Ascent;
 
         // Draw the bounding lines of the glyph metrics. 
-        using (SKPathEffect effect = SKPathEffect.CreateDash(new float[] { 10, 10 }, 0))
+        using (SKPathEffect effect = SKPathEffect.CreateDash([10, 10], 0))
         {
             float right = left + metrics.Size.Width;
             float ascent = baseline + metrics.Ascent;
@@ -299,7 +298,7 @@ public class GlyphView : SKCanvasView
         paint.PathEffect = null;
         paint.Style = SKPaintStyle.Fill;
 
-        canvas.DrawText(Glyph.Text, start, baseline, SKTextAlign.Left, font, paint);
+        canvas.DrawText(font, paint, Glyph.Text, start, baseline, SKTextAlign.Left);
     }
 
     void DrawLine(SKCanvas canvas, SKPaint paint, float left, float top, float right, float bottom)

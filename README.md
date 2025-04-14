@@ -33,10 +33,10 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * Testing is manual on Windows.
   * Testing on iOS, MacCatalyst, and Android is planned.
 * The GlyphsView is still rather minimal. I'm considering the following changes:
-  * Group glyphs by Unicode range and jump list support.
   * Display the text code for each glyph.
+  * Display the glyph name when available.
 
-# The project structure
+# The Project Structure
 
 ## Views
 * MainPage: The application's main page
@@ -54,7 +54,7 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * HeaderRow: A row in the GlyphsView for each Unicode range.
 * GlyphRow: A row in the Glyphs
 * DrawingContext: The context for drawing the glyphs and rows
-  * Contains the various fonts, colors, and spacing metrics used by the renderers
+  * Contains the various fonts, colors, and layout metrics used by the renderers
   * Called by various GlyphsView properties to synchronize changes needed for rendering.
 
 ## Text
@@ -84,6 +84,10 @@ Most of the capabilities for column sizing are not being used.
 ## Controls\Slider
 A simple slider that supports vertical and horizontal orientations.
 This is used to scroll the GlyphsView content versus scrolling a large SKCanvasView.
+
+## Controls\JumpList
+Provide a control template for a jump list.
+This is used to select a font family group in the FontFamiliesView and a unicode range in GlyphsView. 
 
 ## Other
 * ExtendedUnicode.txt: A text file containing links to the Unicode ranges on www.unicode.org

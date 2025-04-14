@@ -89,11 +89,12 @@ class HeaderRow : GlyphRowBase, IGlyphRow
         paint.Color = Context.HeaderColor;
         canvas.DrawText
         (
+            Context.HeaderFont,
+            paint,
             Name,
             location.X,
             location.Y + _baseLine,
-            Context.HeaderFont,
-            paint
+            SKTextAlign.Left
         );
     }
 

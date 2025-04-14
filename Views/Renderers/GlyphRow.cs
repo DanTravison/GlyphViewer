@@ -127,7 +127,7 @@ class GlyphRow : GlyphRowBase, IGlyphRow
 
         paint.Style = SKPaintStyle.Fill;
         paint.Color = Context.ItemColor;
-        canvas.DrawText(metrics.Glyph.Text, start, baseLine, SKTextAlign.Left, Context.ItemFont, paint);
+        canvas.DrawText(Context.ItemFont, paint, metrics.Glyph.Text, start, baseLine, SKTextAlign.Left);
 
         if (isSelected)
         {

@@ -67,7 +67,6 @@
                   RowSpacing="5"
                   >
                 <views:GlyphView Grid.Row="0" Glyph="{Binding SelectedGlyph, Mode=OneWay}"
-                                 FontSize="128"
                                  TextColor="{AppThemeBinding Light=White, Dark={StaticResource PrimaryDarkText}}"
                                  BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                                  LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"

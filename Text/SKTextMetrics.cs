@@ -38,7 +38,7 @@ public class SKTextMetrics : IEquatable<SKTextMetrics>
         FamilyName = font.Typeface.FamilyName;
         FontSize = font.Size;
         Text = text;
-        TextWidth = font.MeasureText(text, out SKRect bounds, paint);
+        TextWidth = font.Measure(text, out SKRect bounds, paint);
         Descent = bounds.Bottom;
         Ascent = bounds.Top;
         Size = bounds.Size;

@@ -35,7 +35,7 @@ public sealed class GlyphsView : SKCanvasView
     /// <summary>
     /// Defines the default <see cref="ItemFontSize"/>.
     /// </summary>
-    const double DefaultItemFontSize = 64.0;
+    const double DefaultItemFontSize = 32.0;
 
     /// <summary>
     /// Defines the default <see cref="HeaderFontSize"/>.
@@ -131,11 +131,6 @@ public sealed class GlyphsView : SKCanvasView
     }
 
     #region Properties
-
-    internal IReadOnlyList<GlyphMetrics> Metrics
-    {
-        get => _items;
-    }
 
     #region HorizontalSpacing
 

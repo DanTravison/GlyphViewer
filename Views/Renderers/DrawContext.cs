@@ -230,6 +230,8 @@ sealed class DrawContext : IDisposable
 
     #endregion Item Properties
 
+    #region Spacing Properties
+
     /// <summary>
     /// Gets the width of a Glyph column.
     /// </summary>
@@ -254,6 +256,9 @@ sealed class DrawContext : IDisposable
         set;
     }
 
+    /// <summary>
+    /// Gets the horizontal spacing between Glyphs.
+    /// </summary>
     public float HorizontalSpacing
     {
         get;
@@ -264,6 +269,9 @@ sealed class DrawContext : IDisposable
         context.HorizontalSpacing = (float)view.HorizontalSpacing;
     }
 
+    /// <summary>
+    /// Gets the vertical spacing between Glyphs.
+    /// </summary>
     public float VerticalSpacing
     {
         get;
@@ -274,14 +282,15 @@ sealed class DrawContext : IDisposable
         context.VerticalSpacing = (float)view.VerticalSpacing;
     }
 
-
+    #endregion Spacing Properties
 
     static SKFont GetFont(string familyName, float fontSize, SKFontStyle fontStyle)
     {
         using (SKTypeface typeface = SKTypeface.FromFamilyName(familyName, fontStyle))
         {
             SKFont font = typeface.ToFont();
-            font.Size = fontSize.ToPixels();
+            font.Size = fontSize;
+            font.Subpixel = true;
             return font;
         }
     }
