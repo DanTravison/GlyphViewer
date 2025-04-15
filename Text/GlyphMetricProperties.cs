@@ -2,35 +2,21 @@
 
 namespace GlyphViewer.Text;
 
-public sealed class GlyphMetricProperties : IEnumerable<GlyphMetricProperty>
+public sealed class GlyphMetricProperties
 {
-    readonly IReadOnlyList<GlyphMetricProperty> _properties;
-
     public GlyphMetricProperties(GlyphMetrics metrics)
     {
-        _properties = GlyphMetricProperty.CreateInstance(metrics);
-        Category = metrics.Glyph.Category.ToString();
-        Range = metrics.Glyph.Range.Name;
-        FontFamily = metrics.Glyph.FontFamily;
-        GlyphName = metrics.Glyph.Name;
+        Properties = GlyphMetricProperty.CreateInstance(metrics);
+
+        Glyph glyph = metrics.Glyph;
+        List<GlyphMetricProperty> extended = [];
+        extended.Add(new GlyphMetricProperty(nameof(Glyph.Category), glyph.Category.ToString()));
+        extended.Add(new GlyphMetricProperty(nameof(Unicode.Range), glyph.Range.Name));
+        extended.Add(new GlyphMetricProperty(nameof(Glyph.Name), glyph.Name));
+        ExtendedProperties = extended;
     }
 
     public string FontFamily
-    {
-        get;
-    }
-
-    public string Category
-    {
-        get;
-    }
-
-    public string Range
-    {
-        get;
-    }
-
-    public string GlyphName
     {
         get;
     }
@@ -40,13 +26,8 @@ public sealed class GlyphMetricProperties : IEnumerable<GlyphMetricProperty>
         get;
     }
 
-    public IEnumerator<GlyphMetricProperty> GetEnumerator()
+    public IReadOnlyList<GlyphMetricProperty> ExtendedProperties
     {
-        return _properties.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return ((IEnumerable)_properties).GetEnumerator();
+        get;
     }
 }
