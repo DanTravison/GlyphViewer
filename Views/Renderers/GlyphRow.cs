@@ -120,7 +120,8 @@ class GlyphRow : GlyphRowBase, IGlyphRow
         float rowHeight = Context.RowHeight;
 
         bool isSelected = ReferenceEquals(metrics.Glyph, Context.SelectedItem);
-        float start = x + (columnWidth - metrics.Size.Width) / 2;
+        // NOTE: Adjust x to center the glyph in the column
+        float start = x - metrics.Left + (columnWidth - metrics.Size.Width) / 2;
         float top = y + (rowHeight - metrics.Size.Height) / 2;
         float baseLine = top - metrics.Ascent;
         float strokeWidth = 2;

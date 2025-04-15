@@ -1123,6 +1123,5 @@ public sealed class GlyphsView : SKCanvasView
         return result;
     }
 
-
     #endregion Draw
 }

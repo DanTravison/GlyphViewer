@@ -284,13 +284,16 @@ public class GlyphView : SKCanvasView
             DrawLine(canvas, paint, 0, ascent, width, ascent);
             // draw descent
             DrawLine(canvas, paint, 0, descent, width, descent);
-            // draw right edge
+            // draw right edge of the glyph
             DrawLine(canvas, paint, right, 0, right, height);
-            // draw left edge
+            // draw left edge of the glyph
             DrawLine(canvas, paint, left, 0, left, height);
             // Draw baseline
             paint.Color = BaselineColor.ToSKColor();
             DrawLine(canvas, paint, 0, baseline, width, baseline);
+            // Draw the left
+            left += metrics.Left;
+            DrawLine(canvas, paint, left, 0, left, height);
         }
 
         // Draw the glyph
