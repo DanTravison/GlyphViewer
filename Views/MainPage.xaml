@@ -73,10 +73,13 @@
                                  BaselineColor="{AppThemeBinding Light=LightGreen, Dark=Green}"
                                  MinimumHeightRequest="300"
                                  MinimumWidthRequest="300"
+                                 x:Name="Glyphs"
                                  />
 
+                <!-- NOTE: WidthRequest ensures the view doesn't resize when properties change -->
                 <views:MetricsView Grid.Row="1" x:DataType="text:GlyphMetricProperties"
                                    BindingContext="{Binding SelectedGlyphProperties}"
+                                   WidthRequest="{Binding Width, Source={x:Reference Glyphs}, x:DataType=views:GlyphView}"
                                    />
             </Grid>
         </Grid>

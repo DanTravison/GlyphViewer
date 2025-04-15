@@ -24,7 +24,7 @@ public class Glyph : IEquatable<Glyph>
     /// <summary>
     /// Initializes an <see cref="Empty"/> instance of this class.
     /// </summary>
-    public Glyph()
+    Glyph()
     {
         FontFamily = string.Empty;
         Text = string.Empty;
@@ -35,8 +35,31 @@ public class Glyph : IEquatable<Glyph>
         Range = Unicode.Range.Empty;
     }
 
-    public Glyph(string fontFamily, char ch, ushort codepoint, UnicodeCategory category, Unicode.Range range)
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="fontFamily">The containing <see cref="FontFamily"/>.</param>
+    /// <param name="ch">The <see cref="Char"/></param>
+    /// <param name="codepoint">The code point.</param>
+    /// <param name="category">The <see cref="UnicodeCategory"/>.</param>
+    /// <param name="range">The <see cref="Unicode.Range"/> that contains the glyph.</param>
+    /// <param name="name">The optional name of the glyph.</param>
+    public Glyph
+    (
+        string fontFamily,
+        char ch,
+        ushort codepoint,
+        UnicodeCategory category,
+        Unicode.Range range,
+        string name = null
+    )
     {
+        if (string.IsNullOrEmpty(fontFamily))
+        {
+            throw new ArgumentNullException(nameof(fontFamily));
+        }
+        ArgumentNullException.ThrowIfNull(range, nameof(range));
+
         FontFamily = fontFamily;
         Text = char.ConvertFromUtf32(ch);
         CodePoint = codepoint;
@@ -54,6 +77,7 @@ public class Glyph : IEquatable<Glyph>
         }
         Code = sb.ToString();
         Range = range;
+        Name = name ?? string.Empty;
     }
 
     #endregion Constructors
@@ -74,6 +98,15 @@ public class Glyph : IEquatable<Glyph>
     /// Gets the text for the glyph.
     /// </summary>
     public readonly string Text;
+
+    /// <summary>
+    /// Gets the name of the glyph.
+    /// </summary>
+    /// <value>
+    /// The name of the <see cref="Glyph"/>, if present
+    /// in the font; otherwise, <see cref="string.Empty"/>.
+    /// </value>
+    public readonly string Name;
 
     /// <summary>
     /// Gets the unicode character for the glyph.
