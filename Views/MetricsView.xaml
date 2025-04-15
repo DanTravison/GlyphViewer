@@ -41,15 +41,15 @@
                 <controls:ColumnDefinition Width="Auto"
                                        ItemTemplate="{StaticResource ValueTemplate}"/>
             </controls:Grid.ColumnDefinitions>
-
         </controls:Grid>
+
         <BoxView HeightRequest="1"
                  Margin="5"
                  HorizontalOptions="Fill"
                  VerticalOptions="Center"
                  Color="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray100}}"
                  />
-        <Label Text="{Binding FontFamily}"
+        <Label Text="{Binding GlyphName}"
                Style="{StaticResource GlyphExtendedPropertyStyle}"
                />
         <Label Text="{Binding Category}"

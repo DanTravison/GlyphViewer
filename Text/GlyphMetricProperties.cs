@@ -12,6 +12,7 @@ public sealed class GlyphMetricProperties : IEnumerable<GlyphMetricProperty>
         Category = metrics.Glyph.Category.ToString();
         Range = metrics.Glyph.Range.Name;
         FontFamily = metrics.Glyph.FontFamily;
+        GlyphName = metrics.Glyph.Name;
     }
 
     public string FontFamily
@@ -25,6 +26,11 @@ public sealed class GlyphMetricProperties : IEnumerable<GlyphMetricProperty>
     }
 
     public string Range
+    {
+        get;
+    }
+
+    public string GlyphName
     {
         get;
     }
