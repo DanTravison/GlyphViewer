@@ -18,10 +18,12 @@ internal sealed class MainViewModel : ObservableObject
     GlyphCollection _glyphs;
     Glyph _selectedGlyph;
     GlyphMetrics _selectedGlyphMetrics;
+    double _glyphFontSize = 32.0;
     readonly IDispatcher _dispatcher;
     int _row;
     int _rows;
     ICommand _pickUnicodeRangeCommand;
+    FontMetricsProperties _fontProperties;
 
     #endregion Fields
 
@@ -115,6 +117,15 @@ internal sealed class MainViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Gets the <see cref="FontMetricsProperties"/> for the <see cref="SelectedFontFamily"/>.
+    /// </summary>
+    public FontMetricsProperties FontMetrics
+    {
+        get => _fontProperties;
+        set => SetProperty(ref _fontProperties, value, ReferenceComparer, FontMetricsChangedEventArgs);
+    }
+
     #endregion Font Families
 
     #region Glyph Properties
@@ -180,6 +191,15 @@ internal sealed class MainViewModel : ObservableObject
     {
         get;
         private set;
+    }
+
+    /// <summary>
+    /// Gets or sets the font size for displaying glyphs in the GlyphsView.
+    /// </summary>
+    public double GlypFontSize
+    {
+        get => _glyphFontSize;
+        set => SetProperty(ref _glyphFontSize, value, GlyphFontSizeChangedEventArgs);
     }
 
     #endregion Selected Glyph Properties
@@ -264,6 +284,7 @@ internal sealed class MainViewModel : ObservableObject
     public void LoadGlyphs(IDispatcher dispatcher)
     {
         GlyphCollection glyphs = null;
+        FontMetricsProperties fontMetrics = null;
         if (!string.IsNullOrWhiteSpace(SelectedFontFamily))
         {
             using (SKTypeface typeface = SKTypeface.FromFamilyName
@@ -275,10 +296,12 @@ internal sealed class MainViewModel : ObservableObject
             ))
             {
                 glyphs = GlyphCollection.CreateInstance(typeface);
+                fontMetrics = new FontMetricsProperties(typeface, (float)GlypFontSize);
             }
         }
         _ = dispatcher.DispatchAsync(() =>
         {
+            FontMetrics = fontMetrics;
             Glyphs = glyphs;
         });
     }
@@ -289,7 +312,9 @@ internal sealed class MainViewModel : ObservableObject
 
     static readonly PropertyChangedEventArgs FontFamiliesChangedEventArgs = new(nameof(FontFamilies));
     static readonly PropertyChangedEventArgs SelectedFontChangedEventArgs = new(nameof(SelectedFontFamily));
+    static readonly PropertyChangedEventArgs FontMetricsChangedEventArgs = new(nameof(FontMetrics));
     static readonly PropertyChangedEventArgs GlyphsChangedEventArgs = new(nameof(Glyphs));
+    static readonly PropertyChangedEventArgs GlyphFontSizeChangedEventArgs = new(nameof(GlypFontSize));
 
     public static readonly PropertyChangedEventArgs SelectedFamilyGroupChangedEventArgs = new(nameof(SelectedFamilyGroup));
 
@@ -305,5 +330,4 @@ internal sealed class MainViewModel : ObservableObject
     static readonly PropertyChangedEventArgs MaxRowChangedEventArgs = new(nameof(MaxRow));
 
     #endregion PropertyChangedEventArgs
-
 }

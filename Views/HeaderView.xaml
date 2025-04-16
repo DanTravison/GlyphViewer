@@ -28,11 +28,11 @@
                    Grid.Row="0"
                    />
         <BoxView Grid.Row="1"
-                     Grid.Column="0"
-                     Grid.ColumnSpan="3"
-                     HeightRequest="2"
-                     Margin="0,0,0,5"
-                     Color="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray100}}"
-                     />
+                 Grid.Column="0"
+                 Grid.ColumnSpan="3"
+                 Style="{StaticResource HorizontalSeparatorStyle}"
+                 HeightRequest="2"
+                 Margin="0,0,0,5"
+                 />
     </Grid>
 </ContentView>

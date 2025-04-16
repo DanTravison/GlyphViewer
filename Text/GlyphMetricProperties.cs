@@ -1,33 +1,48 @@
-﻿using System.Collections;
-
-namespace GlyphViewer.Text;
+﻿namespace GlyphViewer.Text;
 
 public sealed class GlyphMetricProperties
 {
     public GlyphMetricProperties(GlyphMetrics metrics)
     {
-        Properties = GlyphMetricProperty.CreateInstance(metrics);
+        Properties = CreateInstance(metrics);
 
         Glyph glyph = metrics.Glyph;
-        List<GlyphMetricProperty> extended = [];
-        extended.Add(new GlyphMetricProperty(nameof(Glyph.Category), glyph.Category.ToString()));
-        extended.Add(new GlyphMetricProperty(nameof(Unicode.Range), glyph.Range.Name));
-        extended.Add(new GlyphMetricProperty(nameof(Glyph.Name), glyph.Name));
+        List<NamedValue> extended = [];
+        extended.Add(new (nameof(Glyph.Category), glyph.Category.ToString()));
+        extended.Add(new (nameof(Unicode.Range), glyph.Range.Name));
+        extended.Add(new (nameof(Glyph.Name), glyph.Name));
         ExtendedProperties = extended;
     }
 
-    public string FontFamily
+    /// <summary>
+    /// Gets the list of <see cref="GlyphMetrics"/> properties.
+    /// </summary>
+    public IReadOnlyList<NamedValue> Properties
     {
         get;
     }
 
-    public IReadOnlyList<GlyphMetricProperty> Properties
+    /// <summary>
+    /// Gets the list of extended properties.
+    /// </summary>
+    public IReadOnlyList<NamedValue> ExtendedProperties
     {
         get;
     }
 
-    public IReadOnlyList<GlyphMetricProperty> ExtendedProperties
+    static IReadOnlyList<NamedValue> CreateInstance(GlyphMetrics metric)
     {
-        get;
+        List<NamedValue> properties = [];
+
+        properties.Add(new(nameof(metric.FontSize), metric.FontSize));
+        properties.Add(new(nameof(Glyph.Code), metric.Glyph.Code));
+        properties.Add(new(nameof(metric.Size.Width), metric.Size.Width));
+        properties.Add(new(nameof(metric.Size.Height), metric.Size.Height));
+        properties.Add(new(nameof(GlyphMetrics.Ascent), metric.Ascent));
+        properties.Add(new(nameof(GlyphMetrics.Descent), metric.Descent));
+        properties.Add(new(nameof(GlyphMetrics.Left), metric.Left));
+        properties.Add(new(nameof(GlyphMetrics.TextWidth), Math.Round(metric.TextWidth, 2)));
+
+        return properties;
     }
 }
