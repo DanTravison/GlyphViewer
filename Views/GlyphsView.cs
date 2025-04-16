@@ -1,6 +1,7 @@
 ﻿namespace GlyphViewer.Views;
 
 using GlyphViewer.Text;
+using GlyphViewer.ViewModels;
 using GlyphViewer.Views.Renderers;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
@@ -41,11 +42,6 @@ public sealed class GlyphsView : SKCanvasView
     /// Defines the default <see cref="HeaderFontSize"/>.
     /// </summary>
     public const string DefaultHeaderFontFamily = "OpenSansRegular";
-
-    /// <summary>
-    /// Defines the default <see cref="HeaderFontSize"/>.
-    /// </summary>
-    public const double DefaultHeaderFontSize = 25.0;
 
     /// <summary>
     /// Defines the default <see cref="HeaderFontAttributes"/>.
@@ -477,7 +473,7 @@ public sealed class GlyphsView : SKCanvasView
         nameof(HeaderFontSizeProperty),
         typeof(double),
         typeof(GlyphsView),
-        DefaultHeaderFontSize,
+        Settings.DefaultHeaderItemFontSize,
         coerceValue: (bindable, value) =>
         {
             if (value is double spacing)

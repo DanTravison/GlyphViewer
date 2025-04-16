@@ -18,7 +18,6 @@ internal sealed class MainViewModel : ObservableObject
     GlyphCollection _glyphs;
     Glyph _selectedGlyph;
     GlyphMetrics _selectedGlyphMetrics;
-    double _glyphFontSize = 32.0;
     readonly IDispatcher _dispatcher;
     int _row;
     int _rows;
@@ -30,16 +29,17 @@ internal sealed class MainViewModel : ObservableObject
     public MainViewModel(IDispatcher dispatcher)
     {
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
+        Settings = new Settings();
     }
 
     #region Properties
 
     /// <summary>
-    /// Gets the preferred size of the GlyphView width.
+    /// Gets the <see cref="ViewModels.Settings"/> for user settings.
     /// </summary>
-    public double GlyphWidth
+    public Settings Settings
     {
-        get => 300;
+        get;
     }
 
     #region Rows
@@ -201,15 +201,6 @@ internal sealed class MainViewModel : ObservableObject
         private set;
     }
 
-    /// <summary>
-    /// Gets or sets the font size for displaying glyphs in the GlyphsView.
-    /// </summary>
-    public double GlypFontSize
-    {
-        get => _glyphFontSize;
-        set => SetProperty(ref _glyphFontSize, value, GlyphFontSizeChangedEventArgs);
-    }
-
     #endregion Selected Glyph Properties
 
     #region Family Group
@@ -308,7 +299,7 @@ internal sealed class MainViewModel : ObservableObject
             ))
             {
                 glyphs = GlyphCollection.CreateInstance(typeface);
-                fontMetrics = new FontMetricsProperties(typeface, (float)GlypFontSize);
+                fontMetrics = new FontMetricsProperties(typeface, (float)Settings.ItemFontSize);
             }
         }
         _ = dispatcher.DispatchAsync(() =>
@@ -326,7 +317,6 @@ internal sealed class MainViewModel : ObservableObject
     static readonly PropertyChangedEventArgs SelectedFontChangedEventArgs = new(nameof(SelectedFontFamily));
     static readonly PropertyChangedEventArgs FontMetricsChangedEventArgs = new(nameof(FontMetrics));
     static readonly PropertyChangedEventArgs GlyphsChangedEventArgs = new(nameof(Glyphs));
-    static readonly PropertyChangedEventArgs GlyphFontSizeChangedEventArgs = new(nameof(GlypFontSize));
 
     public static readonly PropertyChangedEventArgs SelectedFamilyGroupChangedEventArgs = new(nameof(SelectedFamilyGroup));
 

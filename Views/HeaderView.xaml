@@ -7,7 +7,7 @@
 
     <ContentView.Resources>
         <Style TargetType="Label" x:Key="TitleLabelStyle">
-            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontSize" Value="{Binding Settings.HeaderFontSize}"/>
             <Setter Property="FontAttributes" Value="Bold"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         </Style>

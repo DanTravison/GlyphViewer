@@ -213,7 +213,7 @@ public class GlyphView : SKCanvasView
 
     #endregion BaselineColor
 
-    #region Draw
+    #region Measure
 
     void OnGlyphChanged()
     {
@@ -259,6 +259,10 @@ public class GlyphView : SKCanvasView
         }
         return size;
     }
+
+    #endregion Measure
+
+    #region Draw
 
     protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
     {
