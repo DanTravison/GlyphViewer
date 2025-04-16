@@ -30,6 +30,7 @@ public class GlyphView : SKCanvasView
     #region Fields
 
     SKTypeface _typeface;
+    SKFont _font;
     GlyphMetrics _metrics;
 
     #endregion Fields
@@ -216,18 +217,47 @@ public class GlyphView : SKCanvasView
 
     void OnGlyphChanged()
     {
-        _metrics = GlyphMetrics.Empty;
-
         if (_typeface is null || Glyph.FontFamily != _typeface.FamilyName)
         {
             _typeface?.Dispose();
             _typeface = null;
-            if (!Glyph.IsEmpty)
+        }
+        if (!Glyph.IsEmpty)
+        {
+            _typeface = SKTypeface.FromFamilyName(Glyph.FontFamily, SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
+            _font = _typeface.ToFont();
+            _font.Size = (float)FontSize;
+            _font.Subpixel = true;
+            _metrics = GlyphMetrics.CreateInstance(Glyph, _font);
+            if (_metrics.Size.Height > MinimumWidthRequest)
             {
-                _typeface = SKTypeface.FromFamilyName(Glyph.FontFamily, SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
+                InvalidateMeasure();
             }
         }
+
         InvalidateSurface();
+    }
+
+    /// <summary>
+    /// Determines the size needed to draw the <see cref="Glyph"/>.
+    /// </summary>
+    /// <param name="widthConstraint">The width constraint to request.</param>
+    /// <param name="heightConstraint">The height constraint to request.</param>
+    /// <returns>The size needed to draw the <see cref="Glyph"/>.</returns>
+    protected override Size MeasureOverride(double widthConstraint, double heightConstraint)
+    {
+        Size size = base.MeasureOverride(widthConstraint, heightConstraint);
+        if (!Glyph.IsEmpty)
+        {
+            double height = Math.Max(_metrics.Size.Height, MinimumWidthRequest);
+            size = new Size(MinimumWidthRequest, height);
+        }
+        else
+        {
+            // Set a minimum size to ensure the glyph pane is visible. 
+            size = new(MinimumWidthRequest, MinimumWidthRequest);
+        }
+        return size;
     }
 
     protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
@@ -244,24 +274,16 @@ public class GlyphView : SKCanvasView
         }
         if (!Glyph.IsEmpty)
         {
-            using (SKFont font = _typeface.ToFont())
+            using (SKPaint paint = new() { IsAntialias = true, Style = SKPaintStyle.Fill })
             {
-                font.Size = (float)FontSize;
-                using (SKPaint paint = new() { IsAntialias = true, Style = SKPaintStyle.Fill })
-                {
-                    // Draw the glyph
-                    Draw(canvas, font, paint);
-                }
+                // Draw the glyph
+                Draw(canvas, _font, paint);
             }
         }
     }
 
     void Draw(SKCanvas canvas, SKFont font, SKPaint paint)
     {
-        if (_metrics.IsEmpty)
-        {
-            _metrics = GlyphMetrics.CreateInstance(Glyph, font, paint);
-        }
         GlyphMetrics metrics = _metrics;
         float width = CanvasSize.Width;
         float height = CanvasSize.Height;
@@ -283,19 +305,20 @@ public class GlyphView : SKCanvasView
             paint.Color = LineColor.ToSKColor();
             paint.PathEffect = effect;
             // Draw ascent
-            DrawLine(canvas, paint, 0, ascent, width, ascent);
+            canvas.DrawLine(0, ascent, width, ascent, paint);
             // draw descent
-            DrawLine(canvas, paint, 0, descent, width, descent);
+            canvas.DrawLine(0, descent, width, descent, paint);
             // draw right edge of the glyph
-            DrawLine(canvas, paint, right, 0, right, height);
+            canvas.DrawLine(right, 0, right, height, paint);
             // draw left edge of the glyph
-            DrawLine(canvas, paint, left, 0, left, height);
+            canvas.DrawLine(left, 0, left, height, paint);
+
             // Draw baseline
             paint.Color = BaselineColor.ToSKColor();
-            DrawLine(canvas, paint, 0, baseline, width, baseline);
+            canvas.DrawLine(0, baseline, width, baseline, paint);
             // Draw the left
             left += metrics.Left;
-            DrawLine(canvas, paint, left, 0, left, height);
+            canvas.DrawLine(left, 0, left, height, paint);
         }
 
         // Draw the glyph
@@ -304,11 +327,6 @@ public class GlyphView : SKCanvasView
         paint.Style = SKPaintStyle.Fill;
 
         canvas.DrawText(font, paint, Glyph.Text, start, baseline, SKTextAlign.Left);
-    }
-
-    void DrawLine(SKCanvas canvas, SKPaint paint, float left, float top, float right, float bottom)
-    {
-        canvas.DrawLine(left, top, right, bottom, paint);
     }
 
     #endregion Draw

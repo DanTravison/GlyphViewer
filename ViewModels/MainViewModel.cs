@@ -34,6 +34,14 @@ internal sealed class MainViewModel : ObservableObject
 
     #region Properties
 
+    /// <summary>
+    /// Gets the preferred size of the GlyphView width.
+    /// </summary>
+    public double GlyphWidth
+    {
+        get => 300;
+    }
+
     #region Rows
 
     /// <summary>
@@ -204,6 +212,8 @@ internal sealed class MainViewModel : ObservableObject
 
     #endregion Selected Glyph Properties
 
+    #region Family Group
+
     /// <summary>
     /// Gets or sets the command for the jump list to pick a font family group.
     /// </summary>
@@ -233,6 +243,8 @@ internal sealed class MainViewModel : ObservableObject
             }
         }
     }
+
+    #endregion Family Group
 
     #region Unicode Range Properties
 
