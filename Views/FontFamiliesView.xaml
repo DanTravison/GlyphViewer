@@ -45,7 +45,7 @@
         <controls:JumpList x:Name="GroupPicker" 
                            Grid.Row="0"
                            Grid.RowSpan="2"
-                           ItemsSource="{Binding FontFamilies.Groups}"
+                           ItemsSource="{Binding FontFamilyGroups}"
                            SelectedItem="{Binding SelectedFamilyGroup, Mode=OneWayToSource}"
                            ItemTemplate="{StaticResource JumpListItemTemplate}"
                            />
@@ -53,7 +53,7 @@
         <CollectionView x:Name="Families"
                         Grid.Row="0"
                         Grid.RowSpan="2"
-                        ItemsSource="{Binding FontFamilies.Groups}"
+                        ItemsSource="{Binding FontFamilyGroups}"
                         SelectionMode="Single"
                         SelectedItem="{Binding SelectedFontFamily, Mode=TwoWay}"
                         IsGrouped="true"

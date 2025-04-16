@@ -10,7 +10,7 @@ internal sealed class MainViewModel : ObservableObject
 {
     #region Fields
 
-    FontFamilyCollection _fontFamilies;
+    FontFamilyGroupCollection _fontFamiliesGroups;
     FontFamilyGroup _selectedGroup;
     Text.Unicode.Range _selectedRange;
     IReadOnlyList<Text.Unicode.Range> _ranges;
@@ -90,17 +90,17 @@ internal sealed class MainViewModel : ObservableObject
     #region Font Families
 
     /// <summary>
-    /// Gets the <see cref="FontFamilyCollection"/> for the font families in the system.
+    /// Gets the <see cref="FontFamilyGroupCollection"/> for the font families in the system.
     /// </summary>
     /// <remarks>
     /// This property is updated by LoadFonts and consumed by FontFamiliesView.
     /// </remarks>
-    public FontFamilyCollection FontFamilies
+    public FontFamilyGroupCollection FontFamilyGroups
     {
-        get => _fontFamilies;
+        get => _fontFamiliesGroups;
         private set
         {
-            if (SetProperty(ref _fontFamilies, value, FontFamiliesChangedEventArgs))
+            if (SetProperty(ref _fontFamiliesGroups, value, FontFamiliesChangedEventArgs))
             {
                 SelectedFontFamily = null;
             }
@@ -286,10 +286,10 @@ internal sealed class MainViewModel : ObservableObject
 
     public void LoadFonts(IDispatcher dispatcher)
     {
-        FontFamilyCollection families = FontFamilyCollection.CreateInstance();
+        FontFamilyGroupCollection families = FontFamilyGroupCollection.CreateInstance();
         _ = dispatcher.DispatchAsync(() =>
         {
-            FontFamilies = families;
+            FontFamilyGroups = families;
         });
     }
 
@@ -322,7 +322,7 @@ internal sealed class MainViewModel : ObservableObject
 
     #region PropertyChangedEventArgs
 
-    static readonly PropertyChangedEventArgs FontFamiliesChangedEventArgs = new(nameof(FontFamilies));
+    static readonly PropertyChangedEventArgs FontFamiliesChangedEventArgs = new(nameof(FontFamilyGroups));
     static readonly PropertyChangedEventArgs SelectedFontChangedEventArgs = new(nameof(SelectedFontFamily));
     static readonly PropertyChangedEventArgs FontMetricsChangedEventArgs = new(nameof(FontMetrics));
     static readonly PropertyChangedEventArgs GlyphsChangedEventArgs = new(nameof(Glyphs));
