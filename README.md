@@ -61,13 +61,23 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 Contains the various Glyph classes:
 * Glyph: The basic Glyph class
 * SKTextMetrics: Provides general text measurement metrics.
+* NamedValue: A simple Named/Value base class used for Glyph and Font metrics property display.
 * GlyphMetrics: Provides text metrics for the glyph.
-* GlyphProperty: A simple name/value class for a given property on the Glyph and GlyphMetrics
-* GlyphMetricsProperties: A simple collection of GlyphProperty
+* GlyphMetricsProperties: A NamedValue collection for displaying glyph metrics
 * Fonts: A couple of extension methods.
 * TextUtilities: Used by Grid to measure column widths.
-* FontFamilyCollection: Grouped by the first letter of the family name
+* FontFamilyGroupCollection: A collection of FontFamilyGroup.
 * FontFamilyGroup: A collection of font families in a given group.
+* FontMetricsProperties: A A NamedValue collection for displaying displaying font metrics
+* Fonts.cs: A set of extension methods
+  * ToStyleFont - converts FontAttributes to SKFontStyle
+  * GetFontFamilies - enumerate all font families visible to SkiSharp
+  * ToPixels - converts a point size to pixels using 96/72
+	
+Fonts.cs Experimental Extension Methods:
+  * ScalePoints - Scales font points to pixels at the current display density 
+  * DrawText - Wraps Canvas.DrawText by scaling the SKFont.Size using ScalePoints
+  * Measure - wraps SKFont.MeasureText by scaling the SKFont.Size using ScalePoints 
 
 ## Text\Unicode
 * Range: A Unicode range
@@ -89,9 +99,15 @@ This is used to scroll the GlyphsView content versus scrolling a large SKCanvasV
 Provide a control template for a jump list.
 This is used to select a font family group in the FontFamiliesView and a unicode range in GlyphsView. 
 
+## ObjectModel
+* ObservableObject: An implementation of INotifyPropertyChanged with SetProperty overloads.
+  * SetProperty takes an instance of a PropertyChangedEventArgs to allow derived class to statically define 
+    PropertyChangedEventArgs instead of creating instances on each call. 
+* Command: An implementation of ICommand with IsEnabled for controlling CanExecute.
+
 ## Other
 * ExtendedUnicode.txt: A text file containing links to the Unicode ranges on www.unicode.org
-* ObjectModel/ObservableObject: An implementation of INotifyPropertyChanged
+* Images/GlyphView.png: A screen shot of the GlyphView
 
 ## Dependencies
 * SkiaSharp.Views.Maui.Controls: 3.116.1
