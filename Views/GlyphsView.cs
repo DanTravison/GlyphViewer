@@ -314,6 +314,7 @@ public sealed class GlyphsView : SKCanvasView
         typeof(double),
         typeof(GlyphsView),
         DefaultItemFontSize,
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is double spacing)
@@ -581,6 +582,7 @@ public sealed class GlyphsView : SKCanvasView
         typeof(GlyphCollection),
         typeof(GlyphsView),
         null,
+        BindingMode.OneWay,
         propertyChanged: (bindable, oldValue, newValue) =>
         {
             if (bindable is GlyphsView view)

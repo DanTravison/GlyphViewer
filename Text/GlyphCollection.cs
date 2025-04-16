@@ -30,29 +30,10 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     private GlyphCollection(SKTypeface typeface, List<Glyph> glyphs, bool hasGlyphNames)
     {
         _glyphs = glyphs;
-
-        FamilyName = typeface.FamilyName;
-        FontWeight = typeface.FontWeight;
-        FontWidth = typeface.FontWidth;
         HasGlyphNames = hasGlyphNames;
     }
 
     #region Properties
-
-    /// <summary>
-    /// Gets the font family name of the glyphs in the collection.
-    /// </summary>
-    public string FamilyName { get; }
-
-    /// <summary>
-    /// Gets the font weight of the glyphs in the collection.
-    /// </summary>
-    public int FontWeight { get; }
-
-    /// <summary>
-    /// Gets the font width of the glyphs in the collection.
-    /// </summary>
-    public int FontWidth { get; }
 
     /// <summary>
     /// Gets the number of glyphs in the collection.

@@ -3,7 +3,8 @@
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:controls="clr-namespace:GlyphViewer.Controls">
+    xmlns:controls="clr-namespace:GlyphViewer.Controls"
+    xmlns:text="clr-namespace:GlyphViewer.Text">
 
     <x:String x:Key="DefaultFontFamily">OpenSansRegular</x:String>
     <x:Double x:Key="DefaultFontSize">14</x:Double>
@@ -39,6 +40,7 @@
         </Setter>
     </Style>
 
+    <!-- #region JumpList -->
     <Style TargetType="controls:JumpList">
         <Setter Property="BackgroundColor"
                 Value="{AppThemeBinding Light=WhiteSmoke, Dark={StaticResource PrimaryDarkText}}"/>
@@ -47,6 +49,66 @@
     <Style TargetType="Label" x:Key="JumpListItemStyle" BasedOn="{StaticResource NameStyle}">
         <Setter Property="HorizontalTextAlignment" Value="Center"/>
         <Setter Property="FontSize" Value="{StaticResource JumpListItemSize}"/>
+    </Style>
+    
+    <!-- #endregion JumpList-->
+    
+    <!-- #region NamedValue -->
+
+    <Style TargetType="Label" x:Key="NamedValuePropertyStyle">
+        <Setter Property="FontSize" Value="{StaticResource DefaultFontSize}"/>
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"/>
+    </Style>
+    
+    <DataTemplate x:Key="NamedValueNameTemplate"
+                  x:DataType="text:NamedValue">
+        <Label Text="{Binding Name}" Style="{StaticResource NamedValuePropertyStyle}"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="NamedValueValueTemplate"
+                  x:DataType="text:NamedValue">
+        <Label Text="{Binding Value}" Style="{StaticResource NamedValuePropertyStyle}"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="NamedValueSeparatorTemplate"
+                      x:DataType="text:NamedValue">
+        <Label Text=":" 
+               Padding="5,0,5,0"
+               Style="{StaticResource NamedValuePropertyStyle}"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="NamedValueTwoRowItemTemplate"
+                  x:DataType="text:NamedValue">
+        <Grid RowDefinitions="Auto, Auto"
+              ColumnDefinitions="Auto, *">
+            <Label Text="{Binding Name}" 
+                   Grid.Row="0"
+                   Grid.Column="0"
+                   Style="{StaticResource NamedValuePropertyStyle}"
+                   FontAttributes="Bold"/>
+            <Label Text=":" 
+                   Grid.Row="0"
+                   Grid.Column="1"
+                   Style="{StaticResource NamedValuePropertyStyle}"
+                   FontAttributes="Bold"/>
+            <Label Text="{Binding Value}" 
+                   Grid.Row="1"
+                   Grid.Column="0"
+                   Grid.ColumnSpan="2"
+                   Margin="10, 0, 0, 0"
+                   Style="{StaticResource NamedValuePropertyStyle}"
+                   LineBreakMode="CharacterWrap"
+                   />
+        </Grid>
+    </DataTemplate>
+
+    <!-- #endregion NamedValue -->
+
+    <Style TargetType="BoxView" x:Key="HorizontalSeparatorStyle">
+        <Setter Property="HeightRequest" Value="1"/>
+        <Setter Property="HorizontalOptions" Value="Fill"/>
+        <Setter Property="VerticalOptions" Value="Center"/>
+        <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray100}}"/>
     </Style>
 
     <Style TargetType="ActivityIndicator">
