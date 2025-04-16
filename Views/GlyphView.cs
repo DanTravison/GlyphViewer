@@ -54,6 +54,7 @@ public class GlyphView : SKCanvasView
         typeof(double),
         typeof(GlyphView),
         128.0,
+        BindingMode.OneWay,
         propertyChanged: (b, o, n) =>
         {
             if (b is GlyphView view)
@@ -92,6 +93,7 @@ public class GlyphView : SKCanvasView
         typeof(Glyph),
         typeof(GlyphView),
         Glyph.Empty,
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is Glyph glyph)
