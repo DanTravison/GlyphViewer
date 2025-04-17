@@ -60,6 +60,22 @@ public static class Fonts
     }
 
     /// <summary>
+    /// Experimental: Scales font points to pixels at the current display density.
+    /// </summary>
+    /// <param name="emSize">The font size in points.</param>
+    /// <remarks>
+    /// The goal is to scale the font size to the current display density such that 
+    /// a character displayed via SkiaSharp is the same size as the same character displayed
+    /// in Word using the same font and font size.
+    /// </remarks>
+    public static float ScalePoints(this double emSize)
+    {
+        float scale = (float)DeviceDisplay.Current.MainDisplayInfo.Density;
+        return ((float)emSize).ToPixels() * scale;
+    }
+
+
+    /// <summary>
     /// Experimental: Measures the text using the current display density.
     /// </summary>
     /// <param name="font">The <see cref="SKFont"/> to use to measure the text.</param>
