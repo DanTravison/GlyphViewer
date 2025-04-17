@@ -21,7 +21,8 @@
     -->
     <Grid RowDefinitions="Auto, Auto, *">
         
-        <views:HeaderView Grid.Row="0"/>
+        <views:HeaderView Grid.Row="0"
+                          Margin="10,0,10,0"/>
  
         <Grid Grid.Row="1" 
               Grid.RowSpan="2"
