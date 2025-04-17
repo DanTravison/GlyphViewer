@@ -32,8 +32,8 @@ public sealed class Settings : ObservableObject
     /// <summary>
     /// Define the default font size of the <see cref="GlyphsView"/> header items.
     /// </summary>
-    public const double DefaultHeaderItemFontSize = 25;
-    double _headerItemFontSize = 32;
+    public const double DefaultHeaderItemFontSize = 20;
+    double _headerItemFontSize;
 
     #endregion Fields
 
@@ -72,7 +72,7 @@ public sealed class Settings : ObservableObject
     public double HeaderItemFontSize
     {
         get => _headerItemFontSize;
-        set => SetPreference(ref _itemFontSize, value, HeaderItemFontSizeChangedEventArgs);
+        set => SetPreference(ref _headerItemFontSize, value, HeaderItemFontSizeChangedEventArgs);
     }
 
     /// <summary>
