@@ -25,6 +25,22 @@ public static class Fonts
     }
 
     /// <summary>
+    /// Converts a <see cref="TextAlignment"/> to an <see cref="SKTextAlign"/>.
+    /// </summary>
+    /// <param name="alignment">The <see cref="FontAttributes"/> to convert.</param>
+    /// <returns>The <see cref="SKFontStyle"/> for the <paramref name="alignment"/>.</returns>
+    public static SKTextAlign ToTextAlign(this TextAlignment alignment)
+    {
+        return alignment switch
+        {
+            TextAlignment.Start => SKTextAlign.Left,
+            TextAlignment.Center => SKTextAlign.Center,
+            TextAlignment.End => SKTextAlign.Right,
+            _ => SKTextAlign.Left
+        };
+    }
+
+    /// <summary>
     /// Gets the available font families.
     /// </summary>
     /// <returns>A <see cref="List{String}"/> of the available font families.</returns>

@@ -7,6 +7,16 @@ namespace GlyphViewer.Resources;
 
 internal static class FluentUI
 {
+    /// <summary>
+    /// Gets the name of the font family.
+    /// </summary>
+    /// <remarks>
+    /// This property is the Font Name defined in the font file, not the 
+    /// the file name.
+    /// Additionally, it is not the alias defined when loading it in Maui.
+    /// </remarks>
+    public const string FamilyName = @"FluentSystemIcons-Resizable";
+
     public const string Hamburger = "\ue8fd";
     public const string AccessTimeFilled = "\ue000";
     public const string AccessTime = "\ue001";

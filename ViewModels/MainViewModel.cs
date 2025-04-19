@@ -1,7 +1,9 @@
 ﻿namespace GlyphViewer.ViewModels;
 
 using GlyphViewer.ObjectModel;
+using GlyphViewer.Settings;
 using GlyphViewer.Text;
+using GlyphViewer.Views;
 using SkiaSharp;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -26,21 +28,30 @@ internal sealed class MainViewModel : ObservableObject
 
     #endregion Fields
 
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="dispatcher">The <see cref="IDispatcher"/> to use for invoking methods on the UI thread.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="dispatcher"/> is a null reference.</exception>
     public MainViewModel(IDispatcher dispatcher)
     {
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-        Settings = new Settings();
+        Settings = new UserSettings();
     }
 
     #region Properties
 
+    #region Settings
+
     /// <summary>
-    /// Gets the <see cref="ViewModels.Settings"/> for user settings.
+    /// Gets the <see cref="Settings.UserSettings"/>.
     /// </summary>
-    public Settings Settings
+    public UserSettings Settings
     {
         get;
     }
+
+    #endregion Settings
 
     #region Rows
 

@@ -234,7 +234,6 @@ public class GlyphView : SKCanvasView
                 InvalidateMeasure();
             }
         }
-
         InvalidateSurface();
     }
 

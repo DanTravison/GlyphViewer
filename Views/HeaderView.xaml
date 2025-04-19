@@ -2,37 +2,45 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
+             xmlns:res="clr-namespace:GlyphViewer.Resources"
              x:Class="GlyphViewer.Views.HeaderView"
              x:DataType="viewmodel:MainViewModel">
 
     <ContentView.Resources>
         <Style TargetType="Label" x:Key="TitleLabelStyle">
-            <Setter Property="FontSize" Value="{Binding Settings.HeaderFontSize}"/>
+            <Setter Property="FontSize" Value="{Binding Settings.TitleFontSize}"/>
             <Setter Property="FontAttributes" Value="Bold"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         </Style>
     </ContentView.Resources>
 
-    <Grid ColumnDefinitions="1*,2*, 1*"
+    <Grid ColumnDefinitions="1*,2*,1*"
           RowDefinitions="Auto, Auto"
           >
-        <Label Text="Glyph Viewer"
-                   Style="{StaticResource TitleLabelStyle}"
-                   Grid.Column="0"
-                   Grid.Row="0"
-                   />
+        <Label Text="{x:Static res:Strings.ApplicationName}"
+               Style="{StaticResource TitleLabelStyle}"
+               Grid.Row="0"
+               Grid.Column="0"
+               />
         <Label Text="{Binding SelectedFontFamily}"
-                   Style="{StaticResource TitleLabelStyle}"
-                   HorizontalOptions="Center"
-                   Grid.Column="1"
-                   Grid.Row="0"
-                   />
-        <BoxView Grid.Row="1"
-                 Grid.Column="0"
-                 Grid.ColumnSpan="3"
-                 Style="{StaticResource HorizontalSeparatorStyle}"
+               Style="{StaticResource TitleLabelStyle}"
+               HorizontalOptions="Center"
+               Grid.Row="0"
+               Grid.Column="1"
+               />
+        <Button Text="{x:Static res:FluentUI.Settings}"
+                Style="{StaticResource GlyphButtonStyle}"
+                Command="{Binding Settings.Navigator.OpenCommand}"
+                HorizontalOptions="End"
+                Grid.Row="0"
+                Grid.Column="2"
+                />
+        <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
                  HeightRequest="2"
                  Margin="0,0,0,5"
+                 Grid.Row="1"
+                 Grid.Column="0"
+                 Grid.ColumnSpan="3"
                  />
     </Grid>
 </ContentView>

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
+             xmlns:settings="clr-namespace:GlyphViewer.Settings"
+             xmlns:controls="clr-namespace:GlyphViewer.Controls"
+             xmlns:res="clr-namespace:GlyphViewer.Resources"
+             x:Class="GlyphViewer.Views.SettingsPage"
+             x:DataType="settings:UserSettings">
+    
+    <ContentPage.Resources>
+        
+        <Style TargetType="controls:Slider" x:Key="SliderStyle" x:DataType="settings:DoubleSetting">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="Value" Value="{Binding Value, Mode=TwoWay}"/>
+            <Setter Property="Minimum" Value="{Binding MininumValue}"/>
+            <Setter Property="Maximum" Value="{Binding MaximumValue}"/>
+            <Setter Property="Interval" Value="{Binding Increment}"/>
+        </Style>
+
+        <Style TargetType="Label" x:Key="DisplayNameStyle"  x:DataType="settings:DoubleSetting">
+            <Setter Property="Text" Value="{Binding DisplayName}"/>
+            <Setter Property="ToolTipProperties.Text" Value="{Binding Description}"/>
+            <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
+        </Style>
+
+        <Style TargetType="controls:SkLabel" x:Key="FontSizeStyle" x:DataType="settings:FontSizeSetting">
+            <Setter Property="FontFamily" Value="{Binding FontFamily}"/>
+            <Setter Property="FontSize" Value="{Binding Value, Mode=OneWay}"/>
+            <Setter Property="Text" Value="{Binding Text}"/>
+            <Setter Property="ToolTipProperties.Text" Value="{Binding Description}"/>
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
+        </Style>
+
+        <settings:SettingDataTemplateSelector x:Key="SettingDataTemplateSelector">
+            <settings:SettingDataTemplateSelector.Double>
+                <DataTemplate x:DataType="settings:DoubleSetting">
+                    <Grid ColumnDefinitions="*, 400, Auto"
+                          RowSpacing="5"
+                          >
+                        <Label Grid.Row="0"
+                               Grid.Column="0"
+                               Style="{StaticResource DisplayNameStyle}"/>
+
+                        <controls:Slider Grid.Row="0"
+                                         Grid.Column="1"
+                                         Style="{StaticResource SliderStyle}"/>
+                        
+                        <Label Text="{Binding Value, StringFormat='{0,3:000}'}"
+                               Style="{StaticResource DisplayNameStyle}"
+                               Grid.Row="0"
+                               Grid.Column="2"/>
+                    </Grid>
+                </DataTemplate>
+            </settings:SettingDataTemplateSelector.Double>
+
+            <settings:SettingDataTemplateSelector.GlyphWidth>
+                <DataTemplate x:DataType="settings:GlyphWidthSetting">
+                    <Grid ColumnDefinitions="*, 400, Auto"
+                          RowDefinitions="Auto, Auto"
+                          RowSpacing="5"
+                          >
+                        <Label Grid.Row="0"
+                               Grid.Column="0"
+                               Style="{StaticResource DisplayNameStyle}"/>
+
+                        <controls:Slider Grid.Row="0"
+                                         Grid.Column="1"
+                                         Style="{StaticResource SliderStyle}"/>
+
+                        <Label Text="{Binding Value, StringFormat='{0,3:000}'}"
+                               Style="{StaticResource DisplayNameStyle}"
+                               Grid.Row="0"
+                               Grid.Column="2"/>
+
+                        <BoxView Grid.Row="1"
+                                 Grid.Column="0"
+                                 Grid.ColumnSpan="3"
+                                 Margin="5,0,5,0"
+                                 HeightRequest="{Binding Value, Mode=OneWay}"
+                                 WidthRequest="{Binding Value, Mode=OneWay}"
+                                 HorizontalOptions="Start"
+                                 VerticalOptions="Center"/>
+                    </Grid>
+                </DataTemplate>
+            </settings:SettingDataTemplateSelector.GlyphWidth>
+
+            <settings:SettingDataTemplateSelector.FontSize>
+                <DataTemplate x:DataType="settings:FontSizeSetting">
+                    <Grid ColumnDefinitions="*, 400, Auto"
+                          RowDefinitions="Auto, Auto"
+                          RowSpacing="5"
+                          >
+                        <Label Grid.Row="0"
+                               Grid.Column="0"
+                               Style="{StaticResource DisplayNameStyle}"/>
+
+                        <controls:Slider Grid.Row="0"
+                                         Grid.Column="1"
+                                         Orientation="Horizontal"
+                                         Style="{StaticResource SliderStyle}"/>
+
+                        <Label Text="{Binding Value, StringFormat='{0,3:000}'}"
+                               Style="{StaticResource DisplayNameStyle}"
+                               Grid.Row="0"
+                               Grid.Column="2"/>
+                        
+                        <controls:SkLabel Grid.Row="1"
+                                          Grid.Column="0"
+                                          Grid.ColumnSpan="3"
+                                          Style="{StaticResource FontSizeStyle}"/>
+                    </Grid>
+                </DataTemplate>
+            </settings:SettingDataTemplateSelector.FontSize>
+        </settings:SettingDataTemplateSelector>
+
+    </ContentPage.Resources>
+
+    <Grid ColumnDefinitions="Auto, *"
+          RowDefinitions="Auto, Auto, *"
+          Margin="5,5,5,5"
+          >
+        <Button Style="{StaticResource GlyphButtonStyle}" 
+                Text="{x:Static res:FluentUI.ArrowLeftFilled}"
+                Command="{Binding Navigator.CloseCommand}"
+                Grid.Row="0"
+                Grid.Column="0"
+                ToolTipProperties.Text="{x:Static res:Strings.BackButtonLabel}"
+                />
+
+        <Label Text="{x:Static res:Strings.SettingsTitle}"
+               HorizontalOptions="Center"
+               FontSize="{Binding TitleFontSize, Mode=OneWay}"
+               Grid.Row="0"
+               Grid.Column="0"
+               Grid.ColumnSpan="2"
+               />
+
+        <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
+                 Margin="0,0,0,10"
+                 HeightRequest="2"
+                 Grid.Row="1"
+                 Grid.Column="0"
+                 Grid.ColumnSpan="2"
+                 />
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Properties}"
+                             BindableLayout.ItemTemplateSelector="{StaticResource SettingDataTemplateSelector}"
+                             Spacing="10"
+                             Grid.Row="2" 
+                             Grid.Column="0"
+                             Grid.ColumnSpan="2"
+                             />
+    </Grid>
+</ContentPage>

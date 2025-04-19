@@ -47,7 +47,7 @@
                               HeaderColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               BackgroundColor="Transparent"
                               ItemFontSize="{Binding Settings.ItemFontSize}"
-                              HeaderFontSize="{Binding Settings.HeaderItemFontSize}"
+                              HeaderFontSize="{Binding Settings.ItemHeaderFontSize}"
                               SelectedItem="{Binding SelectedGlyph, Mode=TwoWay}"
                               SelectedItemMetrics="{Binding SelectedGlyphMetrics}"
                               HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
@@ -71,7 +71,7 @@
                   >
                 <views:GlyphView Grid.Row="0" 
                                  Glyph="{Binding SelectedGlyph, Mode=OneWay}"
-                                 TextColor="{AppThemeBinding Light=White, Dark={StaticResource PrimaryDarkText}}"
+                                 TextColor="{AppThemeBinding Light=WhiteSmoke, Dark={StaticResource PrimaryDarkText}}"
                                  BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                                  LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"
                                  BaselineColor="{AppThemeBinding Light=LightGreen, Dark=Green}"
