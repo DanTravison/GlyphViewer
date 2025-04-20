@@ -1,7 +1,6 @@
 ﻿namespace GlyphViewer.Controls;
 
 using GlyphViewer.Text;
-using GlyphViewer.Views;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
@@ -51,7 +50,7 @@ internal class SkLabel : SKCanvasView
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
-            ((SkLabel)bindable).InvalidateMeasure();
+            ((SkLabel)bindable).InvalidateTextMetrics();
         }
     );
 
@@ -128,7 +127,7 @@ internal class SkLabel : SKCanvasView
         },
         propertyChanged: (bindable, oldValue, newValue) => 
         { 
-            ((SkLabel)bindable).InvalidateMeasure(); 
+            ((SkLabel)bindable).InvalidateTextMetrics(); 
         }
     );
 
@@ -157,7 +156,7 @@ internal class SkLabel : SKCanvasView
         BindingMode.OneWay,
         propertyChanged: (bindable, oldValue, newValue) => 
         { 
-            ((SkLabel)bindable).InvalidateMeasure(); 
+            ((SkLabel)bindable).InvalidateTextMetrics(); 
         }
     );
 
@@ -197,7 +196,7 @@ internal class SkLabel : SKCanvasView
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
-            ((SkLabel)bindable).InvalidateMeasure();
+            ((SkLabel)bindable).InvalidateTextMetrics();
         }
     );
 
@@ -284,12 +283,22 @@ internal class SkLabel : SKCanvasView
         BindingMode.OneWay,
         propertyChanged: (bindable, oldValue, newValue) =>
         {
-            ((SkLabel)bindable).InvalidateMeasure();
+            ((SkLabel)bindable).InvalidateTextMetrics();
         }
     );
 
     #endregion Padding
 
+    void InvalidateTextMetrics()
+    {
+        // Address GlyphView does not size correctly when glyph's height exceeds the height of the glyph view.
+        // https://github.com/DanTravison/GlyphViewer/issues/23
+        // NOTE: Unless HeightRequest is explicitly cleared, MeasureOverride does not get called
+        // after the first successful attempt to resize the control.
+        // Additionally, MeasureOverride must explicitly set HeightRequest.
+        HeightRequest = -1;
+        InvalidateMeasure();
+    }   
     
     SKFont GetFont()
     {
@@ -316,7 +325,10 @@ internal class SkLabel : SKCanvasView
             _metrics = new SKTextMetrics(Text, font, paint);
             float width = (float)Padding.HorizontalThickness + _metrics.TextWidth;
             float height = (float)Padding.VerticalThickness + _metrics.Size.Height;
-
+            // Address GlyphView does not size correctly when glyph's height exceeds the height of the glyph view.
+            // https://github.com/DanTravison/GlyphViewer/issues/23
+            // NOTE: Must explicitly set HeightRequest here as well as in InvalidateTextMetrics
+            HeightRequest = height;
             return new Size(width, height);
         }
     }

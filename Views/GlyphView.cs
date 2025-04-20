@@ -217,6 +217,9 @@ public class GlyphView : SKCanvasView
 
     void OnGlyphChanged()
     {
+        // By default, the desired view size is a square (MininumWidthRequest x MinimumWidthRequest)
+        double heightRequest = MinimumWidthRequest;
+
         if (_typeface is null || Glyph.FontFamily != _typeface.FamilyName)
         {
             _typeface?.Dispose();
@@ -231,8 +234,17 @@ public class GlyphView : SKCanvasView
             _metrics = GlyphMetrics.CreateInstance(Glyph, _font);
             if (_metrics.Size.Height > MinimumWidthRequest)
             {
-                InvalidateMeasure();
+                heightRequest = _metrics.Size.Height;
             }
+        }
+        // Intent: Allow the height to increase to accomodate taller glyphs but return
+        // to the desired height when the glyph is empty or the glyph height < desired height
+        if (heightRequest != HeightRequest)
+        {
+            // Address GlyphView does not size correctly when glyph's height exceeds the height of the glyph view.
+            // https://github.com/DanTravison/GlyphViewer/issues/23
+            HeightRequest = heightRequest;
+            InvalidateMeasure();
         }
         InvalidateSurface();
     }
