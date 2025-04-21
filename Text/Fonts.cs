@@ -25,6 +25,22 @@ public static class Fonts
     }
 
     /// <summary>
+    /// Converts a <see cref="TextAlignment"/> to an <see cref="SKTextAlign"/>.
+    /// </summary>
+    /// <param name="alignment">The <see cref="FontAttributes"/> to convert.</param>
+    /// <returns>The <see cref="SKFontStyle"/> for the <paramref name="alignment"/>.</returns>
+    public static SKTextAlign ToTextAlign(this TextAlignment alignment)
+    {
+        return alignment switch
+        {
+            TextAlignment.Start => SKTextAlign.Left,
+            TextAlignment.Center => SKTextAlign.Center,
+            TextAlignment.End => SKTextAlign.Right,
+            _ => SKTextAlign.Left
+        };
+    }
+
+    /// <summary>
     /// Gets the available font families.
     /// </summary>
     /// <returns>A <see cref="List{String}"/> of the available font families.</returns>
@@ -58,6 +74,22 @@ public static class Fonts
         float scale = (float)DeviceDisplay.Current.MainDisplayInfo.Density;
         return emSize.ToPixels() * scale;
     }
+
+    /// <summary>
+    /// Experimental: Scales font points to pixels at the current display density.
+    /// </summary>
+    /// <param name="emSize">The font size in points.</param>
+    /// <remarks>
+    /// The goal is to scale the font size to the current display density such that 
+    /// a character displayed via SkiaSharp is the same size as the same character displayed
+    /// in Word using the same font and font size.
+    /// </remarks>
+    public static float ScalePoints(this double emSize)
+    {
+        float scale = (float)DeviceDisplay.Current.MainDisplayInfo.Density;
+        return ((float)emSize).ToPixels() * scale;
+    }
+
 
     /// <summary>
     /// Experimental: Measures the text using the current display density.

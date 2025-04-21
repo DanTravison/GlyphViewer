@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Views;
 
+using GlyphViewer.Settings;
 using GlyphViewer.Text;
 using GlyphViewer.Views.Renderers;
 using SkiaSharp;
@@ -28,34 +29,14 @@ public sealed class GlyphsView : SKCanvasView
     public const double DefaultSpacing = 5.0;
 
     /// <summary>
-    /// Defines the minimum <see cref="ItemFontSize"/> for a <see cref="Glyph"/>.
-    /// </summary>
-    const double MinimumItemFontSize = 12f;
-
-    /// <summary>
-    /// Defines the default <see cref="ItemFontSize"/>.
-    /// </summary>
-    const double DefaultItemFontSize = 32.0;
-
-    /// <summary>
     /// Defines the default <see cref="HeaderFontSize"/>.
     /// </summary>
     public const string DefaultHeaderFontFamily = "OpenSansRegular";
 
     /// <summary>
-    /// Defines the default <see cref="HeaderFontSize"/>.
-    /// </summary>
-    public const double DefaultHeaderFontSize = 25.0;
-
-    /// <summary>
     /// Defines the default <see cref="HeaderFontAttributes"/>.
     /// </summary>
     public const FontAttributes DefaultHeaderFontAttributes = FontAttributes.Bold | FontAttributes.Italic;
-
-    /// <summary>
-    /// Defines the minimum <see cref="HeaderFontSize"/>.
-    /// </summary>
-    public const double MinimumHeaderFontSize = 8.0;
 
     /// <summary>
     /// Defines the default <see cref="HeaderColor"/>.
@@ -148,10 +129,11 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty HorizontalSpacingProperty = BindableProperty.Create
     (
-        nameof(HorizontalSpacingProperty),
+        nameof(HorizontalSpacing),
         typeof(double),
         typeof(GlyphsView),
         DefaultSpacing,
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is double spacing)
@@ -190,10 +172,11 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty VerticalSpacingProperty = BindableProperty.Create
     (
-        nameof(VerticalSpacingProperty),
+        nameof(VerticalSpacing),
         typeof(double),
         typeof(GlyphsView),
         DefaultSpacing,
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is double spacing)
@@ -232,10 +215,11 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty ItemColorProperty = BindableProperty.Create
     (
-        nameof(ItemColorProperty),
+        nameof(ItemColor),
         typeof(Color),
         typeof(GlyphsView),
         DefaultItemColor,
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is Color color)
@@ -271,10 +255,11 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty SelectedItemColorProperty = BindableProperty.Create
     (
-        nameof(SelectedItemColorProperty),
+        nameof(SelectedItemColor),
         typeof(Color),
         typeof(GlyphsView),
         DefaultSelectedItemColor,
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is Color color)
@@ -310,21 +295,20 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty ItemFontSizeProperty = BindableProperty.Create
     (
-        nameof(ItemFontSizeProperty),
+        nameof(ItemFontSize),
         typeof(double),
         typeof(GlyphsView),
-        DefaultItemFontSize,
+        UserSettings.DefaultItemFontSize,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
-            if (value is double spacing)
-            {
-                if (spacing >= MinimumItemFontSize)
-                {
-                    return spacing;
-                }
-            }
-            return MinimumItemFontSize;
+            return UserSettings.Constrain
+            (
+                value,
+                UserSettings.MinimumItemFontSize, 
+                UserSettings.MaximumItemFontSize, 
+                UserSettings.DefaultItemFontSize
+            );
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -353,10 +337,11 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty HeaderColorProperty = BindableProperty.Create
     (
-        nameof(HeaderColorProperty),
+        nameof(HeaderColor),
         typeof(Color),
         typeof(GlyphsView),
-        DefaultHeaderColor,
+        UserSettings.DefaultItemHeaderColor, 
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is Color color)
@@ -392,10 +377,11 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty HeaderBackgroundColorProperty = BindableProperty.Create
     (
-        nameof(HeaderBackgroundColorProperty),
+        nameof(HeaderBackgroundColor),
         typeof(Color),
         typeof(GlyphsView),
         Colors.Transparent,
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is Color color)
@@ -431,10 +417,11 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty HeaderFontFamilyProperty = BindableProperty.Create
     (
-        nameof(HeaderFontFamilyProperty),
+        nameof(HeaderFontFamily),
         typeof(string),
         typeof(GlyphsView),
         DefaultHeaderFontFamily,
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is string family)
@@ -474,20 +461,20 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty HeaderFontSizeProperty = BindableProperty.Create
     (
-        nameof(HeaderFontSizeProperty),
+        nameof(HeaderFontSize),
         typeof(double),
         typeof(GlyphsView),
-        DefaultHeaderFontSize,
+        UserSettings.DefaultItemHeaderFontSize,
+        BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
-            if (value is double spacing)
-            {
-                if (spacing < MinimumHeaderFontSize)
-                {
-                    return spacing;
-                }
-            }
-            return MinimumHeaderFontSize;
+            return UserSettings.Constrain
+            (
+                value,
+                UserSettings.MinimumItemHeaderFontSize,
+                UserSettings.MaximumItemHeaderFontSize,
+                UserSettings.DefaultItemFontSize
+            );
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -529,10 +516,12 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty HeaderFontAttributesProperty = BindableProperty.Create
     (
-        nameof(HeaderFontAttributesProperty),
+        nameof(HeaderFontAttributes),
         typeof(FontAttributes),
         typeof(GlyphsView),
-        DefaultHeaderFontAttributes
+        DefaultHeaderFontAttributes,
+        BindingMode.OneWay
+
     );
 
     #endregion HeaderFontAttributes
@@ -553,7 +542,7 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public static readonly BindableProperty HeaderClickedCommandProperty = BindableProperty.Create
     (
-        nameof(HeaderClickedCommandProperty),
+        nameof(HeaderClickedCommand),
         typeof(ICommand),
         typeof(GlyphsView),
         null,

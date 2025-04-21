@@ -21,7 +21,8 @@
     -->
     <Grid RowDefinitions="Auto, Auto, *">
         
-        <views:HeaderView Grid.Row="0"/>
+        <views:HeaderView Grid.Row="0"
+                          Margin="10,0,10,0"/>
  
         <Grid Grid.Row="1" 
               Grid.RowSpan="2"
@@ -45,7 +46,8 @@
                               ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               HeaderColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               BackgroundColor="Transparent"
-                              ItemFontSize="{Binding GlypFontSize}"
+                              ItemFontSize="{Binding Settings.ItemFontSize}"
+                              HeaderFontSize="{Binding Settings.ItemHeaderFontSize}"
                               SelectedItem="{Binding SelectedGlyph, Mode=TwoWay}"
                               SelectedItemMetrics="{Binding SelectedGlyphMetrics}"
                               HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
@@ -69,15 +71,15 @@
                   >
                 <views:GlyphView Grid.Row="0" 
                                  Glyph="{Binding SelectedGlyph, Mode=OneWay}"
-                                 TextColor="{AppThemeBinding Light=White, Dark={StaticResource PrimaryDarkText}}"
+                                 TextColor="{AppThemeBinding Light=WhiteSmoke, Dark={StaticResource PrimaryDarkText}}"
                                  BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                                  LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"
                                  BaselineColor="{AppThemeBinding Light=LightGreen, Dark=Green}"
-                                 MinimumWidthRequest="{Binding GlyphWidth}"
+                                 MinimumWidthRequest="{Binding Settings.GlyphWidth}"
                                  />
 
                 <!-- NOTE: WidthRequest ensures the view width doesn't resize when properties change -->
-                <views:MetricsView Grid.Row="2" WidthRequest="{Binding GlyphWidth}"/>
+                <views:MetricsView Grid.Row="2" WidthRequest="{Binding Settings.GlyphWidth}"/>
 
             </Grid>
         </Grid>

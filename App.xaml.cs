@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer;
 
+using GlyphViewer.ObjectModel;
 using GlyphViewer.ViewModels;
 using GlyphViewer.Views;
 
@@ -19,4 +20,13 @@ public partial class App : Application
     {
         return new Window(new NavigationPage(new MainPage(_model)));
     }
+
+    /// <summary>
+    /// Gets the <see cref="INavigation"/> for the window page.
+    /// </summary>
+    public static INavigation Navigation
+    {
+        get => Current.Windows[0].Page.Navigation;
+    }
+
 }

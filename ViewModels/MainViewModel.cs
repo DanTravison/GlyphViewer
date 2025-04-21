@@ -1,7 +1,9 @@
 ﻿namespace GlyphViewer.ViewModels;
 
 using GlyphViewer.ObjectModel;
+using GlyphViewer.Settings;
 using GlyphViewer.Text;
+using GlyphViewer.Views;
 using SkiaSharp;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -18,7 +20,6 @@ internal sealed class MainViewModel : ObservableObject
     GlyphCollection _glyphs;
     Glyph _selectedGlyph;
     GlyphMetrics _selectedGlyphMetrics;
-    double _glyphFontSize = 32.0;
     readonly IDispatcher _dispatcher;
     int _row;
     int _rows;
@@ -27,20 +28,30 @@ internal sealed class MainViewModel : ObservableObject
 
     #endregion Fields
 
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="dispatcher">The <see cref="IDispatcher"/> to use for invoking methods on the UI thread.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="dispatcher"/> is a null reference.</exception>
     public MainViewModel(IDispatcher dispatcher)
     {
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
+        Settings = new UserSettings();
     }
 
     #region Properties
 
+    #region Settings
+
     /// <summary>
-    /// Gets the preferred size of the GlyphView width.
+    /// Gets the <see cref="Settings.UserSettings"/>.
     /// </summary>
-    public double GlyphWidth
+    public UserSettings Settings
     {
-        get => 300;
+        get;
     }
+
+    #endregion Settings
 
     #region Rows
 
@@ -201,15 +212,6 @@ internal sealed class MainViewModel : ObservableObject
         private set;
     }
 
-    /// <summary>
-    /// Gets or sets the font size for displaying glyphs in the GlyphsView.
-    /// </summary>
-    public double GlypFontSize
-    {
-        get => _glyphFontSize;
-        set => SetProperty(ref _glyphFontSize, value, GlyphFontSizeChangedEventArgs);
-    }
-
     #endregion Selected Glyph Properties
 
     #region Family Group
@@ -308,7 +310,7 @@ internal sealed class MainViewModel : ObservableObject
             ))
             {
                 glyphs = GlyphCollection.CreateInstance(typeface);
-                fontMetrics = new FontMetricsProperties(typeface, (float)GlypFontSize);
+                fontMetrics = new FontMetricsProperties(typeface, (float)Settings.ItemFontSize);
             }
         }
         _ = dispatcher.DispatchAsync(() =>
@@ -326,7 +328,6 @@ internal sealed class MainViewModel : ObservableObject
     static readonly PropertyChangedEventArgs SelectedFontChangedEventArgs = new(nameof(SelectedFontFamily));
     static readonly PropertyChangedEventArgs FontMetricsChangedEventArgs = new(nameof(FontMetrics));
     static readonly PropertyChangedEventArgs GlyphsChangedEventArgs = new(nameof(Glyphs));
-    static readonly PropertyChangedEventArgs GlyphFontSizeChangedEventArgs = new(nameof(GlypFontSize));
 
     public static readonly PropertyChangedEventArgs SelectedFamilyGroupChangedEventArgs = new(nameof(SelectedFamilyGroup));
 
