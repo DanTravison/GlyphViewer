@@ -291,13 +291,14 @@ internal class SkLabel : SKCanvasView
 
     void InvalidateTextMetrics()
     {
-        // Address GlyphView does not size correctly when glyph's height exceeds the height of the glyph view.
-        // https://github.com/DanTravison/GlyphViewer/issues/23
+        // Address SkLabel does not resize after the first call to InvalidateMeasure
+        // https://github.com/DanTravison/GlyphViewer/issues/25
         // NOTE: Unless HeightRequest is explicitly cleared, MeasureOverride does not get called
         // after the first successful attempt to resize the control.
         // Additionally, MeasureOverride must explicitly set HeightRequest.
         HeightRequest = -1;
         InvalidateMeasure();
+        InvalidateSurface();
     }   
     
     SKFont GetFont()
@@ -325,8 +326,8 @@ internal class SkLabel : SKCanvasView
             _metrics = new SKTextMetrics(Text, font, paint);
             float width = (float)Padding.HorizontalThickness + _metrics.TextWidth;
             float height = (float)Padding.VerticalThickness + _metrics.Size.Height;
-            // Address GlyphView does not size correctly when glyph's height exceeds the height of the glyph view.
-            // https://github.com/DanTravison/GlyphViewer/issues/23
+            // Address SkLabel does not resize after the first call to InvalidateMeasure
+            // https://github.com/DanTravison/GlyphViewer/issues/25
             // NOTE: Must explicitly set HeightRequest here as well as in InvalidateTextMetrics
             HeightRequest = height;
             return new Size(width, height);

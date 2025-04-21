@@ -142,6 +142,15 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reset settings to the default values..
+        /// </summary>
+        internal static string ResetSettingsDescription {
+            get {
+                return ResourceManager.GetString("ResetSettingsDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         internal static string SettingsTitle {

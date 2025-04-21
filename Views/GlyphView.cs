@@ -232,6 +232,7 @@ public class GlyphView : SKCanvasView
             _font.Size = (float)FontSize;
             _font.Subpixel = true;
             _metrics = GlyphMetrics.CreateInstance(Glyph, _font);
+            // NOTE: MinimumWidthRequest is interpreted as the desired size.
             if (_metrics.Size.Height > MinimumWidthRequest)
             {
                 heightRequest = _metrics.Size.Height;

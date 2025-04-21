@@ -204,6 +204,11 @@ public sealed class UserSettings : ObservableObject
         });
 
         Navigator = new PageNavigator<SettingsPage>(true, this);
+
+        ResetCommand = new Command(Reset)
+        {
+            IsEnabled = true
+        };
     }
 
     #region Properties
@@ -260,10 +265,18 @@ public sealed class UserSettings : ObservableObject
         get;
     }
 
+    /// <summary>
+    /// Gets the command to reset the settings to the default values.
+    /// </summary>
+    public Command ResetCommand
+    {
+        get;
+    }
+
     #endregion Properties
 
     /// <summary>
-    /// Reset the settings to the default state.
+    /// Reset the settings to the default values.
     /// </summary>
     public void Reset()
     {

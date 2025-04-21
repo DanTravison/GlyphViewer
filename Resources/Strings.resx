@@ -153,4 +153,7 @@
   <data name="SettingsTitle" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="ResetSettingsDescription" xml:space="preserve">
+    <value>Reset settings to the default values.</value>
+  </data>
 </root>
