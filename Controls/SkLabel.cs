@@ -125,9 +125,9 @@ internal class SkLabel : SKCanvasView
             }
             return DefaultFontFamily;
         },
-        propertyChanged: (bindable, oldValue, newValue) => 
-        { 
-            ((SkLabel)bindable).InvalidateTextMetrics(); 
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            ((SkLabel)bindable).InvalidateTextMetrics();
         }
     );
 
@@ -154,9 +154,9 @@ internal class SkLabel : SKCanvasView
         typeof(SkLabel),
         DefaultFontAttributes,
         BindingMode.OneWay,
-        propertyChanged: (bindable, oldValue, newValue) => 
-        { 
-            ((SkLabel)bindable).InvalidateTextMetrics(); 
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            ((SkLabel)bindable).InvalidateTextMetrics();
         }
     );
 
@@ -291,16 +291,17 @@ internal class SkLabel : SKCanvasView
 
     void InvalidateTextMetrics()
     {
-        // Address SkLabel does not resize after the first call to InvalidateMeasure
+        // Workaround for SkLabel does not resize after the first call to InvalidateMeasure
         // https://github.com/DanTravison/GlyphViewer/issues/25
+        // See https://github.com/mono/SkiaSharp/issues/3239
         // NOTE: Unless HeightRequest is explicitly cleared, MeasureOverride does not get called
         // after the first successful attempt to resize the control.
         // Additionally, MeasureOverride must explicitly set HeightRequest.
         HeightRequest = -1;
         InvalidateMeasure();
         InvalidateSurface();
-    }   
-    
+    }
+
     SKFont GetFont()
     {
         using (SKTypeface typeface = SKTypeface.FromFamilyName(FontFamily, FontAttributes.ToFontStyle()))
@@ -326,8 +327,9 @@ internal class SkLabel : SKCanvasView
             _metrics = new SKTextMetrics(Text, font, paint);
             float width = (float)Padding.HorizontalThickness + _metrics.TextWidth;
             float height = (float)Padding.VerticalThickness + _metrics.Size.Height;
-            // Address SkLabel does not resize after the first call to InvalidateMeasure
+            // Workaround for SkLabel does not resize after the first call to InvalidateMeasure
             // https://github.com/DanTravison/GlyphViewer/issues/25
+            // See https://github.com/mono/SkiaSharp/issues/3239
             // NOTE: Must explicitly set HeightRequest here as well as in InvalidateTextMetrics
             HeightRequest = height;
             return new Size(width, height);
@@ -341,7 +343,7 @@ internal class SkLabel : SKCanvasView
 
         if (BackgroundColor is not null && BackgroundColor != Colors.Transparent)
         {
-           canvas.Clear(BackgroundColor.ToSKColor());
+            canvas.Clear(BackgroundColor.ToSKColor());
         }
         else
         {
@@ -355,42 +357,35 @@ internal class SkLabel : SKCanvasView
             float width = (float)(CanvasSize.Width - padding.HorizontalThickness);
             float height = (float)(CanvasSize.Height - padding.VerticalThickness);
 
-            using (SKPaint paint = new() {IsAntialias = true, Color = TextColor.ToSKColor()})
+            using (SKPaint paint = new() { IsAntialias = true, Color = TextColor.ToSKColor() })
             {
                 using (SKFont font = GetFont())
                 {
-                    SKTextAlign verticalAlignment = VerticalTextAlignment.ToTextAlign();
-                    SKTextAlign horizontalAlignment = HorizontalTextAlignment.ToTextAlign();
                     if (_metrics is null)
                     {
                         _metrics = new SKTextMetrics(Text, font, paint);
                     }
-                    switch (verticalAlignment)
+                    switch (VerticalTextAlignment)
                     {
-                        // TextAlignment.Center
-                        case SKTextAlign.Center:
+                        case TextAlignment.Center:
                             y += _metrics.Ascent + (height - _metrics.Size.Height) / 2;
                             break;
-                        // TextAlignment.Bottom
-                        case SKTextAlign.Right:
+                        case TextAlignment.End:
                             y += height - _metrics.Descent;
                             break;
-                        // TextAlignment.Top and Justify
+                        // TextAlignment.Start and Justify
                         default:
                             y -= _metrics.Ascent;
                             break;
                     }
-                    switch (horizontalAlignment)
+                    switch (HorizontalTextAlignment)
                     {
-                        // TextAlignment.Center
-                        case SKTextAlign.Center:
+                        case TextAlignment.Center:
                             x += (width - _metrics.TextWidth) / 2;
                             break;
-                        // TextAlignment.Right
-                        case SKTextAlign.Right:
+                        case TextAlignment.End:
                             x += width - _metrics.TextWidth;
                             break;
-                        // TextAlignment.Left and Justify
                         default:
                             break;
                     }

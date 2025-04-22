@@ -8,9 +8,9 @@ public sealed class GlyphMetricProperties
 
         Glyph glyph = metrics.Glyph;
         List<NamedValue> extended = [];
-        extended.Add(new (nameof(Glyph.Category), glyph.Category.ToString()));
-        extended.Add(new (nameof(Unicode.Range), glyph.Range.Name));
-        extended.Add(new (nameof(Glyph.Name), glyph.Name));
+        extended.Add(new(nameof(Glyph.Category), glyph.Category.ToString()));
+        extended.Add(new(nameof(Unicode.Range), glyph.Range.Name));
+        extended.Add(new(nameof(Glyph.Name), glyph.Name));
         ExtendedProperties = extended;
     }
 

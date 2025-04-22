@@ -48,7 +48,7 @@ public sealed class UserSettings : ObservableObject
         IEnumerator IEnumerable.GetEnumerator()
         {
             return ((IEnumerable)_settings).GetEnumerator();
-        }   
+        }
     }
 
     #region Fields
@@ -151,7 +151,7 @@ public sealed class UserSettings : ObservableObject
 
         _glyphWidth = _settings.Add(new GlyphWidthSetting
         (
-            OnPropertyChanged, GlyphWidthChangedEventArgs, 
+            OnPropertyChanged, GlyphWidthChangedEventArgs,
             DefaultGlyphWidth,
             Strings.GlyphWidthLabel, Strings.GlyphWidthDescription
         )
@@ -163,9 +163,9 @@ public sealed class UserSettings : ObservableObject
 
         _itemFontSize = _settings.Add(new FontSizeSetting
         (
-            OnPropertyChanged, ItemFontSizeChangedEventArgs, 
+            OnPropertyChanged, ItemFontSizeChangedEventArgs,
             DefaultItemFontSize,
-            Strings.ItemFontSizeLabel, Strings.ItemFontSizeDescription            
+            Strings.ItemFontSizeLabel, Strings.ItemFontSizeDescription
         )
         {
             MininumValue = MinimumItemFontSize,
@@ -187,11 +187,11 @@ public sealed class UserSettings : ObservableObject
             Increment = 1,
             Text = Text.Unicode.Ranges.Latin1Supplement.Name,
             FontFamily = Strings.DefaultFontFamily
-        }); 
-        
+        });
+
         _titleFontSize = _settings.Add(new FontSizeSetting
         (
-            OnPropertyChanged, TitleFontSizeChangedEventArgs, 
+            OnPropertyChanged, TitleFontSizeChangedEventArgs,
             DefaultTitleFontSize,
             Strings.TitleFontSizeLabel, Strings.TitleFontSizeDescription
         )
@@ -200,7 +200,7 @@ public sealed class UserSettings : ObservableObject
             MaximumValue = MaximumTitleFontSize,
             Increment = 1,
             Text = Strings.ApplicationName,
-            FontFamily=Strings.DefaultFontFamily
+            FontFamily = Strings.DefaultFontFamily
         });
 
         Navigator = new PageNavigator<SettingsPage>(true, this);
@@ -229,7 +229,7 @@ public sealed class UserSettings : ObservableObject
     {
         get => _itemFontSize.Value;
         set => _itemFontSize.Value = value;
-     }
+    }
 
     /// <summary>
     /// Gets or sets the font size for the item header for Glyph groups in the <see cref="GlyphsView"/>.

@@ -3,7 +3,6 @@
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Settings;
 using GlyphViewer.Text;
-using GlyphViewer.Views;
 using SkiaSharp;
 using System.ComponentModel;
 using System.Windows.Input;

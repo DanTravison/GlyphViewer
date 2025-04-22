@@ -305,8 +305,8 @@ public sealed class GlyphsView : SKCanvasView
             return UserSettings.Constrain
             (
                 value,
-                UserSettings.MinimumItemFontSize, 
-                UserSettings.MaximumItemFontSize, 
+                UserSettings.MinimumItemFontSize,
+                UserSettings.MaximumItemFontSize,
                 UserSettings.DefaultItemFontSize
             );
         },
@@ -340,7 +340,7 @@ public sealed class GlyphsView : SKCanvasView
         nameof(HeaderColor),
         typeof(Color),
         typeof(GlyphsView),
-        UserSettings.DefaultItemHeaderColor, 
+        UserSettings.DefaultItemHeaderColor,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {

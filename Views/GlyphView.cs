@@ -244,6 +244,7 @@ public class GlyphView : SKCanvasView
         {
             // Address GlyphView does not size correctly when glyph's height exceeds the height of the glyph view.
             // https://github.com/DanTravison/GlyphViewer/issues/23
+            // See https://github.com/mono/SkiaSharp/issues/3239
             HeightRequest = heightRequest;
             InvalidateMeasure();
         }

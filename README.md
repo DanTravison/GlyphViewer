@@ -35,8 +35,20 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * The GlyphsView is still rather minimal. I'm considering the following changes:
   * Display the text code for each glyph.
   * Display the glyph name when available.
+* Currently tracking [issue 3239](https://github.com/mono/SkiaSharp/issues/3239) in SkiaSharp
+  * There is a workaround in the [GLyphView](https://github.com/DanTravison/GlyphViewer/issues/23)
+  * There is another workaround in [SkLabel](https://github.com/DanTravison/GlyphViewer/issues/25)
+
 
 # The Project Structure
+
+## ViewModels
+* MainViewModel - the view model for the main page and various views
+* PageNavigator - provides open/close semantics for a specific ContentPage
+  * Defines an OpenCommand to open a page and a CloseCommand to navigate back.
+  * Creates the ContentPage and optionally sets the BindingContext on open.
+  * Pops the page from the navigation stack on close and clears the BindingContext when the page is unloaded.  
+  * IsModel indicates whether the page should be modal.  
 
 ## Views
 * MainPage: The application's main page
@@ -47,6 +59,7 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * FontFamiliesView: The list of available fonts (typefaces) grouped by the first letter of the typeface name..
 * FamilyGroupPicker: A jump list to select a font family group.
 * HeaderView: The header for the main page.
+* SettingsPage: A page for user configurable settings.
 
 ## Views/Renderers
 * IGlyphRow: Interface for the GlyphRow and HeaderRow classes
@@ -56,6 +69,35 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * DrawingContext: The context for drawing the glyphs and rows
   * Contains the various fonts, colors, and layout metrics used by the renderers
   * Called by various GlyphsView properties to synchronize changes needed for rendering.
+
+## Setting
+* UserSettings - encapsulates all user-configurable settings
+  * Storage is currently through Maui Preferences.
+* Setting<T> - An ObservableObject providing a abstract base class for a setting property.
+* ISetting - An interface for the setting property used for data binding and template resolution.
+* DoubleSetting - provides a setting property for a setting based on aDouble
+* FontSizeSettings - provides a setting property for FontSize settings.
+* GlyphWidthSetting - provides a DoubleSetting for the width of the GlyphView.
+* SettingDataTemplateSelector - A DataTemplateSelector for the SettingsPage.
+  * The template selector is used to select the appropriate data template for each setting.
+  * The templates are defined in the SettingsPage.xaml file.
+
+## Setting<T> Notes
+This class is logically equivalent to a BindableProperty in that it manages the 
+underlying value. UserSettings defines an instance of a derived Setting and 
+defines a property that proxies get and set through to the Setting.
+Additionally,UserSettings provides a delegate that Setting invokes to raise 
+the PropertyChanged event on the UserSettings instance.
+
+The Setting<T> class is also an ObservableObject. This allows UserSettings to 
+provide a collection of 'Properties' that are bound to a CollectionView in the SettingsPage.
+The goal is to avoid hard-coding the properties directly in the XAML.
+
+Setting<T> defines abstract ReadValue and WriteValue that are implemented in the derived
+classes to serialize the setting value and supports resetting the setting to its default value.
+
+Derived classes provide the setting name, the display name, and the default value.
+ReadValue and WriteValue currently use Maui's Preferences class.
 
 ## Text
 Contains the various Glyph classes:
@@ -83,6 +125,7 @@ Fonts.cs Experimental Extension Methods:
 * Range: A Unicode range
 * Ranges: the set of Unicode ranges in 0x0000-0xFFFF
 * Extended: The set of Unicode ranges from 0x10000 through 0x100000
+  * NOTE: This class is not currently used. 
   * NOTE: These are extracted from [Character Map UWP](https://github.com/character-map-uwp/Character-Map-UWP) 
   * See the associated [LICENSE](https://github.com/character-map-uwp/Character-Map-UWP/blob/master/LICENSE) 
 

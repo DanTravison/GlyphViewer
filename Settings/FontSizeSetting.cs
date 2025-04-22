@@ -24,13 +24,13 @@ internal class FontSizeSetting : DoubleSetting
     /// </param>
     public FontSizeSetting
     (
-        NotifyPropertyChangedDelegate propertyChanged, 
+        NotifyPropertyChangedDelegate propertyChanged,
         PropertyChangedEventArgs eventArgs,
-        double defaultValue, 
-        string displayName, 
-        string description, 
+        double defaultValue,
+        string displayName,
+        string description,
         IEqualityComparer<double> comparer = null
-    ) 
+    )
         : base(propertyChanged, eventArgs, defaultValue, displayName, description, comparer)
     {
     }

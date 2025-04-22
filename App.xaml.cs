@@ -1,6 +1,5 @@
 ﻿namespace GlyphViewer;
 
-using GlyphViewer.ObjectModel;
 using GlyphViewer.ViewModels;
 using GlyphViewer.Views;
 

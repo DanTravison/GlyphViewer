@@ -129,9 +129,9 @@ public static class Fonts
     (
         this SKCanvas canvas,
         SKFont font,
-        SKPaint paint, 
-        string text, 
-        float left, float baseline, 
+        SKPaint paint,
+        string text,
+        float left, float baseline,
         SKTextAlign align = SKTextAlign.Left
     )
     {
