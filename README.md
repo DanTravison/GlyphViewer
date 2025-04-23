@@ -48,14 +48,19 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Defines an OpenCommand to open a page and a CloseCommand to navigate back.
   * Creates the ContentPage and optionally sets the BindingContext on open.
   * Pops the page from the navigation stack on close and clears the BindingContext when the page is unloaded.  
-  * IsModel indicates whether the page should be modal.  
+  * IsModel indicates whether the page should be modal.
+* MetricsModel - the view model for the fonts and glyph metrics
+  * Provides the property for the current Glyph. 
+  * Provides a list of glyph metrics properties for the selected glyph.
+  * Provides a list of font metrics properties for the selected typeface.
+ 
 
 ## Views
 * MainPage: The application's main page
   * Presents the HeaderView, FontFamiliesView, GlyphsView, GlyphView and MetricsView 
 * GlyphsView: The view of the glyphs in a typeface rendered on a SkCanvasView
-* GlyphView: The view of the selected glyph rendered on a SkCanvasView
-* MetricsView: The view of the glyph properties.
+* GlyphView: The view of the current glyph rendered on a SkCanvasView
+* MetricsView: The view of the current glyph and font family properties.
 * FontFamiliesView: The list of available fonts (typefaces) grouped by the first letter of the typeface name..
 * FamilyGroupPicker: A jump list to select a font family group.
 * HeaderView: The header for the main page.

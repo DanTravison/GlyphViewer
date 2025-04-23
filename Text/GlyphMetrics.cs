@@ -20,6 +20,7 @@ public class GlyphMetrics : SKTextMetrics, IEquatable<GlyphMetrics>
     GlyphMetrics()
         : base()
     {
+        Glyph = Glyph.Empty;
     }
 
     /// <summary>

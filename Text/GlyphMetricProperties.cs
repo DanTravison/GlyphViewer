@@ -4,6 +4,7 @@ public sealed class GlyphMetricProperties
 {
     public GlyphMetricProperties(GlyphMetrics metrics)
     {
+        Metrics = metrics;
         Properties = CreateInstance(metrics);
 
         Glyph glyph = metrics.Glyph;
@@ -12,6 +13,14 @@ public sealed class GlyphMetricProperties
         extended.Add(new(nameof(Unicode.Range), glyph.Range.Name));
         extended.Add(new(nameof(Glyph.Name), glyph.Name));
         ExtendedProperties = extended;
+    }
+
+    /// <summary>
+    /// Gets the associated <see cref="GlyphMetrics"/>.
+    /// </summary>
+    public GlyphMetrics Metrics
+    {
+        get;
     }
 
     /// <summary>

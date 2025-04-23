@@ -713,39 +713,6 @@ public sealed class GlyphsView : SKCanvasView
 
     #endregion Rows
 
-    #region SelectedItemMetrics
-
-    /// <summary>
-    /// Gets or sets the selected <see cref="Glyph"/>.
-    /// </summary>
-    public GlyphMetrics SelectedItemMetrics
-    {
-        get => (GlyphMetrics)GetValue(SelectedItemMetricsProperty);
-        set => SetValue(SelectedItemMetricsProperty, value);
-    }
-
-    /// <summary>
-    /// Provides a <see cref="BindableProperty"/> for the <see cref="SelectedItemMetrics"/>  property.
-    /// </summary>
-    public static readonly BindableProperty SelectedItemMetricsProperty = BindableProperty.Create
-    (
-        nameof(SelectedItemMetrics),
-        typeof(GlyphMetrics),
-        typeof(GlyphsView),
-        GlyphMetrics.Empty,
-        BindingMode.OneWayToSource,
-        coerceValue: (bindable, value) =>
-        {
-            if (value is GlyphMetrics metrics)
-            {
-                return metrics;
-            }
-            return GlyphMetrics.Empty;
-        }
-    );
-
-    #endregion SelectedItemMetrics
-
     #region SelectedItem
 
     /// <summary>
@@ -778,35 +745,16 @@ public sealed class GlyphsView : SKCanvasView
 
     void OnSelectedItemChanged()
     {
-        GlyphMetrics glyphMetrics;
-
         Glyph glyph = SelectedItem;
         if (glyph is not null && !glyph.IsEmpty)
         {
-            _glyphs.TryGetValue(SelectedItem.CodePoint, out glyphMetrics);
+            _glyphs.TryGetValue(SelectedItem.CodePoint, out _selectedItem);
         }
         else
         {
-            glyphMetrics = null;
+            _selectedItem = null;
         }
-        SelectItem(glyphMetrics);
-    }
-
-    void SelectItem(GlyphMetrics glyphMetrics)
-    {
-        if (glyphMetrics != _selectedItem)
-        {
-            _selectedItem = glyphMetrics;
-            if (glyphMetrics is not null)
-            {
-                SelectedItemMetrics = glyphMetrics;
-            }
-            else
-            {
-                SelectedItemMetrics = GlyphMetrics.Empty;
-            }
-            InvalidateSurface();
-        }
+        InvalidateSurface();
     }
 
     #endregion SelectedItem

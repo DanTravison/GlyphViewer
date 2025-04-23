@@ -22,7 +22,7 @@
                Grid.Row="0"
                Grid.Column="0"
                />
-        <Label Text="{Binding SelectedFontFamily}"
+        <Label Text="{Binding Metrics.FontFamily}"
                Style="{StaticResource TitleLabelStyle}"
                HorizontalOptions="Center"
                Grid.Row="0"

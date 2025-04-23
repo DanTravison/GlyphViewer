@@ -1,9 +1,11 @@
 ﻿namespace GlyphViewer.Views;
 
 using GlyphViewer.Text;
+using GlyphViewer.ViewModels;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
+using System.ComponentModel;
 
 /// <summary>
 /// Provides a view of a <see cref="Glyph"/>.
@@ -12,16 +14,21 @@ public class GlyphView : SKCanvasView
 {
     #region Constants
 
+    // TODO: Consider making these user settings.
+    // If so, Theme support will be needed and the background color need to be configurable.
+
     /// <summary>
     /// Defines the default text color to use to draw the glyph.
     /// </summary>
     public static readonly Color DefaultTextColor = Colors.Black;
+
     /// <summary>
-    /// Defines the default color to use to draw the <see cref="GlyphMetrics"/> indicator lines.
+    /// Defines the default color to use to draw the edges of the glyph.
     /// </summary>
     public static readonly Color DefaultLineColor = Colors.Red;
+
     /// <summary>
-    /// Defines the default color to use to draw the baseline.
+    /// Defines the default color to use to draw the baseline and <see cref="SKTextMetrics.Left"/> lines.
     /// </summary>
     public static readonly Color DefaultBaselineColor = Colors.Blue;
 
@@ -29,16 +36,15 @@ public class GlyphView : SKCanvasView
 
     #region Fields
 
-    SKTypeface _typeface;
-    SKFont _font;
-    GlyphMetrics _metrics;
-
+    SKFont _font; 
+    GlyphMetrics _glyphMetrics = GlyphMetrics.Empty;
+   
     #endregion Fields
 
     #region FontSize
 
     /// <summary>
-    /// Gets or sets the starting pitch of the piano.
+    /// Gets or sets the font size to use to draw the <see cref="Glyph"/>.
     /// </summary>
     public double FontSize
     {
@@ -60,59 +66,82 @@ public class GlyphView : SKCanvasView
         {
             if (b is GlyphView view)
             {
-                view.OnFontSizeChanged();
+                view.OnMetricsPropertyChanged(view, MetricsModel.FontChangedEventArgs);
             }
         }
     );
-
-    void OnFontSizeChanged()
-    {
-        _typeface?.Dispose();
-        _typeface = null;
-        InvalidateSurface();
-    }
 
     #endregion FontSize
 
-    #region Glyph
+    #region Metrics
 
     /// <summary>
-    /// Gets or sets the glyph to draw.
+    /// Gets or sets the Metrics to draw.
     /// </summary>
-    public Glyph Glyph
+    internal MetricsModel Metrics
     {
-        get => (Glyph)GetValue(GlyphProperty);
-        set => SetValue(GlyphProperty, value);
+        get => GetValue(MetricsProperty) as MetricsModel;
+        set => SetValue(MetricsProperty, value);
     }
 
     /// <summary>
-    /// Provides the <see cref="BindableProperty"/> for <see cref="Glyph"/>.
+    /// Provides the <see cref="BindableProperty"/> for <see cref="Metrics"/>.
     /// </summary>
-    public static readonly BindableProperty GlyphProperty = BindableProperty.Create
+    public static readonly BindableProperty MetricsProperty = BindableProperty.Create
     (
-        nameof(Glyph),
-        typeof(Glyph),
-        typeof(GlyphView),
-        Glyph.Empty,
+        nameof(Metrics),
+        typeof(MetricsModel),
+        typeof(MetricsView),
+        null,
         BindingMode.OneWay,
-        coerceValue: (bindable, value) =>
+        propertyChanged: (bindable, oldValue, newValue) =>
         {
-            if (value is Glyph glyph)
+            if (bindable is GlyphView view)
             {
-                return glyph;
-            }
-            return Glyph.Empty;
-        },
-        propertyChanged: (b, o, n) =>
-        {
-            if (b is GlyphView view)
-            {
-                view.OnGlyphChanged();
+                view.OnMetricsChanged(oldValue as MetricsModel, newValue as MetricsModel);
             }
         }
     );
 
-    #endregion Glyph
+    /// <summary>
+    /// Handles changes to the <see cref="Metrics"/> property.
+    /// </summary>
+    /// <param name="previous">The previous <see cref="MetricsModel"/>.</param>
+    /// <param name="metrics">The new <see cref="MetricsModel"/>.</param>
+    void OnMetricsChanged(MetricsModel previous, MetricsModel metrics)
+    {
+        if (previous is not null)
+        {
+            previous.PropertyChanged -= OnMetricsPropertyChanged;
+        }
+
+        if (metrics is not null)
+        {
+            metrics.PropertyChanged += OnMetricsPropertyChanged;
+        }
+        OnGlyphChanged();
+    }
+
+    /// <summary>
+    /// Handles PropertyChanged notifications from the <see cref="MetricsModel"/> instance.
+    /// </summary>
+    /// <param name="sender">The object that raised the event (not used).</param>
+    /// <param name="e">The <see cref="PropertyChangedEventArgs"/> identifying the properyt that changed.</param>
+    private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if 
+        (
+            // indicates either this.FontSize or this.Metrics.Font changed
+            ReferenceEquals(e, MetricsModel.FontChangedEventArgs)
+            ||
+            ReferenceEquals(e, MetricsModel.GlyphChangedEventArgs)
+        )
+        {
+            OnGlyphChanged();
+        }
+    }
+
+    #endregion Metrics
 
     #region TextColor
 
@@ -215,29 +244,26 @@ public class GlyphView : SKCanvasView
 
     #region Measure
 
+    /// <summary>
+    /// Updates the font and glyph metrics when the glyph or a dependenty font property changes.
+    /// </summary>
     void OnGlyphChanged()
     {
-        // By default, the desired view size is a square (MininumWidthRequest x MinimumWidthRequest)
+        // By default, the desired view size is a square (MininumWidthRequest,MinimumWidthRequest)
         double heightRequest = MinimumWidthRequest;
 
-        if (_typeface is null || Glyph.FontFamily != _typeface.FamilyName)
+        Glyph glyph = Metrics is not null ? Metrics.Glyph : Glyph.Empty;
+        UpdateGlyph(glyph);
+
+        if (!glyph.IsEmpty)
         {
-            _typeface?.Dispose();
-            _typeface = null;
-        }
-        if (!Glyph.IsEmpty)
-        {
-            _typeface = SKTypeface.FromFamilyName(Glyph.FontFamily, SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright);
-            _font = _typeface.ToFont();
-            _font.Size = (float)FontSize;
-            _font.Subpixel = true;
-            _metrics = GlyphMetrics.CreateInstance(Glyph, _font);
             // NOTE: MinimumWidthRequest is interpreted as the desired size.
-            if (_metrics.Size.Height > MinimumWidthRequest)
+            if (_glyphMetrics.Size.Height > MinimumWidthRequest)
             {
-                heightRequest = _metrics.Size.Height;
+                heightRequest = _glyphMetrics.Size.Height;
             }
         }
+
         // Intent: Allow the height to increase to accomodate taller glyphs but return
         // to the desired height when the glyph is empty or the glyph height < desired height
         if (heightRequest != HeightRequest)
@@ -251,6 +277,25 @@ public class GlyphView : SKCanvasView
         InvalidateSurface();
     }
 
+    void UpdateGlyph(Glyph glyph)
+    {
+        if (!glyph.IsEmpty)
+        {
+            if (_font is null || _font.Typeface.FamilyName != glyph.FontFamily)
+            {
+                _font?.Dispose();
+                _font = Fonts.CreateFont(glyph.FontFamily, (float)FontSize);
+            }
+            _glyphMetrics = GlyphMetrics.CreateInstance(glyph, _font);
+        }
+        else
+        {
+            _font?.Dispose();
+            _font = null;
+            _glyphMetrics = GlyphMetrics.Empty;
+        }
+    }
+    
     /// <summary>
     /// Determines the size needed to draw the <see cref="Glyph"/>.
     /// </summary>
@@ -260,9 +305,9 @@ public class GlyphView : SKCanvasView
     protected override Size MeasureOverride(double widthConstraint, double heightConstraint)
     {
         Size size = base.MeasureOverride(widthConstraint, heightConstraint);
-        if (!Glyph.IsEmpty)
+        if (!_glyphMetrics.Glyph.IsEmpty)
         {
-            double height = Math.Max(_metrics.Size.Height, MinimumWidthRequest);
+            double height = Math.Max(_glyphMetrics.Size.Height, MinimumWidthRequest);
             size = new Size(MinimumWidthRequest, height);
         }
         else
@@ -277,6 +322,10 @@ public class GlyphView : SKCanvasView
 
     #region Draw
 
+    /// <summary>
+    /// Paints the glyph on the canvas.
+    /// </summary>
+    /// <param name="e">The <see cref="SKPaintSurfaceEventArgs"/> contianing the details.</param>
     protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
     {
         SKCanvas canvas = e.Surface.Canvas;
@@ -289,19 +338,25 @@ public class GlyphView : SKCanvasView
             // clear the canvas with a transparent color
             canvas.Clear();
         }
-        if (!Glyph.IsEmpty)
+        if (!_glyphMetrics.Glyph.IsEmpty)
         {
             using (SKPaint paint = new() { IsAntialias = true, Style = SKPaintStyle.Fill })
             {
                 // Draw the glyph
-                Draw(canvas, _font, paint);
+                Draw(_glyphMetrics, canvas, _font, paint);
             }
         }
     }
 
-    void Draw(SKCanvas canvas, SKFont font, SKPaint paint)
+    /// <summary>
+    /// Draws a <see cref="Glyph"/> on the canvas.
+    /// </summary>
+    /// <param name="metrics">The <see cref="GlyphMetrics"/> for the <see cref="Glyph"/> to draw.</param>
+    /// <param name="canvas">The <see cref="SKCanvas"/> to draw to.</param>
+    /// <param name="font">The <see cref="SKFont"/> to use to draw.</param>
+    /// <param name="paint">The <see cref="SKPaint"/> to use to draw.</param>
+    void Draw(GlyphMetrics metrics, SKCanvas canvas,SKFont font, SKPaint paint)
     {
-        GlyphMetrics metrics = _metrics;
         float width = CanvasSize.Width;
         float height = CanvasSize.Height;
 
@@ -343,7 +398,7 @@ public class GlyphView : SKCanvasView
         paint.PathEffect = null;
         paint.Style = SKPaintStyle.Fill;
 
-        canvas.DrawText(font, paint, Glyph.Text, start, baseline, SKTextAlign.Left);
+        canvas.DrawText(font, paint, metrics.Glyph.Text, start, baseline, SKTextAlign.Left);
     }
 
     #endregion Draw

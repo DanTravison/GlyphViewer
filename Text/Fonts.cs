@@ -9,6 +9,28 @@ using System.Runtime.CompilerServices;
 public static class Fonts
 {
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="fontFamily"></param>
+    /// <param name="fontSize"></param>
+    /// <param name="style"></param>
+    /// <returns></returns>
+    internal static SKFont CreateFont(this string fontFamily, float fontSize, SKFontStyle style = null)
+    {
+        style ??= SKFontStyle.Normal;
+        using (SKTypeface typeface = SKTypeface.FromFamilyName(fontFamily, style))
+        {
+            SKFont font = new(typeface, (float)fontSize)
+            {
+                Subpixel = true,
+                Edging = SKFontEdging.SubpixelAntialias
+            };
+            return font;
+        }
+    }
+
+
+    /// <summary>
     /// Converts a <see cref="FontAttributes"/> to an <see cref="SKFontStyle"/>.
     /// </summary>
     /// <param name="attributes">The <see cref="FontAttributes"/> to convert.</param>
