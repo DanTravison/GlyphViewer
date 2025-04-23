@@ -184,10 +184,11 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         None = 0,
         FontFamily = 1,
         FontSize = 1 << 1,
-        Glyph = 1 << 3,
+        Glyph = 1 << 2,
+        GlyphMetrics = 1 << 3,
 
+        GlyphProperties = Glyph | GlyphMetrics,
         FontProperties = FontFamily | FontSize,
-        GlyphProperties = FontFamily | FontSize | Glyph
     }
 
     class PropertyChanges(MetricsModel.ChangedProperty changed)
@@ -226,7 +227,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         (
             changed.HasFlag(ChangedProperty.FontProperties) 
             ||
-            changed.HasFlag(ChangedProperty.GlyphProperties))
+            changed.HasFlag(ChangedProperty.GlyphMetrics))
         {
             // Internal error: Property implementations should only pass FontFamily, FontSize or Glyph 
             // flags. All others are handled here.
@@ -244,24 +245,22 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         //
         // Determine which properties need to be updated.
         //
-        if (changes.ContainsAny(ChangedProperty.FontProperties))
+        if (changed == ChangedProperty.FontFamily)
         {
-            if (changed == ChangedProperty.FontFamily)
-            {
-                // reset the glyph
-                _glyph = Glyph.Empty;
-                changes.Set(ChangedProperty.Glyph);
-            }
-            if (changed == ChangedProperty.FontSize)
-            {
-                // reset the glyph properties
-                changes.Set(ChangedProperty.GlyphProperties);
-            }
+            // reset the glyph
+            _glyph = Glyph.Empty;
+            changes.Set(ChangedProperty.Glyph);
+        }
+        else if (changed == ChangedProperty.FontSize)
+        {
+            // Recalculate the glyph properties
+            changes.Set(ChangedProperty.GlyphMetrics);
         }
 
         if (changes.IsSet(ChangedProperty.Glyph))
         {
-            changes.Set(ChangedProperty.GlyphProperties);
+            // Recalculate the glyph properties
+            changes.Set(ChangedProperty.GlyphMetrics);
         }
 
         //
@@ -291,6 +290,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
 
         if (changes.ContainsAny(ChangedProperty.FontProperties))
         {
+            // FontProperties are updated if FontFamily or FontSize changed.
             OnPropertyChanged(FontPropertiesChangedEventArgs);
         }
 
@@ -299,7 +299,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
             OnPropertyChanged(GlyphChangedEventArgs);
         }
 
-        if (changes.ContainsAny(ChangedProperty.GlyphProperties))
+        if (changes.IsSet(ChangedProperty.GlyphMetrics))
         {
             OnPropertyChanged(GlyphPropertiesChangedEventArgs);
         }
