@@ -46,10 +46,9 @@
                               ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               HeaderColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               BackgroundColor="Transparent"
-                              ItemFontSize="{Binding Settings.ItemFontSize}"
+                              ItemFontSize="{Binding Metrics.FontSize}"
                               HeaderFontSize="{Binding Settings.ItemHeaderFontSize}"
-                              SelectedItem="{Binding SelectedGlyph, Mode=TwoWay}"
-                              SelectedItemMetrics="{Binding SelectedGlyphMetrics}"
+                              SelectedItem="{Binding Metrics.Glyph, Mode=TwoWay}"
                               HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
                               UnicodeRanges="{Binding UnicodeRanges}"
                               SelectedUnicodeRange="{Binding SelectedUnicodeRange}"
@@ -70,7 +69,7 @@
                   RowSpacing="5"
                   >
                 <views:GlyphView Grid.Row="0" 
-                                 Glyph="{Binding SelectedGlyph, Mode=OneWay}"
+                                 Metrics="{Binding Metrics, Mode=OneWay}"
                                  TextColor="{AppThemeBinding Light=WhiteSmoke, Dark={StaticResource PrimaryDarkText}}"
                                  BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                                  LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"
@@ -79,7 +78,10 @@
                                  />
 
                 <!-- NOTE: WidthRequest ensures the view width doesn't resize when properties change -->
-                <views:MetricsView Grid.Row="2" WidthRequest="{Binding Settings.GlyphWidth}"/>
+                <views:MetricsView Grid.Row="1"
+                                   WidthRequest="{Binding Settings.GlyphWidth}"
+                                   BindingContext="{Binding Metrics}"
+                                   />
 
             </Grid>
         </Grid>

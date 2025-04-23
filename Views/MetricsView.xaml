@@ -5,31 +5,31 @@
              xmlns:text="clr-namespace:GlyphViewer.Text"
              xmlns:controls="clr-namespace:GlyphViewer.Controls"
              x:Class="GlyphViewer.Views.MetricsView"
-             x:DataType="viewmodel:MainViewModel">
+             x:DataType="viewmodel:MetricsModel">
 
-    <VerticalStackLayout Spacing="3">
+    <ScrollView>
+        <VerticalStackLayout Spacing="5">
         
-        <controls:Grid RowHeight="Auto"
-                       ItemsSource="{Binding SelectedGlyphProperties.Properties}">
-            <controls:Grid.ColumnDefinitions>
-                <controls:ColumnDefinition Width="Auto"
-                                           ItemTemplate="{StaticResource NamedValueNameTemplate}"/>
-                <controls:ColumnDefinition Width="Auto"
-                                           ItemTemplate="{StaticResource NamedValueSeparatorTemplate}"/>
-                <controls:ColumnDefinition Width="Auto"
-                                           ItemTemplate="{StaticResource NamedValueValueTemplate}"/>
-            </controls:Grid.ColumnDefinitions>
-        </controls:Grid>
-
-        <VerticalStackLayout Spacing="5"
-                             BindableLayout.ItemsSource="{Binding SelectedGlyphProperties.ExtendedProperties}"
-                             BindableLayout.ItemTemplate="{StaticResource NamedValueTwoRowItemTemplate}"/>
-
-        <BoxView Style="{StaticResource HorizontalSeparatorStyle}"/>
-
-        <ScrollView Orientation="Vertical">
             <controls:Grid RowHeight="Auto"
-                           ItemsSource="{Binding FontMetrics}"
+                           ItemsSource="{Binding GlyphProperties.Properties}">
+                <controls:Grid.ColumnDefinitions>
+                    <controls:ColumnDefinition Width="Auto"
+                                               ItemTemplate="{StaticResource NamedValueNameTemplate}"/>
+                    <controls:ColumnDefinition Width="Auto"
+                                               ItemTemplate="{StaticResource NamedValueSeparatorTemplate}"/>
+                    <controls:ColumnDefinition Width="Auto"
+                                               ItemTemplate="{StaticResource NamedValueValueTemplate}"/>
+                </controls:Grid.ColumnDefinitions>
+            </controls:Grid>
+
+            <VerticalStackLayout Spacing="5"
+                                 BindableLayout.ItemsSource="{Binding GlyphProperties.ExtendedProperties}"
+                                 BindableLayout.ItemTemplate="{StaticResource NamedValueTwoRowItemTemplate}"/>
+
+            <BoxView Style="{StaticResource HorizontalSeparatorStyle}"/>
+
+            <controls:Grid RowHeight="Auto"
+                           ItemsSource="{Binding FontProperties}"
                            >
                 <controls:Grid.ColumnDefinitions>
                     <controls:ColumnDefinition Width="Auto"
@@ -40,7 +40,8 @@
                                                ItemTemplate="{StaticResource NamedValueValueTemplate}"/>
                 </controls:Grid.ColumnDefinitions>
             </controls:Grid>
-        </ScrollView>
-    </VerticalStackLayout>
+            
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentView>

@@ -55,7 +55,7 @@
                         Grid.RowSpan="2"
                         ItemsSource="{Binding FontFamilyGroups}"
                         SelectionMode="Single"
-                        SelectedItem="{Binding SelectedFontFamily, Mode=TwoWay}"
+                        SelectedItem="{Binding Metrics.FontFamily, Mode=TwoWay}"
                         IsGrouped="true"
                         >
             <CollectionView.GroupHeaderTemplate>
