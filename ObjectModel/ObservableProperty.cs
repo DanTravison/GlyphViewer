@@ -122,8 +122,8 @@ public class ObservableProperty<T> : ObservableProperty
     /// </param>
     public ObservableProperty
     (
-        NotifyPropertyChangedDelegate propertyChanged, 
-        PropertyChangedEventArgs eventArgs, 
+        NotifyPropertyChangedDelegate propertyChanged,
+        PropertyChangedEventArgs eventArgs,
         IEqualityComparer<T> comparer = null
     )
         : base(propertyChanged, eventArgs)

@@ -118,7 +118,7 @@ public abstract class PageNavigator
         {
             _page = CreatePage(_bindingContext);
             Subscribe();
-            
+
             if (IsModal)
             {
                 App.Navigation.PushModalAsync(_page);
@@ -158,7 +158,7 @@ public abstract class PageNavigator
         _page.NavigatedTo += OnPageNavigatedTo;
         _page.NavigatingFrom += OnPageNavigatingFrom;
         _page.Unloaded += OnPageUnloaded;
-     
+
         State = NavigationState.Opening;
     }
 
@@ -170,7 +170,7 @@ public abstract class PageNavigator
         // Clear all bindings
         _page.BindingContext = null;
         _page = null;
- 
+
         State = NavigationState.Closed;
     }
 

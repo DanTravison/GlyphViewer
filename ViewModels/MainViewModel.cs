@@ -3,7 +3,6 @@
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Settings;
 using GlyphViewer.Text;
-using GlyphViewer.Views;
 using SkiaSharp;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -16,15 +15,12 @@ internal sealed class MainViewModel : ObservableObject
     FontFamilyGroup _selectedGroup;
     Text.Unicode.Range _selectedRange;
     IReadOnlyList<Text.Unicode.Range> _ranges;
-    string _selectedFontFamily;
     GlyphCollection _glyphs;
-    Glyph _selectedGlyph;
-    GlyphMetrics _selectedGlyphMetrics;
     readonly IDispatcher _dispatcher;
     int _row;
     int _rows;
     ICommand _pickUnicodeRangeCommand;
-    FontMetricsProperties _fontProperties;
+    MetricsModel _metrics;
 
     #endregion Fields
 
@@ -37,6 +33,9 @@ internal sealed class MainViewModel : ObservableObject
     {
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
         Settings = new UserSettings();
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
+        _metrics = new MetricsModel(Settings.ItemFontSize);
+        _metrics.PropertyChanged += OnMetricsPropertyChanged;
     }
 
     #region Properties
@@ -52,6 +51,14 @@ internal sealed class MainViewModel : ObservableObject
     }
 
     #endregion Settings
+
+    /// <summary>
+    /// Gets the <see cref="MetricsModel"/> for the selected <see cref="Glyph"/> and font family.
+    /// </summary>
+    public MetricsModel Metrics
+    {
+        get => _metrics;
+    }
 
     #region Rows
 
@@ -113,41 +120,14 @@ internal sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _fontFamiliesGroups, value, FontFamiliesChangedEventArgs))
             {
-                SelectedFontFamily = null;
+                _metrics.FontFamily = null;
             }
         }
-    }
-
-    /// <summary>
-    /// Gets or sets the selected font family.
-    /// </summary>
-    /// <remarks>
-    /// This property is updated by FontFamiliesView.
-    /// </remarks>
-    public string SelectedFontFamily
-    {
-        get => _selectedFontFamily;
-        set
-        {
-            if (SetProperty(ref _selectedFontFamily, value, StringComparer.CurrentCulture, SelectedFontChangedEventArgs))
-            {
-                Task.Run(() => { LoadGlyphs(_dispatcher); });
-            }
-        }
-    }
-
-    /// <summary>
-    /// Gets the <see cref="FontMetricsProperties"/> for the <see cref="SelectedFontFamily"/>.
-    /// </summary>
-    public FontMetricsProperties FontMetrics
-    {
-        get => _fontProperties;
-        set => SetProperty(ref _fontProperties, value, ReferenceComparer, FontMetricsChangedEventArgs);
     }
 
     #endregion Font Families
 
-    #region Glyph Properties
+    #region Glyphs
 
     /// <summary>
     /// Gets the <see cref="GlyphCollection"/> for the selected font family.
@@ -162,57 +142,12 @@ internal sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _glyphs, value, ReferenceComparer, GlyphsChangedEventArgs))
             {
-                SelectedGlyph = Glyph.Empty;
+                // _metrics.Glyph = Glyph.Empty;
             }
         }
     }
 
-    /// <summary>
-    /// Gets or sets the selected <see cref="Glyph"/>.
-    /// </summary>
-    /// <remarks>This property is updated by the GlyphsView.</remarks>
-    public Glyph SelectedGlyph
-    {
-        get => _selectedGlyph;
-        set => SetProperty(ref _selectedGlyph, value, SelectedGlyphChangedEventArgs);
-    }
-
-    /// <summary>
-    /// Gets or sets the <see cref="GlyphMetrics"/> for the <see cref="SelectedGlyph"/>.
-    /// </summary>
-    /// <remarks>This property is update by GlyphsView.</remarks>
-    public GlyphMetrics SelectedGlyphMetrics
-    {
-        get => _selectedGlyphMetrics;
-        set
-        {
-            _selectedGlyphMetrics = value;
-            if (!value.IsEmpty)
-            {
-                SelectedGlyphProperties = new GlyphMetricProperties(value);
-            }
-            else
-            {
-                SelectedGlyphProperties = null;
-            }
-            OnPropertyChanged(SelectedGlyphPropertiesChangedEventArgs);
-        }
-    }
-
-    /// <summary>
-    /// Gets the <see cref="GlyphMetricProperties"/> for the <see cref="SelectedGlyph"/>.
-    /// </summary>
-    /// <remarks>
-    /// This property is updated by <see cref="SelectedGlyphMetrics"/>
-    /// and consumed by the MetricsView.
-    /// </remarks>
-    public GlyphMetricProperties SelectedGlyphProperties
-    {
-        get;
-        private set;
-    }
-
-    #endregion Selected Glyph Properties
+    #endregion Glyphs
 
     #region Family Group
 
@@ -298,41 +233,53 @@ internal sealed class MainViewModel : ObservableObject
     public void LoadGlyphs(IDispatcher dispatcher)
     {
         GlyphCollection glyphs = null;
-        FontMetricsProperties fontMetrics = null;
-        if (!string.IsNullOrWhiteSpace(SelectedFontFamily))
+        if (!string.IsNullOrWhiteSpace(_metrics.FontFamily))
         {
             using (SKTypeface typeface = SKTypeface.FromFamilyName
             (
-                SelectedFontFamily,
+                _metrics.FontFamily,
                 SKFontStyleWeight.Normal,
                 SKFontStyleWidth.Normal,
                 SKFontStyleSlant.Upright
             ))
             {
                 glyphs = GlyphCollection.CreateInstance(typeface);
-                fontMetrics = new FontMetricsProperties(typeface, (float)Settings.ItemFontSize);
             }
         }
         _ = dispatcher.DispatchAsync(() =>
         {
-            FontMetrics = fontMetrics;
             Glyphs = glyphs;
         });
     }
 
     #endregion Font Info Loading
 
+    #region Event Handlers
+
+    private void OnSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (ReferenceEquals(e, UserSettings.ItemFontSizeChangedEventArgs))
+        {
+            _metrics.FontSize = Settings.ItemFontSize;
+        }
+    }
+
+    private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (ReferenceEquals(e, MetricsModel.FontFamilyChangedEventArgs))
+        {
+            Task.Run(() => { LoadGlyphs(_dispatcher); });
+        }
+    }
+
+    #endregion Event Handlers
+
     #region PropertyChangedEventArgs
 
     static readonly PropertyChangedEventArgs FontFamiliesChangedEventArgs = new(nameof(FontFamilyGroups));
-    static readonly PropertyChangedEventArgs SelectedFontChangedEventArgs = new(nameof(SelectedFontFamily));
-    static readonly PropertyChangedEventArgs FontMetricsChangedEventArgs = new(nameof(FontMetrics));
     static readonly PropertyChangedEventArgs GlyphsChangedEventArgs = new(nameof(Glyphs));
 
     public static readonly PropertyChangedEventArgs SelectedFamilyGroupChangedEventArgs = new(nameof(SelectedFamilyGroup));
-
-    static readonly PropertyChangedEventArgs SelectedGlyphChangedEventArgs = new(nameof(SelectedGlyph));
-    static readonly PropertyChangedEventArgs SelectedGlyphPropertiesChangedEventArgs = new(nameof(SelectedGlyphProperties));
 
     static readonly PropertyChangedEventArgs UnicodeRangesChangedEventArgs = new(nameof(UnicodeRanges));
     static readonly PropertyChangedEventArgs SelectedUnicodeRangeChangedEventArgs = new(nameof(SelectedUnicodeRange));

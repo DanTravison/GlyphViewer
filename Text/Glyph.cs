@@ -7,7 +7,7 @@ using System.Text;
 /// <summary>
 /// Defines a font family and text for a glyph.
 /// </summary>
-[DebuggerDisplay("({codepoint,nq}) {Text}")]
+[DebuggerDisplay("({CodePoint,nq}) {Text}")]
 public class Glyph : IEquatable<Glyph>
 {
     #region Fields
