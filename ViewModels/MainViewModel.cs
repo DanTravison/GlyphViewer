@@ -138,13 +138,7 @@ internal sealed class MainViewModel : ObservableObject
     public GlyphCollection Glyphs
     {
         get => _glyphs;
-        private set
-        {
-            if (SetProperty(ref _glyphs, value, ReferenceComparer, GlyphsChangedEventArgs))
-            {
-                // _metrics.Glyph = Glyph.Empty;
-            }
-        }
+        private set => SetProperty(ref _glyphs, value, ReferenceComparer, GlyphsChangedEventArgs);
     }
 
     #endregion Glyphs
