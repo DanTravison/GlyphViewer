@@ -156,4 +156,13 @@
   <data name="ResetSettingsDescription" xml:space="preserve">
     <value>Reset settings to the default values.</value>
   </data>
+  <data name="OpenSettingsDescription" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="CopyGlyphMetricsDescription" xml:space="preserve">
+    <value>Copy Glyph metrics to the clipboard</value>
+  </data>
+  <data name="CopiedText" xml:space="preserve">
+    <value>Copied.</value>
+  </data>
 </root>

@@ -48,6 +48,8 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
         values.Add(new(name, Math.Round(value, 2)));
     }
 
+    #region Properties
+
     /// <summary>
     /// Gets the number of <see cref="NamedValue"/> properties in the collection.
     /// </summary>
@@ -63,6 +65,10 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
     {
         get;
     }
+
+    #endregion Properties
+
+    #region IEnumerable
 
     /// <summary>
     /// Gets an <see cref="IEnumerator{NamedValue}"/> for enumerating the <see cref="NamedValue"/> properties in the collection.
@@ -85,4 +91,6 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
     {
         return ((IEnumerable)_values).GetEnumerator();
     }
+
+    #endregion IEnumerable
 }
