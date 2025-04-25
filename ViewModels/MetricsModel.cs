@@ -55,7 +55,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     #region Font Properties
 
     /// <summary>
-    /// Gets the <see cref="SKFont"/> used to generate the <see cref="FontMetrics"/> and <see cref="GlyphMetrics"/>.
+    /// Gets the <see cref="SKFont"/> used to generate the <see cref="FontProperties"/> and <see cref="GlyphProperties"/>.
     /// </summary>
     /// <value>
     /// The <see cref="SKFont"/> for the <see cref="FontFamily"/> and <see cref="FontSize"/>; otherwise,
@@ -67,7 +67,6 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     public SKFont Font
     {
         get => _font;
-        set => SetProperty(ref _font, value, ReferenceComparer, FontChangedEventArgs);
     }
 
     /// <summary>
@@ -199,8 +198,8 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         if (!_glyph.IsEmpty)
         {
             string text = ToClipboardString();
-            Clipboard.Default.SetTextAsync(text);
-        }
+            _ = Clipboard.Default.SetTextAsync(text);
+         }
     }
 
     static void Append(StringBuilder sb, IEnumerable<NamedValue> properties)
@@ -356,6 +355,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         {
             // FontProperties are updated if FontFamily or FontSize changed.
             OnPropertyChanged(FontPropertiesChangedEventArgs);
+            OnPropertyChanged(FontChangedEventArgs);
         }
 
         if (changes.IsSet(ChangedProperty.Glyph))
@@ -375,7 +375,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         _font = null;
         if (!string.IsNullOrEmpty(_fontFamily))
         {
-            _font = Fonts.CreateFont(FontFamily, (float)_fontSize);
+            _font = FontFamily.CreateFont((float)_fontSize);
             _fontProperties = new FontMetricsProperties(_font);
         }
         else
@@ -440,7 +440,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// <summary>
     /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="FontSize"/> property.
     /// </summary>
-    public static readonly PropertyChangedEventArgs FontSizeChangedEventArgs = new(nameof(Size));
+    public static readonly PropertyChangedEventArgs FontSizeChangedEventArgs = new(nameof(FontSize));
 
     /// <summary>
     /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="FontProperties"/> property.

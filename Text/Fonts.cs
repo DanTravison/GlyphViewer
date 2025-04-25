@@ -9,10 +9,10 @@ using System.Runtime.CompilerServices;
 public static class Fonts
 {
     /// <summary>
-    /// 
+    /// Creates an <see cref="SKFont"/>. 
     /// </summary>
-    /// <param name="fontFamily"></param>
-    /// <param name="fontSize"></param>
+    /// <param name="fontFamily">The font family name to create.</param>
+    /// <param name="fontSize">The font size in points.</param>
     /// <param name="style"></param>
     /// <returns></returns>
     internal static SKFont CreateFont(this string fontFamily, float fontSize, SKFontStyle style = null)
@@ -28,7 +28,6 @@ public static class Fonts
             return font;
         }
     }
-
 
     /// <summary>
     /// Converts a <see cref="FontAttributes"/> to an <see cref="SKFontStyle"/>.

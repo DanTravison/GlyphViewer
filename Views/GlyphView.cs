@@ -284,7 +284,7 @@ public class GlyphView : SKCanvasView
             if (_font is null || _font.Typeface.FamilyName != glyph.FontFamily)
             {
                 _font?.Dispose();
-                _font = Fonts.CreateFont(glyph.FontFamily, (float)FontSize);
+                _font = glyph.FontFamily.CreateFont((float)FontSize);
             }
             _glyphMetrics = GlyphMetrics.CreateInstance(glyph, _font);
         }
