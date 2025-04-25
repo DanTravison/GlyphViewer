@@ -15,6 +15,8 @@ public sealed class GlyphMetricProperties
         ExtendedProperties = extended;
     }
 
+    #region Properties
+
     /// <summary>
     /// Gets the associated <see cref="GlyphMetrics"/>.
     /// </summary>
@@ -38,6 +40,8 @@ public sealed class GlyphMetricProperties
     {
         get;
     }
+
+    #endregion Properties
 
     static IReadOnlyList<NamedValue> CreateInstance(GlyphMetrics metric)
     {

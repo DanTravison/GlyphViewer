@@ -5,6 +5,8 @@ using GlyphViewer.Settings;
 using GlyphViewer.Text;
 using SkiaSharp;
 using System.ComponentModel;
+using System.Text;
+using System.Windows.Input;
 
 /// <summary>
 /// Provides a view model for managing <see cref="Glyph"/>, <see cref="FontFamily"/>, <see cref="FontSize"/>,
@@ -21,6 +23,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
 
     Glyph _glyph = Glyph.Empty;
     GlyphMetricProperties _glyphProperties;
+    readonly Command _clipboardCommand;
 
     #endregion Fields
 
@@ -40,6 +43,11 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         _fontFamily = string.Empty;
         _glyph = Glyph.Empty;
         _fontSize = fontSize;
+
+        ClipboardCommand = _clipboardCommand = new Command(OnCopyToClipboard)
+        {
+            IsEnabled = false
+        };
     }
 
     #endregion Constructors
@@ -47,7 +55,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     #region Font Properties
 
     /// <summary>
-    /// Gets the <see cref="SKFont"/> used to generate the <see cref="FontMetrics"/> and <see cref="GlyphMetrics"/>.
+    /// Gets the <see cref="SKFont"/> used to generate the <see cref="FontProperties"/> and <see cref="GlyphProperties"/>.
     /// </summary>
     /// <value>
     /// The <see cref="SKFont"/> for the <see cref="FontFamily"/> and <see cref="FontSize"/>; otherwise,
@@ -59,7 +67,6 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     public SKFont Font
     {
         get => _font;
-        set => SetProperty(ref _font, value, ReferenceComparer, FontChangedEventArgs);
     }
 
     /// <summary>
@@ -172,6 +179,62 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     }
 
     #endregion Glyph Properties
+
+    #region Clipboard
+
+    /// <summary>
+    /// Gets the <see cref="ICommand"/> to copy the metrics to the clipboard.
+    /// </summary>
+    public ICommand ClipboardCommand
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Copies the metrics properties to the clipboard.
+    /// </summary>
+    void OnCopyToClipboard()
+    {
+        if (!_glyph.IsEmpty)
+        {
+            string text = ToClipboardString();
+            _ = Clipboard.Default.SetTextAsync(text);
+         }
+    }
+
+    static void Append(StringBuilder sb, IEnumerable<NamedValue> properties)
+    {
+        foreach (NamedValue property in properties)
+        {
+            sb.AppendLine($"\t{property.Name}: {property.Value}");
+        }
+    }
+
+    /// <summary>
+    /// Returns a string that represents this instance.
+    /// </summary>
+    /// <returns>
+    /// A new line delimited string containing the name:value pairs of <see cref="GlyphMetricProperties"/>
+    /// <see cref="FontMetricsProperties"/>.
+    /// </returns>
+    string ToClipboardString()
+    {
+        StringBuilder sb = new();
+
+        sb.AppendLine("Glyph Metrics");
+        Append(sb, _glyphProperties.Properties);
+        Append(sb, _glyphProperties.ExtendedProperties);
+
+        sb.AppendLine(); 
+        sb.AppendLine("Font Metrics");
+        foreach (NamedValue property in _fontProperties)
+        {
+            sb.AppendLine($"\t{property.Name}: {property.Value}");
+        }
+        return sb.ToString();
+    }
+
+    #endregion Clipboard
 
     #region Update
 
@@ -292,6 +355,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         {
             // FontProperties are updated if FontFamily or FontSize changed.
             OnPropertyChanged(FontPropertiesChangedEventArgs);
+            OnPropertyChanged(FontChangedEventArgs);
         }
 
         if (changes.IsSet(ChangedProperty.Glyph))
@@ -311,7 +375,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         _font = null;
         if (!string.IsNullOrEmpty(_fontFamily))
         {
-            _font = Fonts.CreateFont(FontFamily, (float)_fontSize);
+            _font = FontFamily.CreateFont((float)_fontSize);
             _fontProperties = new FontMetricsProperties(_font);
         }
         else
@@ -322,6 +386,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
 
     void UpdateGlyph()
     {
+        _clipboardCommand.IsEnabled = !_glyph.IsEmpty;
         if (_font is null || _glyph.IsEmpty)
         {
             _glyphProperties = null;
@@ -375,7 +440,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// <summary>
     /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="FontSize"/> property.
     /// </summary>
-    public static readonly PropertyChangedEventArgs FontSizeChangedEventArgs = new(nameof(Size));
+    public static readonly PropertyChangedEventArgs FontSizeChangedEventArgs = new(nameof(FontSize));
 
     /// <summary>
     /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="FontProperties"/> property.

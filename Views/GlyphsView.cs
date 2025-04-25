@@ -31,7 +31,7 @@ public sealed class GlyphsView : SKCanvasView
     /// <summary>
     /// Defines the default <see cref="HeaderFontSize"/>.
     /// </summary>
-    public const string DefaultHeaderFontFamily = "OpenSansRegular";
+    public const string DefaultHeaderFontFamily = App.DefaultFontFamily;
 
     /// <summary>
     /// Defines the default <see cref="HeaderFontAttributes"/>.
@@ -488,12 +488,7 @@ public sealed class GlyphsView : SKCanvasView
     void OnHeaderFontChanged()
     {
         _headerFont?.Dispose();
-        using (SKTypeface typeface = SKTypeface.FromFamilyName(HeaderFontFamily, SKFontStyleWeight.Normal, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright))
-        {
-            _headerFont?.Dispose();
-            _headerFont = typeface.ToFont();
-            _headerFont.Size = (float)HeaderFontSize;
-        }
+        _headerFont = HeaderFontFamily.CreateFont((float)HeaderFontSize);
         _needsLayout = true;
         InvalidateSurface();
     }

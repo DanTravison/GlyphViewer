@@ -2,6 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
+             xmlns:controls="clr-namespace:GlyphViewer.Controls"
              xmlns:res="clr-namespace:GlyphViewer.Resources"
              x:Class="GlyphViewer.Views.HeaderView"
              x:DataType="viewmodel:MainViewModel">
@@ -22,19 +23,39 @@
                Grid.Row="0"
                Grid.Column="0"
                />
+        
         <Label Text="{Binding Metrics.FontFamily}"
                Style="{StaticResource TitleLabelStyle}"
                HorizontalOptions="Center"
                Grid.Row="0"
                Grid.Column="1"
                />
-        <Button Text="{x:Static res:FluentUI.Settings}"
-                Style="{StaticResource GlyphButtonStyle}"
-                Command="{Binding Settings.Navigator.OpenCommand}"
-                HorizontalOptions="End"
-                Grid.Row="0"
-                Grid.Column="2"
-                />
+
+        <Grid ColumnDefinitions="Auto, Auto"
+              ColumnSpacing="5"
+              HorizontalOptions="End"
+              Grid.Row="0"
+              Grid.Column="2"
+              >
+            
+            <Button x:Name="ClipboardButton" 
+                    Text="{x:Static res:FluentUI.Clipboard}"
+                    Style="{StaticResource GlyphButtonStyle}"
+                    Command="{Binding Metrics.ClipboardCommand}"
+                    ToolTipProperties.Text="{x:Static res:Strings.CopyGlyphMetricsDescription}"
+                    HorizontalOptions="Center"
+                    Grid.Column="0"
+                    />
+
+            <Button Text="{x:Static res:FluentUI.Settings}"
+                    Style="{StaticResource GlyphButtonStyle}"
+                    Command="{Binding Settings.Navigator.OpenCommand}"
+                    ToolTipProperties.Text="{x:Static res:Strings.OpenSettingsDescription}"
+                    HorizontalOptions="Center"
+                    Grid.Column="1"
+                    />
+        </Grid>
+        
         <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
                  HeightRequest="2"
                  Margin="0,0,0,5"

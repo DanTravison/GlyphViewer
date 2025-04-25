@@ -79,6 +79,24 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Copied..
+        /// </summary>
+        internal static string CopiedText {
+            get {
+                return ResourceManager.GetString("CopiedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy Glyph metrics to the clipboard.
+        /// </summary>
+        internal static string CopyGlyphMetricsDescription {
+            get {
+                return ResourceManager.GetString("CopyGlyphMetricsDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OpenSansRegular.
         /// </summary>
         internal static string DefaultFontFamily {
@@ -138,6 +156,15 @@ namespace GlyphViewer.Resources {
         internal static string ItemHeaderFontSizeLabel {
             get {
                 return ResourceManager.GetString("ItemHeaderFontSizeLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string OpenSettingsDescription {
+            get {
+                return ResourceManager.GetString("OpenSettingsDescription", resourceCulture);
             }
         }
         

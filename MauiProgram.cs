@@ -14,7 +14,7 @@ public static class MauiProgram
             .UseSkiaSharp()
             .ConfigureFonts(fonts =>
             {
-                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Regular.ttf", App.DefaultFontFamily);
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 fonts.AddFont("fluentsystemicons-resizable.ttf", nameof(FluentUI));
             });

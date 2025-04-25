@@ -80,7 +80,7 @@ sealed class DrawContext : IDisposable
         {
             if (_headerFont is null)
             {
-                _headerFont = GetFont(HeaderFontFamily, HeaderFontSize, HeaderFontStyle);
+                _headerFont = HeaderFontFamily.CreateFont(HeaderFontSize, HeaderFontStyle);
             }
             return _headerFont;
         }
@@ -192,7 +192,7 @@ sealed class DrawContext : IDisposable
         {
             if (_itemFont is null)
             {
-                _itemFont = GetFont(ItemFontFamily, ItemFontSize, SKFontStyle.Normal);
+                _itemFont = ItemFontFamily.CreateFont(ItemFontSize);
             }
             return _itemFont;
         }
@@ -283,17 +283,6 @@ sealed class DrawContext : IDisposable
     }
 
     #endregion Spacing Properties
-
-    static SKFont GetFont(string familyName, float fontSize, SKFontStyle fontStyle)
-    {
-        using (SKTypeface typeface = SKTypeface.FromFamilyName(familyName, fontStyle))
-        {
-            SKFont font = typeface.ToFont();
-            font.Size = fontSize;
-            font.Subpixel = true;
-            return font;
-        }
-    }
 
     /// <summary>
     /// Releases all resources and references.

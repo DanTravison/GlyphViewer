@@ -7,15 +7,20 @@ using SkiaSharp.Views.Maui.Controls;
 
 internal class SkLabel : SKCanvasView
 {
-    #region Fields
+    #region Constants
 
     static readonly Color DefaultTextColor = Colors.Black;
     const double DefaultFontSize = 12;
     const double MinimumFontSize = 6;
-    const string DefaultFontFamily = "OpenSansRegular";
+    const string DefaultFontFamily = App.DefaultFontFamily;
     const FontAttributes DefaultFontAttributes = FontAttributes.None;
 
+    #endregion Constants
+
+    #region Fields
+
     SKTextMetrics _metrics;
+    bool _needsMetrics = true;
 
     #endregion Fields
 
@@ -50,9 +55,24 @@ internal class SkLabel : SKCanvasView
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
-            ((SkLabel)bindable).InvalidateTextMetrics();
+            ((SkLabel)bindable).InvalidateText();
         }
     );
+
+    void InvalidateText()
+    {
+        // Workaround for SkLabel does not resize after the first call to InvalidateMeasure
+        // https://github.com/DanTravison/GlyphViewer/issues/25
+        // See https://github.com/mono/SkiaSharp/issues/3239
+        // NOTE: Unless HeightRequest is explicitly cleared, MeasureOverride does not get called
+        // after the first successful attempt to resize the control.
+        // Additionally, MeasureOverride must explicitly set HeightRequest.
+        HeightRequest = -1;
+
+        _needsMetrics = true;
+        InvalidateMeasure();
+        InvalidateSurface();
+    }
 
     #endregion ItemColor
 
@@ -127,7 +147,7 @@ internal class SkLabel : SKCanvasView
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
-            ((SkLabel)bindable).InvalidateTextMetrics();
+            ((SkLabel)bindable).InvalidateText();
         }
     );
 
@@ -156,7 +176,7 @@ internal class SkLabel : SKCanvasView
         BindingMode.OneWay,
         propertyChanged: (bindable, oldValue, newValue) =>
         {
-            ((SkLabel)bindable).InvalidateTextMetrics();
+            ((SkLabel)bindable).InvalidateText();
         }
     );
 
@@ -196,7 +216,7 @@ internal class SkLabel : SKCanvasView
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
-            ((SkLabel)bindable).InvalidateTextMetrics();
+            ((SkLabel)bindable).InvalidateText();
         }
     );
 
@@ -283,63 +303,69 @@ internal class SkLabel : SKCanvasView
         BindingMode.OneWay,
         propertyChanged: (bindable, oldValue, newValue) =>
         {
-            ((SkLabel)bindable).InvalidateTextMetrics();
+            ((SkLabel)bindable).InvalidateText();
         }
     );
 
     #endregion Padding
 
-    void InvalidateTextMetrics()
-    {
-        // Workaround for SkLabel does not resize after the first call to InvalidateMeasure
-        // https://github.com/DanTravison/GlyphViewer/issues/25
-        // See https://github.com/mono/SkiaSharp/issues/3239
-        // NOTE: Unless HeightRequest is explicitly cleared, MeasureOverride does not get called
-        // after the first successful attempt to resize the control.
-        // Additionally, MeasureOverride must explicitly set HeightRequest.
-        HeightRequest = -1;
-        InvalidateMeasure();
-        InvalidateSurface();
-    }
+    #region Measure
 
     SKFont GetFont()
     {
-        using (SKTypeface typeface = SKTypeface.FromFamilyName(FontFamily, FontAttributes.ToFontStyle()))
-        {
-            return new SKFont(typeface, (float)FontSize)
-            {
-                Subpixel = true,
-                Edging = SKFontEdging.SubpixelAntialias,
-                Size = (float)FontSize
-            };
-        }
+        return FontFamily.CreateFont((float)FontSize, FontAttributes.ToFontStyle());
     }
 
+    /// <summary>
+    /// Determines the size needed to draw the <see cref="SkLabel"/>.
+    /// </summary>
+    /// <param name="widthConstraint">The width constraint.</param>
+    /// <param name="heightConstraint">The height constraint.</param>
+    /// <returns>The size needed to draw the <see cref="SkLabel"/>.</returns>
     protected override Size MeasureOverride(double widthConstraint, double heightConstraint)
     {
-        using (SKFont font = GetFont())
+        if (_needsMetrics)
         {
-            SKPaint paint = new SKPaint()
+            if (string.IsNullOrEmpty(Text))
             {
-                IsAntialias = true
-            };
-
-            _metrics = new SKTextMetrics(Text, font, paint);
-            float width = (float)Padding.HorizontalThickness + _metrics.TextWidth;
-            float height = (float)Padding.VerticalThickness + _metrics.Size.Height;
-            // Workaround for SkLabel does not resize after the first call to InvalidateMeasure
-            // https://github.com/DanTravison/GlyphViewer/issues/25
-            // See https://github.com/mono/SkiaSharp/issues/3239
-            // NOTE: Must explicitly set HeightRequest here as well as in InvalidateTextMetrics
-            HeightRequest = height;
-            return new Size(width, height);
+                _metrics = SKTextMetrics.EmptyInstance;
+            }
+            else
+            {
+                using (SKFont font = GetFont())
+                {
+                    SKPaint paint = new SKPaint()
+                    {
+                        IsAntialias = true
+                    };
+                    if (!string.IsNullOrEmpty(Text))
+                    {
+                        _metrics = new SKTextMetrics(Text, font, paint);
+                    }
+                }
+            }
+            _needsMetrics = false;
         }
+
+        float width = (float)Padding.HorizontalThickness + _metrics.TextWidth;
+        float height = (float)Padding.VerticalThickness + _metrics.Size.Height;
+
+        // Workaround for SkLabel does not resize after the first call to InvalidateMeasure
+        // https://github.com/DanTravison/GlyphViewer/issues/25
+        // See https://github.com/mono/SkiaSharp/issues/3239
+        // NOTE: Must explicitly set HeightRequest here as well as in InvalidateText
+        HeightRequest = height;
+
+        return new Size(width, height);
     }
+
+    #endregion Measure
+
+    #region Draw
 
     protected override void OnPaintSurface(SKPaintSurfaceEventArgs e)
     {
         SKCanvas canvas = e.Surface.Canvas;
-        Thickness padding = Padding;
 
         if (BackgroundColor is not null && BackgroundColor != Colors.Transparent)
         {
@@ -352,46 +378,55 @@ internal class SkLabel : SKCanvasView
 
         if (!string.IsNullOrEmpty(Text))
         {
-            float y = (float)padding.Top;
-            float x = (float)padding.Left;
-            float width = (float)(CanvasSize.Width - padding.HorizontalThickness);
-            float height = (float)(CanvasSize.Height - padding.VerticalThickness);
+            DrawText(canvas);
+        }
+    }
 
-            using (SKPaint paint = new() { IsAntialias = true, Color = TextColor.ToSKColor() })
+    void DrawText(SKCanvas canvas)
+    {
+        Thickness padding = Padding;
+
+        float y = (float)padding.Top;
+        float x = (float)padding.Left;
+        float width = (float)(CanvasSize.Width - padding.HorizontalThickness);
+        float height = (float)(CanvasSize.Height - padding.VerticalThickness);
+
+        using (SKPaint paint = new() { IsAntialias = true, Color = TextColor.ToSKColor() })
+        {
+            using (SKFont font = GetFont())
             {
-                using (SKFont font = GetFont())
+                if (_metrics is null)
                 {
-                    if (_metrics is null)
-                    {
-                        _metrics = new SKTextMetrics(Text, font, paint);
-                    }
-                    switch (VerticalTextAlignment)
-                    {
-                        case TextAlignment.Center:
-                            y += _metrics.Ascent + (height - _metrics.Size.Height) / 2;
-                            break;
-                        case TextAlignment.End:
-                            y += height - _metrics.Descent;
-                            break;
-                        // TextAlignment.Start and Justify
-                        default:
-                            y -= _metrics.Ascent;
-                            break;
-                    }
-                    switch (HorizontalTextAlignment)
-                    {
-                        case TextAlignment.Center:
-                            x += (width - _metrics.TextWidth) / 2;
-                            break;
-                        case TextAlignment.End:
-                            x += width - _metrics.TextWidth;
-                            break;
-                        default:
-                            break;
-                    }
-                    canvas.DrawText(font, paint, Text, x, y, SKTextAlign.Left);
+                    _metrics = new SKTextMetrics(Text, font, paint);
                 }
+                switch (VerticalTextAlignment)
+                {
+                    case TextAlignment.Center:
+                        y += _metrics.Ascent + (height - _metrics.Size.Height) / 2;
+                        break;
+                    case TextAlignment.End:
+                        y += height - _metrics.Descent;
+                        break;
+                    // TextAlignment.Start and Justify
+                    default:
+                        y -= _metrics.Ascent;
+                        break;
+                }
+                switch (HorizontalTextAlignment)
+                {
+                    case TextAlignment.Center:
+                        x += (width - _metrics.TextWidth) / 2;
+                        break;
+                    case TextAlignment.End:
+                        x += width - _metrics.TextWidth;
+                        break;
+                    default:
+                        break;
+                }
+                canvas.DrawText(font, paint, Text, x, y, SKTextAlign.Left);
             }
         }
     }
+
+    #endregion Draw
 }
