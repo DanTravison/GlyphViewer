@@ -1,17 +1,25 @@
 ﻿namespace GlyphViewer.ObjectModel;
 
+using System.ComponentModel;
 using System.Windows.Input;
 
 /// <summary>
 /// Provides an <see cref="ICommand"/> implementation.
 /// </summary>
-public class Command : ICommand
+public class Command : ObservableObject, ICommand
 {
     #region Fields
 
     readonly Action _action;
     bool _isEnabled = true;
 
+
+    /// <summary>
+    /// Provides an action that does nothing.
+    /// </summary>
+    /// <remarks>
+    /// This method is used for cases where the derived class overrides <see cref="Execute"/>.
+    /// </remarks>
     protected static void NopAction()
     {
     }
@@ -39,9 +47,8 @@ public class Command : ICommand
         get => _isEnabled;
         set
         {
-            if (value != _isEnabled)
+            if (SetProperty(ref _isEnabled, value, IsEnabledChangedEventArgs))
             {
-                _isEnabled = value;
                 CanExecuteChanged?.Invoke(this, EventArgs.Empty);
             }
         }
@@ -90,4 +97,12 @@ public class Command : ICommand
 
     #endregion Methods
 
+    #region PropertyChangedEventArgs
+
+    /// <summary>
+    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="IsEnabled"/> changes.
+    /// </summary>
+    public static readonly PropertyChangedEventArgs IsEnabledChangedEventArgs = new(nameof(IsEnabled));
+
+    #endregion PropertyChangedEventArgs
 }

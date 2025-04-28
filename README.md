@@ -38,7 +38,8 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * Currently tracking [issue 3239](https://github.com/mono/SkiaSharp/issues/3239) in SkiaSharp
   * There is a workaround in the [GLyphView](https://github.com/DanTravison/GlyphViewer/issues/23)
   * There is another workaround in [SkLabel](https://github.com/DanTravison/GlyphViewer/issues/25)
-
+* Currently tracking [Discussion](https://github.com/dotnet/maui/discussions/29221)
+  * CollectionView does not support CollectionChanged events from custom collections for ItemsSource.
 
 # The Project Structure
 
@@ -151,7 +152,14 @@ This is used to select a font family group in the FontFamiliesView and a unicode
 * ObservableObject: An implementation of INotifyPropertyChanged with SetProperty overloads.
   * SetProperty takes an instance of a PropertyChangedEventArgs to allow derived class to statically define 
     PropertyChangedEventArgs instead of creating instances on each call. 
+* ObservableProperty - provides a base class for Settings properties.
+  * Provides PropertyChanged notification through the parent ObservableObject.
+  * Provides directly PropertyChanged notification for the encapsulated value.
+  * Allows SettingsPage to present Settings properties as a bindable collection. 
 * Command: An implementation of ICommand with IsEnabled for controlling CanExecute.
+* OrderedList: A simple ordered list of objects.
+  * This is a placeholder for use by FontFamilyGroup until CollectionView issue is resolved.
+  * The list is used to display the glyph and font metrics properties.
 
 ## Other
 * ExtendedUnicode.txt: A text file containing links to the Unicode ranges on www.unicode.org

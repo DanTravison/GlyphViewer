@@ -15,7 +15,7 @@ public partial class MainPage : ContentPage
     protected override void OnNavigatedTo(NavigatedToEventArgs args)
     {
         base.OnNavigatedTo(args);
-        if (_model.Glyphs is null)
+        if (_model.FontFamilyGroups is null)
         {
             Task.Run(() => { _model.LoadFonts(Dispatcher); });
         }

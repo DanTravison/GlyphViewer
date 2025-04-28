@@ -2,13 +2,14 @@
 
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Resources;
+using GlyphViewer.Text;
 using GlyphViewer.ViewModels;
 using GlyphViewer.Views;
 using System.Collections;
 using System.ComponentModel;
 
 /// <summary>
-/// Provides a view model for managing user settings.
+/// Provides a model for managing user settings.
 /// </summary>
 public sealed class UserSettings : ObservableObject
 {
@@ -133,6 +134,12 @@ public sealed class UserSettings : ObservableObject
     /// Defines the default border color for the <see cref="GlyphsView.SelectedItem"/>
     /// </summary>
     public static readonly Color DefaultSelectedItemColor = Colors.Plum;
+
+    /// <summary>
+    /// Defines the font families that are marked with a bookmark.
+    /// </summary>
+    // TODO: Needs serialization.
+    readonly FontFamilyBookmarks _bookmarks = [];
 
     #endregion Fields
 
@@ -273,6 +280,16 @@ public sealed class UserSettings : ObservableObject
         get;
     }
 
+    /// <summary>
+    /// Gets the <see cref="FontFamilyBookmarks"/>.
+    /// </summary>
+    public FontFamilyBookmarks Bookmarks
+    {
+        // TODO: Convert UserSettings to a JSON storage.
+        // Preference is not a good place to store bookmarks since it's string type is limited in size.
+        get => _bookmarks;
+    }
+
     #endregion Properties
 
     /// <summary>
@@ -308,5 +325,4 @@ public sealed class UserSettings : ObservableObject
     public static PropertyChangedEventArgs TitleFontSizeChangedEventArgs = new(nameof(TitleFontSize));
 
     #endregion PropertyChangedEventArgs
-
 }

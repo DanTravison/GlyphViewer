@@ -5,9 +5,9 @@ using System.Collections;
 /// <summary>
 /// Provides a group of font families.
 /// </summary>
-public sealed class FontFamilyGroup : IReadOnlyCollection<string>
+public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGroup
 {
-    readonly List<string> _families = new();
+    readonly List<string> _families = [];
 
     /// <summary>
     /// Initializes a new instance of this class
@@ -75,15 +75,6 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<string>
             throw new ArgumentNullException(nameof(family));
         }
         _families.Add(family);
-    }
-
-    /// <summary>
-    /// Sort the font families in the group.
-    /// </summary>
-    /// <param name="comparer">The <see cref="IComparer{T}"/> to use to sort the values.</param>
-    public void Sort(IComparer<string> comparer)
-    {
-        _families.Sort(comparer);
     }
 
     #endregion Methods

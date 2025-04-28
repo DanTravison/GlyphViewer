@@ -27,62 +27,73 @@
             </Setter>
         </Style>
 
-        <DataTemplate x:DataType="text:FontFamilyGroup" x:Key="JumpListItemTemplate">
+        <DataTemplate x:DataType="text:IFontFamilyGroup" x:Key="JumpListItemTemplate">
             <Label Text="{Binding Name}"
                    Style="{StaticResource JumpListItemStyle}"/>
         </DataTemplate>
+
+        <DataTemplate x:DataType="text:IFontFamilyGroup" x:Key="GroupHeaderTemplate">
+            <HorizontalStackLayout Style="{StaticResource GroupHeaderStyle}">
+                <Label Text="{Binding Name}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           Margin="0"
+                           TextColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
+                           />
+                <HorizontalStackLayout.GestureRecognizers>
+                    <!-- TODO: convert this to a command -->
+                    <TapGestureRecognizer Tapped="OnPickGroup"/>
+                </HorizontalStackLayout.GestureRecognizers>
+            </HorizontalStackLayout>
+        </DataTemplate>
+
+        <DataTemplate x:DataType="x:String" x:Key="GroupItemTemplate">
+            <Label Text="{Binding}"
+                           Style="{StaticResource NameStyle}"
+                           />
+        </DataTemplate>
+
+        <Style TargetType="CollectionView" x:Key="FontFamilyGroupStyle">
+            <Setter Property="IsGrouped" Value="True"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectedItem" Value="{Binding Metrics.FontFamily, Mode=TwoWay}"/>
+            <Setter Property="GroupHeaderTemplate" Value="{StaticResource GroupHeaderTemplate}"/>
+            <Setter Property="ItemTemplate" Value="{StaticResource GroupItemTemplate}"/>
+        </Style>
 
     </ContentView.Resources>
 
     <!-- NOTE: Placing ContentView directly in a '*' row can cause
          the content to overflow the row. Use 'Auto,*' as a workaround.
     -->
-    <Grid RowDefinitions="Auto, *">
+    <Grid RowDefinitions="Auto, Auto, Auto, *">
 
+        <CollectionView Grid.Row="0"
+                        Style="{StaticResource FontFamilyGroupStyle}"
+                        ItemsSource="{Binding FontFamilyGroups.Bookmarks, Mode=OneWay}"
+                        Margin="0"
+                        />
+
+        <BoxView Grid.Row="1" 
+                 Style="{StaticResource HorizontalSeparatorStyle}"/>
+        
         <!-- NOTE: Placing Families and GroupPicker in the same row/column.
              Using JumpList.ZIndex to show/hide the picker.
         -->
         <controls:JumpList x:Name="GroupPicker" 
-                           Grid.Row="0"
+                           Grid.Row="2"
                            Grid.RowSpan="2"
-                           ItemsSource="{Binding FontFamilyGroups}"
+                           ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"
                            SelectedItem="{Binding SelectedFamilyGroup, Mode=OneWayToSource}"
                            ItemTemplate="{StaticResource JumpListItemTemplate}"
                            />
 
         <CollectionView x:Name="Families"
-                        Grid.Row="0"
+                        Grid.Row="2"
                         Grid.RowSpan="2"
-                        ItemsSource="{Binding FontFamilyGroups}"
-                        SelectionMode="Single"
-                        SelectedItem="{Binding Metrics.FontFamily, Mode=TwoWay}"
-                        IsGrouped="true"
-                        >
-            <CollectionView.GroupHeaderTemplate>
-                <DataTemplate x:DataType="text:FontFamilyGroup">
-                    <HorizontalStackLayout Style="{StaticResource GroupHeaderStyle}">
-                        <Label Text="{Binding Name}"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           Margin="0"
-                           TextColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
-                           />
-                        <HorizontalStackLayout.GestureRecognizers>
-                            <!-- TODO: convert this to a command -->
-                            <TapGestureRecognizer Tapped="OnPickGroup"/>
-                        </HorizontalStackLayout.GestureRecognizers>
-                    </HorizontalStackLayout>
-                </DataTemplate>
-            </CollectionView.GroupHeaderTemplate>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="x:String">
-                    <Label Text="{Binding}"
-                           Style="{StaticResource NameStyle}"
-                           />
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
+                        Style="{StaticResource FontFamilyGroupStyle}"
+                        ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"
+                        />
     </Grid>
 
 </ContentView>

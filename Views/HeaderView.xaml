@@ -13,6 +13,32 @@
             <Setter Property="FontAttributes" Value="Bold"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         </Style>
+        
+        <Style TargetType="Button" x:Key="BookmarkButtonStyle"
+               BasedOn="{StaticResource GlyphButtonStyle}"
+               x:DataType="viewmodel:BookmarkCommand"
+               >
+            <Setter Property="Text" Value="{x:Static res:FluentUI.Bookmark}"/>
+            <Setter Property="Command" Value="{Binding}"/>
+            <Setter Property="ToolTipProperties.Text" Value="{x:Static res:Strings.BookmarkCommandDescription}"/>
+            <Setter Property="IsVisible" Value="{Binding IsEnabled}"/>
+            <Style.Triggers>
+                <DataTrigger TargetType="Button"
+                             Binding="{Binding IsBookmarked}"
+                             Value="True">
+                    <Setter Property="Text"
+                            Value="{x:Static res:FluentUI.BookmarkFilled}"/>
+                </DataTrigger>
+
+                <DataTrigger TargetType="Button"
+                             Binding="{Binding IsBookmarked}"
+                             Value="False">
+                    <Setter Property="Text"
+                            Value="{x:Static res:FluentUI.Bookmark}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
     </ContentView.Resources>
 
     <Grid ColumnDefinitions="1*,2*,1*"
@@ -23,13 +49,18 @@
                Grid.Row="0"
                Grid.Column="0"
                />
-        
-        <Label Text="{Binding Metrics.FontFamily}"
-               Style="{StaticResource TitleLabelStyle}"
-               HorizontalOptions="Center"
-               Grid.Row="0"
-               Grid.Column="1"
-               />
+
+        <HorizontalStackLayout HorizontalOptions="Center"
+                               Spacing="5"
+                               Grid.Row="0"
+                               Grid.Column="1">
+            <Label Text="{Binding Metrics.FontFamily}"
+                   Style="{StaticResource TitleLabelStyle}"
+                   />
+            <Button BindingContext="{Binding BookmarkCommand}"
+                    Style="{StaticResource BookmarkButtonStyle}"
+                    />
+        </HorizontalStackLayout>
 
         <Grid ColumnDefinitions="Auto, Auto"
               ColumnSpacing="5"
