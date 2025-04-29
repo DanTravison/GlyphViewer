@@ -24,6 +24,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     Glyph _glyph = Glyph.Empty;
     GlyphMetricProperties _glyphProperties;
     readonly Command _clipboardCommand;
+    double _glyphWidth;
 
     #endregion Fields
 
@@ -33,12 +34,12 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="fontSize">The initial font size in points.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="fontSize"/> is less than <see cref="UserSettings.MinimumItemFontSize"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="fontSize"/> is less than <see cref="ItemFontSetting.Minimum"/>.</exception>
     public MetricsModel(double fontSize)
     {
-        if (fontSize < UserSettings.MinimumItemFontSize)
+        if (fontSize < ItemFontSetting.Minimum)
         {
-            throw new ArgumentOutOfRangeException(nameof(fontSize), fontSize, $"Font size must be greater than {UserSettings.MinimumItemFontSize}.");
+            throw new ArgumentOutOfRangeException(nameof(fontSize), fontSize, $"Font size must be greater than {ItemFontSetting.Minimum}.");
         }
         _fontFamily = string.Empty;
         _glyph = Glyph.Empty;
@@ -176,6 +177,15 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     public GlyphMetricProperties GlyphProperties
     {
         get => _glyphProperties;
+    }
+
+    /// <summary>
+    /// Gets the width, in pixels, to display the glyph.
+    /// </summary>
+    public double GlyphWidth
+    {
+        get => _glyphWidth;
+        set => SetProperty(ref _glyphWidth, value, GlyphWidthChangedEventArgs);
     }
 
     #endregion Glyph Properties
@@ -446,6 +456,12 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="FontProperties"/> property.
     /// </summary>
     public static readonly PropertyChangedEventArgs FontPropertiesChangedEventArgs = new(nameof(FontProperties));
+
+    /// <summary>
+    /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="GlyphWidth"/> property.
+    /// </summary>
+    public static readonly PropertyChangedEventArgs GlyphWidthChangedEventArgs = new(nameof(GlyphWidth));
+
 
     /// <summary>
     /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="Glyph"/> property.

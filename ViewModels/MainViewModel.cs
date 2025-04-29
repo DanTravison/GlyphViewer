@@ -20,7 +20,7 @@ internal sealed class MainViewModel : ObservableObject
     int _row;
     int _rows;
     ICommand _pickUnicodeRangeCommand;
-    MetricsModel _metrics;
+    readonly MetricsModel _metrics;
 
     #endregion Fields
 
@@ -32,15 +32,14 @@ internal sealed class MainViewModel : ObservableObject
     public MainViewModel(IDispatcher dispatcher)
     {
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-        Settings = new UserSettings();
+        Settings = UserSettings.Load();
         Settings.PropertyChanged += OnSettingsPropertyChanged;
-        _metrics = new MetricsModel(Settings.ItemFontSize);
+        _metrics = new MetricsModel(Settings.ItemFont.FontSize);
         _metrics.PropertyChanged += OnMetricsPropertyChanged;
+        BookmarkCommand = new(Settings.Bookmarks, _metrics);
     }
 
     #region Properties
-
-    #region Settings
 
     /// <summary>
     /// Gets the <see cref="Settings.UserSettings"/>.
@@ -50,7 +49,13 @@ internal sealed class MainViewModel : ObservableObject
         get;
     }
 
-    #endregion Settings
+    /// <summary>
+    /// Gets the command for updating the currenty selected font family in bookmarks.
+    /// </summary>
+    public BookmarkCommand BookmarkCommand
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the <see cref="MetricsModel"/> for the selected <see cref="Glyph"/> and font family.
@@ -217,7 +222,7 @@ internal sealed class MainViewModel : ObservableObject
 
     public void LoadFonts(IDispatcher dispatcher)
     {
-        FontFamilyGroupCollection families = FontFamilyGroupCollection.CreateInstance();
+        FontFamilyGroupCollection families = FontFamilyGroupCollection.CreateInstance(Settings.Bookmarks);
         _ = dispatcher.DispatchAsync(() =>
         {
             FontFamilyGroups = families;
@@ -252,9 +257,16 @@ internal sealed class MainViewModel : ObservableObject
 
     private void OnSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (ReferenceEquals(e, UserSettings.ItemFontSizeChangedEventArgs))
+        if (ReferenceEquals(e, ObservableProperty.ValueChangedEventArgs))
         {
-            _metrics.FontSize = Settings.ItemFontSize;
+            if (ReferenceEquals(sender, Settings.ItemFont))
+            {
+                _metrics.FontSize = Settings.ItemFont.FontSize;
+            }
+            else if (ReferenceEquals(sender, Settings.GlyphWidth))
+            {
+                _metrics.GlyphWidth = Settings.GlyphWidth.Value;
+            }
         }
     }
 

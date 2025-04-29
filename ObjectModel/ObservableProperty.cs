@@ -3,17 +3,17 @@
 using System.ComponentModel;
 
 /// <summary>
+/// Provides a delegate on the containing object to invoke to raise the 
+/// <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the property.
+/// </summary>
+/// <param name="e">The <see cref="PropertyChangedEventArgs"/> with the event details.</param>
+public delegate void NotifyPropertyChangedDelegate(PropertyChangedEventArgs e);
+
+/// <summary>
 /// Provides an abstract base class for an observable property.
 /// </summary>
 public abstract class ObservableProperty : ObservableObject
 {
-    /// <summary>
-    /// Provides a delegate on the containing object to invoke to raise the 
-    /// <see cref="INotifyPropertyChanged.PropertyChanged"/> event for the property.
-    /// </summary>
-    /// <param name="e">The <see cref="PropertyChangedEventArgs"/> with the event details.</param>
-    public delegate void NotifyPropertyChangedDelegate(PropertyChangedEventArgs e);
-
     #region Fields
 
     readonly NotifyPropertyChangedDelegate _propertyChanged;
@@ -76,6 +76,12 @@ public abstract class ObservableProperty : ObservableObject
     }
 
     #endregion Methods
+
+    /// <summary>
+    /// Defines the <see cref="PropertyChangedEventArgs"/> passed to <see cref="INotifyPropertyChanged.PropertyChanged"/>
+    /// when the property value changes.
+    /// </summary>
+    public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new("Value");
 }
 
 /// <summary>
@@ -110,7 +116,7 @@ public class ObservableProperty<T> : ObservableProperty
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="propertyChanged">
-    /// The <see cref="ObservableProperty.NotifyPropertyChangedDelegate"/> to invoke to raise
+    /// The <see cref="NotifyPropertyChangedDelegate"/> to invoke to raise
     /// the <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
     /// </param>
     /// <param name="eventArgs">The <see cref="PropertyChangedEventArgs"/> to pass to <paramref name="propertyChanged"/>.</param>
@@ -128,7 +134,7 @@ public class ObservableProperty<T> : ObservableProperty
     )
         : base(propertyChanged, eventArgs)
     {
-        _comparer = comparer;
+        _comparer = comparer ?? EqualityComparer<T>.Default;
     }
 
     #endregion Constructors
@@ -155,9 +161,13 @@ public class ObservableProperty<T> : ObservableProperty
     #endregion Properties
 
     /// <summary>
-    /// Defines the <see cref="PropertyChangedEventArgs"/> passed to <see cref="INotifyPropertyChanged.PropertyChanged"/>
-    /// when <see cref="Value"/> changes.
+    /// Compares the <see cref="Value"/> to the specified value using the <see cref="IEqualityComparer{T}"/> instance.
     /// </summary>
-    static readonly PropertyChangedEventArgs ValueChangedEventArgs = new(nameof(Value));
+    /// <param name="value">The value to compare.</param>
+    /// <returns>true if <paramref name="value"/> is equal to <see cref="Value"/>; otherwise, false.</returns>
+    protected bool AreEqual(T value)
+    {
+        return _comparer.Equals(_value, value);
+    }
 }
 

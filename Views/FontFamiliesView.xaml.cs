@@ -1,5 +1,4 @@
 using GlyphViewer.ViewModels;
-using System.Runtime.CompilerServices;
 
 namespace GlyphViewer.Views;
 
@@ -12,7 +11,7 @@ public partial class FontFamiliesView : ContentView
         InitializeComponent();
     }
 
-    protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected override void OnPropertyChanged(string propertyName)
     {
         if (BindingContextProperty.PropertyName == propertyName)
         {
@@ -31,13 +30,17 @@ public partial class FontFamiliesView : ContentView
 
     private void OnModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (_model is not null && ReferenceEquals(e, MainViewModel.SelectedFamilyGroupChangedEventArgs))
+        if
+        (
+            _model is not null
+            &&
+            ReferenceEquals(e, MainViewModel.SelectedFamilyGroupChangedEventArgs)
+            &&
+            _model.SelectedFamilyGroup is not null
+        )
         {
-            if (_model.SelectedFamilyGroup is not null)
-            {
-                string fontFamily = _model.SelectedFamilyGroup[0];
-                Families.ScrollTo(fontFamily, _model.SelectedFamilyGroup, ScrollToPosition.Start, false);
-            }
+            string fontFamily = _model.SelectedFamilyGroup[0];
+            Families.ScrollTo(fontFamily, _model.SelectedFamilyGroup, ScrollToPosition.Start, false);
         }
     }
 

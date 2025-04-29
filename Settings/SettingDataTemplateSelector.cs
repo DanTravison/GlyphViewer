@@ -7,7 +7,7 @@
 internal class SettingDataTemplateSelector : DataTemplateSelector
 {
     /// <summary>
-    /// Gets the <see cref="DataTemplate"/> for a <see cref="FontSizeSetting"/>.
+    /// Gets the <see cref="DataTemplate"/> for a <see cref="FontSetting"/>.
     /// </summary>
     public DataTemplate FontSize
     {
@@ -45,7 +45,7 @@ internal class SettingDataTemplateSelector : DataTemplateSelector
     /// </exception>
     protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
     {
-        if (item is FontSizeSetting)
+        if (item is FontSetting)
         {
             return FontSize;
         }

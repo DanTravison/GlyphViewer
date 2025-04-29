@@ -79,6 +79,24 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bookmark the current font family.
+        /// </summary>
+        internal static string BookmarkCommandDescription {
+            get {
+                return ResourceManager.GetString("BookmarkCommandDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bookmarks.
+        /// </summary>
+        internal static string BookmarkGroupName {
+            get {
+                return ResourceManager.GetString("BookmarkGroupName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Copied..
         /// </summary>
         internal static string CopiedText {

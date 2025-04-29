@@ -165,4 +165,10 @@
   <data name="CopiedText" xml:space="preserve">
     <value>Copied.</value>
   </data>
+  <data name="BookmarkGroupName" xml:space="preserve">
+    <value>Bookmarks</value>
+  </data>
+  <data name="BookmarkCommandDescription" xml:space="preserve">
+    <value>Bookmark the current font family</value>
+  </data>
 </root>

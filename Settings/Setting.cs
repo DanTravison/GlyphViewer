@@ -2,6 +2,7 @@
 
 using GlyphViewer.ObjectModel;
 using System.ComponentModel;
+using System.Text.Json;
 
 /// <summary>
 /// Defines an abstract, strongly typed <see cref="ObservableProperty{T}"/> class.
@@ -18,7 +19,7 @@ public abstract class Setting<T> : ObservableProperty<T>, ISetting
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="propertyChanged">The <see cref="ObservableProperty.NotifyPropertyChangedDelegate"/>  delegate to invoke to raised the property chagned event.</param>
+    /// <param name="settings">The containing <see cref="SettingCollection"/>.</param>
     /// <param name="eventArgs">The optional <see cref="PropertyChangedEventArgs"/> to use when the value changes.</param>
     /// <param name="defaultValue">The default <see cref="ObservableProperty{T}.Value"/> of the setting.</param>
     /// <param name="displayName">The <see cref="DisplayName"/> to display in the UI.</param>
@@ -31,20 +32,19 @@ public abstract class Setting<T> : ObservableProperty<T>, ISetting
     /// </param>
     protected Setting
     (
-        NotifyPropertyChangedDelegate propertyChanged,
+        SettingCollection settings,
         PropertyChangedEventArgs eventArgs,
         T defaultValue,
         string displayName,
         string description,
         IEqualityComparer<T> comparer = null
     )
-        : base(propertyChanged, eventArgs, comparer)
+        : base(settings.NotifyPropertyChanged, eventArgs, comparer)
     {
+        Value = defaultValue;
         DefaultValue = defaultValue;
         DisplayName = displayName ?? throw new ArgumentNullException(nameof(displayName));
         Description = description ?? throw new ArgumentNullException(nameof(description));
-
-        Value = ReadValue();
     }
 
     #region Properties
@@ -73,6 +73,14 @@ public abstract class Setting<T> : ObservableProperty<T>, ISetting
         get;
     }
 
+    /// <summary>
+    /// Gets the value indicating the current value is the <see cref="DefaultValue"/>.
+    /// </summary>
+    public bool IsDefault
+    {
+        get => AreEqual(DefaultValue);
+    }
+
     #endregion Properties
 
     #region Methods
@@ -90,11 +98,10 @@ public abstract class Setting<T> : ObservableProperty<T>, ISetting
     /// </summary>
     protected override sealed void NotifyPropertyChanged()
     {
-        base.NotifyPropertyChanged();
-        // NOTE: Don't call WritePreference from the constructor.
+        // NOTE: Don't notify when called from the constructor.
         if (_initialized)
         {
-            WriteValue(Value);
+            base.NotifyPropertyChanged();
         }
         else
         {
@@ -104,19 +111,43 @@ public abstract class Setting<T> : ObservableProperty<T>, ISetting
 
     #endregion Methods
 
-    #region Abstract Methods
+    #region Serialization
 
     /// <summary>
-    /// Implemented in the derived class to write the value to settings storage.
+    /// Reads the value from the <paramref name="reader"/>
     /// </summary>
-    /// <param name="value">The value to set.</param>
-    protected abstract void WriteValue(T value);
+    /// <param name="reader">The <see cref="Utf8JsonReader"/> positioned at the value.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use to read the serialized value.</param>
+    public virtual void ReadValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        Value = OnReadValue(ref reader, options);
+    }
 
     /// <summary>
-    /// Implemented in the derived class to get the value from the settings storage.
+    /// Writes the value to the <paramref name="writer"/>.
     /// </summary>
-    /// <returns>The value; if found; otherwise, the default value.</returns>
-    protected abstract T ReadValue();
+    /// <param name="writer">The <see cref="Utf8JsonWriter"/> to write.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use to serialize the value.</param>
+    public virtual void WriteValue(Utf8JsonWriter writer, JsonSerializerOptions options)
+    {
+        OnWriteValue(writer, Value, options);
+    }
 
-    #endregion Abstract Methods
+    /// <summary>
+    /// Implement in the derived class to read the value from the <paramref name="reader"/>
+    /// </summary>
+    /// <param name="reader">The <see cref="Utf8JsonReader"/> positioned at the value.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use to read the serialized value.</param>
+    /// <returns>The <typeparamref name="T"/> value.</returns>
+    protected abstract T OnReadValue(ref Utf8JsonReader reader, JsonSerializerOptions options);
+
+    /// <summary>
+    /// Implemented in the derived class to write the <paramref name="value"/> to the <paramref name="writer"/>.
+    /// </summary>
+    /// <param name="writer">The <see cref="Utf8JsonWriter"/> to write.</param>
+    /// <param name="value">The <typeparamref name="T"/> value to write.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use to serialize the value.</param>
+    protected abstract void OnWriteValue(Utf8JsonWriter writer, T value, JsonSerializerOptions options);
+    
+    #endregion Serialization
 }

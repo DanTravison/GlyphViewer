@@ -41,13 +41,16 @@
                                ItemTemplate="{StaticResource JumpListItemTemplate}"
                                OpenCommand="{Binding PickUnicodeRangeCommand}"/>
 
+            <!-- TODO: Use Binding.FontSize when Setting is updated -->
             <views:GlyphsView Grid.Column="1"
                               Items="{Binding Glyphs}"
                               ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               HeaderColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               BackgroundColor="Transparent"
-                              ItemFontSize="{Binding Metrics.FontSize}"
-                              HeaderFontSize="{Binding Settings.ItemHeaderFontSize}"
+                              ItemFontSize="{Binding Settings.ItemFont.Value}"
+                              HeaderFontSize="{Binding Settings.ItemHeaderFont.Value}"
+                              HeaderFontAttributes="{Binding Settings.ItemHeaderFont.FontAttributes}"
+                              HeaderFontFamily="{Binding Settings.ItemHeaderFont.FontFamily}"
                               SelectedItem="{Binding Metrics.Glyph, Mode=TwoWay}"
                               HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
                               UnicodeRanges="{Binding UnicodeRanges}"
@@ -74,12 +77,10 @@
                                  BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                                  LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"
                                  BaselineColor="{AppThemeBinding Light=LightGreen, Dark=Green}"
-                                 MinimumWidthRequest="{Binding Settings.GlyphWidth}"
+                                 WidthRequest="{Binding Metrics.GlyphWidth}"
                                  />
 
-                <!-- NOTE: WidthRequest ensures the view width doesn't resize when properties change -->
                 <views:MetricsView Grid.Row="1"
-                                   WidthRequest="{Binding Settings.GlyphWidth}"
                                    BindingContext="{Binding Metrics}"
                                    />
 

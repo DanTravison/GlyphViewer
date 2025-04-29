@@ -1,17 +1,19 @@
 ﻿namespace GlyphViewer.Settings;
-using GlyphViewer.ObjectModel;
 
+using GlyphViewer.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Text.Json;
 
 /// <summary>
 /// Provides a <see cref="Setting{Double}"/>.
 /// </summary>
-internal class DoubleSetting : Setting<double>
+public class DoubleSetting : Setting<double>
 {
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="propertyChanged">The <see cref="ObservableProperty.NotifyPropertyChangedDelegate"/>  delegate to invoke to raised the property chagned event.</param>
+    /// <param name="settings">The containing <see cref="SettingCollection"/>.</param>
     /// <param name="eventArgs">The optional <see cref="PropertyChangedEventArgs"/> to use when the value changes.</param>
     /// <param name="defaultValue">The default <see cref="Setting{T}.DefaultValue"/> of the setting.</param>
     /// <param name="displayName">The <see cref="Setting{T}.DisplayName"/> of the setting..</param>
@@ -24,14 +26,14 @@ internal class DoubleSetting : Setting<double>
     /// </param>
     public DoubleSetting
     (
-        NotifyPropertyChangedDelegate propertyChanged,
+        SettingCollection settings,
         PropertyChangedEventArgs eventArgs,
         double defaultValue,
         string displayName,
         string description,
         IEqualityComparer<double> comparer = null
     )
-        : base(propertyChanged, eventArgs, defaultValue, displayName, description, comparer)
+        : base(settings, eventArgs, defaultValue, displayName, description, comparer)
     {
     }
 
@@ -69,21 +71,36 @@ internal class DoubleSetting : Setting<double>
     #region Overrides
 
     /// <summary>
-    /// Sets the value of the setting in <see cref="Preferences"/>.
+    /// Writes the <paramref name="value"/> to the <paramref name="writer"/>.
     /// </summary>
-    /// <param name="value">The value to set.</param>
-    protected override void WriteValue(double value)
+    /// <param name="writer">The <see cref="Utf8JsonWriter"/> to write.</param>
+    /// <param name="value">The <see cref="double"/> value to write.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use to serialize the value.</param>
+    protected override void OnWriteValue(Utf8JsonWriter writer, double value, JsonSerializerOptions options)
     {
-        Preferences.Set(Name, value);
+        writer.WriteNumberValue(value);
     }
 
     /// <summary>
-    /// Gets the value from <see cref="Preferences"/>.
+    /// Reads the value from the <paramref name="reader"/>
     /// </summary>
-    /// <returns>The value from <see cref="Preferences"/>; otherwise, the <see cref="Setting{T}.DefaultValue"/>.</returns>
-    protected override double ReadValue()
+    /// <param name="reader">The <see cref="Utf8JsonReader"/> positioned at the value.</param>
+    /// <param name="options">The <see cref="JsonSerializerOptions"/> to use to read the serialized value.</param>
+    /// <returns>The double value.</returns>
+    protected override double OnReadValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
-        return Preferences.Get(Name, DefaultValue);
+        double value;
+        try
+        {
+            value = reader.GetDouble();
+            value = Math.Clamp(value, MininumValue, MaximumValue);
+        }
+        catch (JsonException ex)
+        {
+            Trace.WriteLine($"Invalid value for double", ex.Message);
+            value = DefaultValue;
+        }
+        return value;
     }
 
     #endregion Overrides

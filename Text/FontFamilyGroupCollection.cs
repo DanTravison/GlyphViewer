@@ -1,11 +1,12 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.Settings;
 using System.Collections;
 
 /// <summary>
 /// Provides a collection of <see cref="FontFamilyGroup"/> items.
 /// </summary>
-public sealed class FontFamilyGroupCollection : IReadOnlyCollection<FontFamilyGroup>
+public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
 {
     #region Fields
 
@@ -19,8 +20,14 @@ public sealed class FontFamilyGroupCollection : IReadOnlyCollection<FontFamilyGr
     /// </summary>
     /// <param name="groupTable">The <see cref="Dictionary{String, FontFamilyGroup}"/>.</param>
     /// <param name="groups">The <see cref="List{FontFamilyGroup}"/> of groups.</param>
-    FontFamilyGroupCollection(Dictionary<string, FontFamilyGroup> groupTable, List<FontFamilyGroup> groups)
+    FontFamilyGroupCollection
+    (
+        Dictionary<string, FontFamilyGroup> groupTable,
+        List<FontFamilyGroup> groups,
+        Bookmarks bookmarks
+    )
     {
+        Bookmarks = new List<IFontFamilyGroup>([bookmarks]);
         _groups = groups;
         _groupTable = groupTable;
     }
@@ -52,6 +59,27 @@ public sealed class FontFamilyGroupCollection : IReadOnlyCollection<FontFamilyGr
     public int Count
     {
         get => _groups.Count;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="FontFamilyGroup"/> at the specified <paramref name="index"/>.
+    /// </summary>
+    /// <param name="index">The zero-based index of the <see cref="FontFamilyGroup"/> to get.</param>
+    /// <returns>The <see cref="FontFamilyGroup"/> at the specified <paramref name="index"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="index"/> is less than zero or greater than or equal to <see cref="Count"/>.
+    /// </exception>
+    public FontFamilyGroup this[int index]
+    {
+        get => _groups[index];
+    }
+
+    /// <summary>
+    /// Gets the bookmarks for the font families.
+    /// </summary>
+    public IReadOnlyList<IFontFamilyGroup> Bookmarks
+    {
+        get;
     }
 
     #endregion Properties
@@ -88,17 +116,24 @@ public sealed class FontFamilyGroupCollection : IReadOnlyCollection<FontFamilyGr
     /// Creates a new instance of this class.
     /// </summary>
     /// <returns>A new instance of a <see cref="FontFamilyGroupCollection"/>.</returns>
-    public static FontFamilyGroupCollection CreateInstance()
+    internal static FontFamilyGroupCollection CreateInstance(Bookmarks bookmarks)
     {
         Dictionary<string, FontFamilyGroup> groupTable = new(StringComparer.OrdinalIgnoreCase);
         List<FontFamilyGroup> groups = [];
 
         List<string> families = Fonts.GetFontFamilies();
-        // Ensure group names and font familyl names are sorted.
+        // the bookmarked font families that are actually available.
+        List<string> availableBookmarks = [];
+
+        // Ensure group names and font family names are sorted.
         families.Sort(StringComparer.CurrentCultureIgnoreCase);
 
         foreach (string fontFamily in families)
         {
+            if (bookmarks.Contains(fontFamily))
+            {
+                availableBookmarks.Add(fontFamily);
+            }
             string groupName = fontFamily[0].ToString();
             if (!groupTable.TryGetValue(groupName, out FontFamilyGroup group))
             {
@@ -108,7 +143,18 @@ public sealed class FontFamilyGroupCollection : IReadOnlyCollection<FontFamilyGr
             }
             group.Add(fontFamily);
         }
-        return new(groupTable, groups);
+
+        if (availableBookmarks.Count > 0)
+        {
+            // NOTE: Update the UserSettings.Bookmarks collection to ensure it doesn't
+            // include fonts that are no longer available.
+            bookmarks.Update(availableBookmarks);
+        }
+        else
+        {
+            bookmarks.Clear();
+        }
+        return new(groupTable, groups, bookmarks);
     }
 
     #endregion CreateInstance
