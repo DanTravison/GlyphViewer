@@ -27,9 +27,11 @@
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         </Style>
 
-        <Style TargetType="controls:SkLabel" x:Key="FontSizeStyle" x:DataType="settings:FontSizeSetting">
+        <Style TargetType="controls:SkLabel" x:Key="FontSizeStyle" x:DataType="settings:FontSetting">
             <Setter Property="FontFamily" Value="{Binding FontFamily}"/>
-            <Setter Property="FontSize" Value="{Binding Value, Mode=OneWay}"/>
+            <!-- TODO: Use Binding.FontSize when Setting is updated -->
+            <Setter Property="FontSize" Value="{Binding Value}"/>
+            <Setter Property="FontAttributes" Value="{Binding FontAttributes}"/>
             <Setter Property="Text" Value="{Binding Text}"/>
             <Setter Property="ToolTipProperties.Text" Value="{Binding Description}"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
@@ -89,7 +91,7 @@
             </settings:SettingDataTemplateSelector.GlyphWidth>
 
             <settings:SettingDataTemplateSelector.FontSize>
-                <DataTemplate x:DataType="settings:FontSizeSetting">
+                <DataTemplate x:DataType="settings:FontSetting">
                     <Grid ColumnDefinitions="*, 400, Auto"
                           RowDefinitions="Auto, Auto"
                           RowSpacing="5"
@@ -131,9 +133,10 @@
                 Grid.Column="0"
                 />
 
+        <!-- TODO: Use Binding.FontSize when Setting is updated -->
         <Label Text="{x:Static res:Strings.SettingsTitle}"
                HorizontalOptions="Center"
-               FontSize="{Binding TitleFontSize, Mode=OneWay}"
+               FontSize="{Binding TitleFont.Value, Mode=OneWay}"
                Grid.Row="0"
                Grid.Column="0"
                Grid.ColumnSpan="3"

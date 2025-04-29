@@ -3,8 +3,10 @@
 /// <summary>
 /// Provides an interface for a setting property.
 /// </summary>
-public interface ISetting
+public interface ISetting : ISettingSerializer
 {
+    #region Properties
+
     /// <summary>
     /// Gets the name of the setting.
     /// </summary>
@@ -12,6 +14,7 @@ public interface ISetting
     {
         get;
     }
+
     /// <summary>
     /// Gets the name to display in the UI.
     /// </summary>
@@ -19,6 +22,7 @@ public interface ISetting
     {
         get;
     }
+
     /// <summary>
     /// Gets the description of the setting.
     /// </summary>
@@ -26,6 +30,9 @@ public interface ISetting
     {
         get;
     }
+
+    #endregion Properties
+
     /// <summary>
     /// Resets the setting to its default state.
     /// </summary>

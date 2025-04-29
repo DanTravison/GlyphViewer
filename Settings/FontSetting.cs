@@ -6,12 +6,12 @@ using System.ComponentModel;
 /// <summary>
 /// Provides a <see cref="DoubleSetting"/> for a font size.
 /// </summary>
-internal class FontSizeSetting : DoubleSetting
+public abstract class FontSetting : DoubleSetting
 {
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="propertyChanged">The <see cref="ObservableProperty.NotifyPropertyChangedDelegate"/>  delegate to invoke to raised the property chagned event.</param>
+    /// <param name="settings">The containing <see cref="SettingCollection"/>.</param>
     /// <param name="eventArgs">The optional <see cref="PropertyChangedEventArgs"/> to use when the value changes.</param>
     /// <param name="defaultValue">The default <see cref="Setting{T}.DefaultValue"/> of the setting.</param>
     /// <param name="displayName">The <see cref="Setting{T}.DisplayName"/> of the setting..</param>
@@ -22,23 +22,41 @@ internal class FontSizeSetting : DoubleSetting
     /// The default value is <see cref="EqualityComparer{T}.Default"/>.
     /// </para>
     /// </param>
-    public FontSizeSetting
+    protected FontSetting
     (
-        NotifyPropertyChangedDelegate propertyChanged,
+        SettingCollection settings,
         PropertyChangedEventArgs eventArgs,
         double defaultValue,
         string displayName,
         string description,
         IEqualityComparer<double> comparer = null
     )
-        : base(propertyChanged, eventArgs, defaultValue, displayName, description, comparer)
+        : base(settings, eventArgs, defaultValue, displayName, description, comparer)
     {
+        Increment = 1;
     }
 
     /// <summary>
     /// Gets the font family to use to display the sample text.
     /// </summary>
     public string FontFamily
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    /// Gets the font size to use to display the sample text.
+    /// </summary>
+    public double FontSize
+    {
+        get => Value;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="FontAttributes"/> to use to display the sample text.
+    /// </summary>
+    public FontAttributes FontAttributes
     {
         get;
         init;

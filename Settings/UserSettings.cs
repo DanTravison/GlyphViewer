@@ -1,124 +1,22 @@
 ﻿namespace GlyphViewer.Settings;
 
+using GlyphViewer.Converter;
 using GlyphViewer.ObjectModel;
-using GlyphViewer.Resources;
-using GlyphViewer.Text;
 using GlyphViewer.ViewModels;
 using GlyphViewer.Views;
 using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Text.Json;
 
 /// <summary>
 /// Provides a model for managing user settings.
 /// </summary>
-public sealed class UserSettings : ObservableObject
+public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
 {
-    class SettingCollection : IReadOnlyCollection<ISetting>
-    {
-        readonly List<ISetting> _settings = [];
-        public SettingCollection()
-        {
-        }
-
-        public int Count
-        {
-            get => _settings.Count;
-        }
-
-        public S Add<S>(S setting)
-            where S : ISetting
-        {
-            ArgumentNullException.ThrowIfNull(setting);
-            _settings.Add(setting);
-            return setting;
-        }
-
-        public void Reset()
-        {
-            foreach (var setting in _settings)
-            {
-                setting.Reset();
-            }
-        }
-
-        public IEnumerator<ISetting> GetEnumerator()
-        {
-            return _settings.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)_settings).GetEnumerator();
-        }
-    }
-
     #region Fields
 
-    readonly SettingCollection _settings = new SettingCollection();
-
-    /// <summary>
-    /// Defines the minimum width of the <see cref="GlyphView"/>.
-    /// </summary>
-    public const double MinimumGlyphWidth = 200;
-
-    /// <summary>
-    /// Defines the minimum width of the <see cref="GlyphView"/>.
-    /// </summary>
-    public const double MaximumGlyphWidth = 500;
-
-    /// <summary>
-    /// Defines the default width of the <see cref="GlyphView"/>.
-    /// </summary>
-    public const double DefaultGlyphWidth = 300;
-    GlyphWidthSetting _glyphWidth;
-
-    /// <summary>
-    /// Defines the minimum <see cref="GlyphsView.ItemFontSize"/>.
-    /// </summary>
-    public const double MinimumItemFontSize = 12;
-
-    /// <summary>
-    /// Defines the maximum <see cref="GlyphsView.ItemFontSize"/>.
-    /// </summary>
-    public const double MaximumItemFontSize = 40;
-
-    /// <summary>
-    /// Defines the default <see cref="GlyphsView.ItemFontSize"/>.
-    /// </summary>
-    public const double DefaultItemFontSize = 32;
-    FontSizeSetting _itemFontSize;
-
-    /// <summary>
-    /// Defines the minimum width of the <see cref="GlyphView"/>.
-    /// </summary>
-    public const double MinimumTitleFontSize = 20;
-
-    /// <summary>
-    /// Defines the minimum width of the <see cref="GlyphView"/>.
-    /// </summary>
-    public const double MaximumTitleFontSize = 50;
-
-    /// <summary>
-    /// Define the default font size of the main page header text.
-    /// </summary>
-    public const double DefaultTitleFontSize = 32;
-    FontSizeSetting _titleFontSize;
-
-    /// <summary>
-    /// Defines the minimum <see cref="GlyphsView.HeaderFontSize"/>.
-    /// </summary>
-    public const double MinimumItemHeaderFontSize = 8;
-
-    /// <summary>
-    /// Defines the maximum <see cref="GlyphsView.HeaderFontSize"/>.
-    /// </summary>
-    public const double MaximumItemHeaderFontSize = 40;
-
-    /// <summary>
-    /// Define the default font size of the <see cref="GlyphsView.HeaderFontSize"/>.
-    /// </summary>
-    public const double DefaultItemHeaderFontSize = 20;
-    FontSizeSetting _itemHeaderFontSize;
+    readonly SettingCollection _settings;
 
     /// <summary>
     /// Defines the default color for the <see cref="GlyphsView.HeaderColor"/>.
@@ -135,80 +33,21 @@ public sealed class UserSettings : ObservableObject
     /// </summary>
     public static readonly Color DefaultSelectedItemColor = Colors.Plum;
 
-    /// <summary>
-    /// Defines the font families that are marked with a bookmark.
-    /// </summary>
-    // TODO: Needs serialization.
-    readonly FontFamilyBookmarks _bookmarks = [];
-
     #endregion Fields
-
-    const string SampleItemFontText =
-        FluentUI.ArrowExportRTL + " "
-        + FluentUI.MusicNote1 + " "
-        + FluentUI.MusicNote2 + " "
-        + FluentUI.ArrowExportLTR;
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     public UserSettings()
     {
-        Properties = _settings;
+        _settings = new(this.OnPropertyChanged);
+        Properties = _settings.Properties;
 
-        _glyphWidth = _settings.Add(new GlyphWidthSetting
-        (
-            OnPropertyChanged, GlyphWidthChangedEventArgs,
-            DefaultGlyphWidth,
-            Strings.GlyphWidthLabel, Strings.GlyphWidthDescription
-        )
-        {
-            MininumValue = MinimumGlyphWidth,
-            MaximumValue = MaximumGlyphWidth,
-            Increment = 10
-        });
-
-        _itemFontSize = _settings.Add(new FontSizeSetting
-        (
-            OnPropertyChanged, ItemFontSizeChangedEventArgs,
-            DefaultItemFontSize,
-            Strings.ItemFontSizeLabel, Strings.ItemFontSizeDescription
-        )
-        {
-            MininumValue = MinimumItemFontSize,
-            MaximumValue = MaximumItemFontSize,
-            Increment = 1,
-            Text = SampleItemFontText,
-            FontFamily = FluentUI.FamilyName
-        });
-
-        _itemHeaderFontSize = _settings.Add(new FontSizeSetting
-        (
-            OnPropertyChanged, ItemHeaderFontSizeChangedEventArgs,
-            DefaultItemHeaderFontSize,
-            Strings.ItemHeaderFontSizeLabel, Strings.ItemHeaderFontSizeDescription
-        )
-        {
-            MininumValue = MinimumItemHeaderFontSize,
-            MaximumValue = MaximumItemHeaderFontSize,
-            Increment = 1,
-            Text = Text.Unicode.Ranges.Latin1Supplement.Name,
-            FontFamily = Strings.DefaultFontFamily
-        });
-
-        _titleFontSize = _settings.Add(new FontSizeSetting
-        (
-            OnPropertyChanged, TitleFontSizeChangedEventArgs,
-            DefaultTitleFontSize,
-            Strings.TitleFontSizeLabel, Strings.TitleFontSizeDescription
-        )
-        {
-            MininumValue = MinimumTitleFontSize,
-            MaximumValue = MaximumTitleFontSize,
-            Increment = 1,
-            Text = Strings.ApplicationName,
-            FontFamily = Strings.DefaultFontFamily
-        });
+        GlyphWidth = _settings.Add(new GlyphWidthSetting(_settings, GlyphWidthChangedEventArgs));
+        ItemFont = _settings.Add(new ItemFontSetting(_settings, ItemFontSizeChangedEventArgs));
+        ItemHeaderFont = _settings.Add(new ItemHeaderFontSetting(_settings, ItemHeaderFontSizeChangedEventArgs));
+        TitleFont = _settings.Add(new TitleFontSetting(_settings, TitleFontSizeChangedEventArgs));
+        Bookmarks = _settings.Add(new Bookmarks(_settings), false);
 
         Navigator = new PageNavigator<SettingsPage>(true, this);
 
@@ -223,37 +62,33 @@ public sealed class UserSettings : ObservableObject
     /// <summary>
     /// Gets or sets the desired width of the <see cref="GlyphView"/>
     /// </summary>
-    public double GlyphWidth
+    public GlyphWidthSetting GlyphWidth
     {
-        get => _glyphWidth.Value;
-        set => _glyphWidth.Value = value;
+        get;
     }
 
     /// <summary>
     /// Gets or sets the font size for the Glyphs in the <see cref="GlyphsView"/>.
     /// </summary>
-    public double ItemFontSize
+    public ItemFontSetting ItemFont
     {
-        get => _itemFontSize.Value;
-        set => _itemFontSize.Value = value;
+        get;
     }
 
     /// <summary>
     /// Gets or sets the font size for the item header for Glyph groups in the <see cref="GlyphsView"/>.
     /// </summary>
-    public double ItemHeaderFontSize
+    public ItemHeaderFontSetting ItemHeaderFont
     {
-        get => _itemHeaderFontSize.Value;
-        set => _itemHeaderFontSize.Value = value;
+        get;
     }
 
     /// <summary>
     /// Gets or sets the font size for the main page title area.
     /// </summary>
-    public double TitleFontSize
+    public TitleFontSetting TitleFont
     {
-        get => _titleFontSize.Value;
-        set => _titleFontSize.Value = value;
+        get;
     }
 
     /// <summary>
@@ -262,6 +97,19 @@ public sealed class UserSettings : ObservableObject
     public IReadOnlyCollection<ISetting> Properties
     {
         get;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="ISetting"/> with the specified <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name">The name of the <see cref="ISetting"/> to get.</param>
+    /// <returns>
+    /// The <see cref="ISetting"/> with the specified <paramref name="name"/>;
+    /// otherwise, a null reference.
+    /// </returns>
+    internal ISetting this[string name]
+    {
+        get => _settings[name];
     }
 
     /// <summary>
@@ -281,13 +129,11 @@ public sealed class UserSettings : ObservableObject
     }
 
     /// <summary>
-    /// Gets the <see cref="FontFamilyBookmarks"/>.
+    /// Gets the <see cref="Bookmarks"/>.
     /// </summary>
-    public FontFamilyBookmarks Bookmarks
+    internal Bookmarks Bookmarks
     {
-        // TODO: Convert UserSettings to a JSON storage.
-        // Preference is not a good place to store bookmarks since it's string type is limited in size.
-        get => _bookmarks;
+        get;
     }
 
     #endregion Properties
@@ -300,29 +146,129 @@ public sealed class UserSettings : ObservableObject
         _settings.Reset();
     }
 
-    public static double Constrain(object newValue, double minimum, double maximum, double defaultValue)
+    #region Serialization
+
+    const string SettingsFileName = "settings.json";
+
+    static FileInfo SettingsFile
     {
-        if (newValue is double value)
-        {
-            if (value < minimum)
-            {
-                value = minimum;
-            }
-            else if (value > maximum)
-            {
-                value = maximum;
-            }
-            return value;
-        }
-        return defaultValue;
+        get => new FileInfo(Path.Combine(FileSystem.AppDataDirectory, SettingsFileName));
     }
+    
+    /// <summary>
+    /// Loads the <see cref="UserSettings"/>.
+    /// </summary>
+    /// <returns>A new instance of a <see cref="UserSettings"/>.</returns>
+    public static UserSettings Load()
+    {
+        UserSettings settings = null;
+        FileInfo fileInfo = SettingsFile;
+        string content;
+
+        do
+        {
+            if (!fileInfo.Exists)
+            {
+                break;
+            }
+
+            try
+            {
+                content = File.ReadAllText(fileInfo.FullName, System.Text.Encoding.UTF8);
+            }
+            catch (IOException ex)
+            {
+                string message = $"Unable to read settings file {fileInfo.FullName}.\n{ex.Message}";
+                Trace.WriteLine(message);
+                break;
+            }
+
+            if (string.IsNullOrEmpty(content))
+            {
+                break;
+            }
+
+            try
+            {
+                settings = JsonSerializer.Deserialize<UserSettings>(content, UserSettingsJsonConverter.Options);
+            }
+            catch (JsonException ex)
+            {
+                string message = $"Unable to parse settings file {fileInfo.FullName}.\n{ex.Message}";
+                Trace.WriteLine(message);
+            }
+
+        } while (false);
+
+        settings ??= new();
+        settings._settings.HasChanges = false;
+        return settings;
+    }
+
+    /// <summary>
+    /// Saves the <see cref="UserSettings"/>.
+    /// </summary>
+    public void Save()
+    {
+        if (_settings.HasChanges)
+        {
+            FileInfo fileInfo = SettingsFile;
+            string content = JsonSerializer.Serialize(this, UserSettingsJsonConverter.Options);
+            try
+            {
+                File.WriteAllText(fileInfo.FullName, content, System.Text.Encoding.UTF8);
+            }
+            catch (IOException ex)
+            {
+                string message = $"Unable to save settings to {fileInfo.FullName}.\n{ex.Message}";
+                Trace.WriteLine(message);
+            }
+            _settings.HasChanges = false;
+        }
+    }
+
+    #endregion Serialization
+
+    #region IEnumerable
+
+    /// <summary>
+    /// Gets an  <see cref="IEnumerator{ISetting}"/> to enumerate all <see cref="ISetting"/> instances.
+    /// </summary>
+    /// <returns>An <see cref="IEnumerator{ISetting}"/>.</returns>
+    public IEnumerator<ISetting> GetEnumerator()
+    {
+       return _settings.GetEnumerator();
+    }
+
+    /// <summary>
+    /// Gets an  <see cref="IEnumerator"/> to enumerate all <see cref="ISetting"/> instances.
+    /// </summary>
+    /// <returns>An <see cref="IEnumerator"/>.</returns>
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return ((IEnumerable)_settings).GetEnumerator();
+    }
+
+    #endregion IEnumerable
 
     #region PropertyChangedEventArgs
 
-    public static PropertyChangedEventArgs GlyphWidthChangedEventArgs = new(nameof(GlyphWidth));
-    public static PropertyChangedEventArgs ItemFontSizeChangedEventArgs = new(nameof(ItemFontSize));
-    public static PropertyChangedEventArgs ItemHeaderFontSizeChangedEventArgs = new(nameof(ItemHeaderFontSize));
-    public static PropertyChangedEventArgs TitleFontSizeChangedEventArgs = new(nameof(TitleFontSize));
+    /// <summary>
+    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="GlyphWidth"/> changes.
+    /// </summary>
+    public static readonly PropertyChangedEventArgs GlyphWidthChangedEventArgs = new(nameof(GlyphWidth));
+    /// <summary>
+    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="ItemFont"/> changes.
+    /// </summary>
+    public static readonly PropertyChangedEventArgs ItemFontSizeChangedEventArgs = new(nameof(ItemFont));
+    /// <summary>
+    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="ItemHeaderFont"/> changes.
+    /// </summary>
+    public static readonly PropertyChangedEventArgs ItemHeaderFontSizeChangedEventArgs = new(nameof(ItemHeaderFont));
+    /// <summary>
+    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="TitleFont"/> changes.
+    /// </summary>
+    public static readonly PropertyChangedEventArgs TitleFontSizeChangedEventArgs = new(nameof(TitleFont));
 
     #endregion PropertyChangedEventArgs
 }

@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.Settings;
 using System.Collections;
 
 /// <summary>
@@ -23,7 +24,7 @@ public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
     (
         Dictionary<string, FontFamilyGroup> groupTable,
         List<FontFamilyGroup> groups,
-        FontFamilyBookmarks bookmarks
+        Bookmarks bookmarks
     )
     {
         Bookmarks = new List<IFontFamilyGroup>([bookmarks]);
@@ -115,7 +116,7 @@ public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
     /// Creates a new instance of this class.
     /// </summary>
     /// <returns>A new instance of a <see cref="FontFamilyGroupCollection"/>.</returns>
-    public static FontFamilyGroupCollection CreateInstance(FontFamilyBookmarks bookmarks)
+    internal static FontFamilyGroupCollection CreateInstance(Bookmarks bookmarks)
     {
         Dictionary<string, FontFamilyGroup> groupTable = new(StringComparer.OrdinalIgnoreCase);
         List<FontFamilyGroup> groups = [];

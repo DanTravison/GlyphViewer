@@ -1,6 +1,7 @@
 ﻿namespace GlyphViewer.ViewModels;
 
 using GlyphViewer.ObjectModel;
+using GlyphViewer.Settings;
 using GlyphViewer.Text;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -12,7 +13,7 @@ internal sealed class BookmarkCommand : Command
 {
     #region Fields
 
-    readonly FontFamilyBookmarks _bookmarks;
+    readonly Bookmarks _bookmarks;
     readonly MetricsModel _metrics;
     bool _isBookmarked;
 
@@ -21,8 +22,8 @@ internal sealed class BookmarkCommand : Command
     /// <summary>
     /// Initializes a new instance of this command.
     /// </summary>
-    /// <param name="bookmarks">The <see cref="FontFamilyBookmarks"/> to update.</param>
-    public BookmarkCommand(FontFamilyBookmarks bookmarks, MetricsModel metrics)
+    /// <param name="bookmarks">The <see cref="Bookmarks"/> to update.</param>
+    public BookmarkCommand(Bookmarks bookmarks, MetricsModel metrics)
         : base(NopAction)
     {
         _bookmarks = bookmarks;

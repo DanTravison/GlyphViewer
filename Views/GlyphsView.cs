@@ -29,16 +29,6 @@ public sealed class GlyphsView : SKCanvasView
     public const double DefaultSpacing = 5.0;
 
     /// <summary>
-    /// Defines the default <see cref="HeaderFontSize"/>.
-    /// </summary>
-    public const string DefaultHeaderFontFamily = App.DefaultFontFamily;
-
-    /// <summary>
-    /// Defines the default <see cref="HeaderFontAttributes"/>.
-    /// </summary>
-    public const FontAttributes DefaultHeaderFontAttributes = FontAttributes.Bold | FontAttributes.Italic;
-
-    /// <summary>
     /// Defines the default <see cref="HeaderColor"/>.
     /// </summary>
     public static readonly Color DefaultHeaderColor = Colors.Black;
@@ -298,17 +288,15 @@ public sealed class GlyphsView : SKCanvasView
         nameof(ItemFontSize),
         typeof(double),
         typeof(GlyphsView),
-        UserSettings.DefaultItemFontSize,
+        ItemFontSetting.Default,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
-            return UserSettings.Constrain
-            (
-                value,
-                UserSettings.MinimumItemFontSize,
-                UserSettings.MaximumItemFontSize,
-                UserSettings.DefaultItemFontSize
-            );
+            if (value is double fontSize)
+            {
+                return Math.Clamp(fontSize, ItemFontSetting.Minimum, ItemFontSetting.Maximum);
+            }
+            return ItemFontSetting.Default;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -420,7 +408,7 @@ public sealed class GlyphsView : SKCanvasView
         nameof(HeaderFontFamily),
         typeof(string),
         typeof(GlyphsView),
-        DefaultHeaderFontFamily,
+        ItemHeaderFontSetting.DefaultFontFamily,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
@@ -432,7 +420,7 @@ public sealed class GlyphsView : SKCanvasView
                     return value;
                 }
             }
-            return DefaultHeaderFontFamily;
+            return ItemHeaderFontSetting.DefaultFontFamily;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -464,17 +452,15 @@ public sealed class GlyphsView : SKCanvasView
         nameof(HeaderFontSize),
         typeof(double),
         typeof(GlyphsView),
-        UserSettings.DefaultItemHeaderFontSize,
+        ItemHeaderFontSetting.Default,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
-            return UserSettings.Constrain
-            (
-                value,
-                UserSettings.MinimumItemHeaderFontSize,
-                UserSettings.MaximumItemHeaderFontSize,
-                UserSettings.DefaultItemFontSize
-            );
+            if (value is double fontSize)
+            {
+                return Math.Clamp(fontSize, ItemHeaderFontSetting.Minimum, ItemHeaderFontSetting.Maximum);
+            }
+            return ItemHeaderFontSetting.Default;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -514,9 +500,8 @@ public sealed class GlyphsView : SKCanvasView
         nameof(HeaderFontAttributes),
         typeof(FontAttributes),
         typeof(GlyphsView),
-        DefaultHeaderFontAttributes,
+        ItemHeaderFontSetting.DefaultFontAttributes,
         BindingMode.OneWay
-
     );
 
     #endregion HeaderFontAttributes

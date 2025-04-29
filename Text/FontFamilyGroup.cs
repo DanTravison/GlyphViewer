@@ -26,6 +26,7 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGr
     public string Name
     {
         get;
+        init;
     }
 
     /// <summary>
@@ -68,13 +69,14 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGr
     /// The specified <paramref name="family"/> is a
     /// null reference or empty string.
     /// </exception>
-    public void Add(string family)
+    public bool Add(string family)
     {
         if (string.IsNullOrEmpty(family))
         {
             throw new ArgumentNullException(nameof(family));
         }
         _families.Add(family);
+        return true;
     }
 
     #endregion Methods

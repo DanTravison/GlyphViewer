@@ -3,14 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
              xmlns:controls="clr-namespace:GlyphViewer.Controls"
+             xmlns:settngs="clr-namespace:GlyphViewer.Settings"
              xmlns:res="clr-namespace:GlyphViewer.Resources"
              x:Class="GlyphViewer.Views.HeaderView"
              x:DataType="viewmodel:MainViewModel">
 
     <ContentView.Resources>
         <Style TargetType="Label" x:Key="TitleLabelStyle">
-            <Setter Property="FontSize" Value="{Binding Settings.TitleFontSize}"/>
-            <Setter Property="FontAttributes" Value="Bold"/>
+            <!-- TODO: Use Binding.FontSize when Setting is updated -->
+            <Setter Property="FontSize" Value="{Binding Settings.TitleFont.Value}"/>
+            <Setter Property="FontAttributes" Value="{Binding Settings.TitleFont.FontAttributes}"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         </Style>
         

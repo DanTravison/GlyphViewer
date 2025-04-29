@@ -32,9 +32,9 @@ internal sealed class MainViewModel : ObservableObject
     public MainViewModel(IDispatcher dispatcher)
     {
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
-        Settings = new UserSettings();
+        Settings = UserSettings.Load();
         Settings.PropertyChanged += OnSettingsPropertyChanged;
-        _metrics = new MetricsModel(Settings.ItemFontSize);
+        _metrics = new MetricsModel(Settings.ItemFont.FontSize);
         _metrics.PropertyChanged += OnMetricsPropertyChanged;
         BookmarkCommand = new(Settings.Bookmarks, _metrics);
     }
@@ -257,9 +257,16 @@ internal sealed class MainViewModel : ObservableObject
 
     private void OnSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (ReferenceEquals(e, UserSettings.ItemFontSizeChangedEventArgs))
+        if (ReferenceEquals(e, ObservableProperty.ValueChangedEventArgs))
         {
-            _metrics.FontSize = Settings.ItemFontSize;
+            if (ReferenceEquals(sender, Settings.ItemFont))
+            {
+                _metrics.FontSize = Settings.ItemFont.FontSize;
+            }
+            else if (ReferenceEquals(sender, Settings.GlyphWidth))
+            {
+                _metrics.GlyphWidth = Settings.GlyphWidth.Value;
+            }
         }
     }
 

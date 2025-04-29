@@ -66,7 +66,7 @@
     <!-- NOTE: Placing ContentView directly in a '*' row can cause
          the content to overflow the row. Use 'Auto,*' as a workaround.
     -->
-    <Grid RowDefinitions="Auto, Auto, Auto, *">
+    <Grid RowDefinitions="Auto, Auto, *">
 
         <CollectionView Grid.Row="0"
                         Style="{StaticResource FontFamilyGroupStyle}"
@@ -74,14 +74,11 @@
                         Margin="0"
                         />
 
-        <BoxView Grid.Row="1" 
-                 Style="{StaticResource HorizontalSeparatorStyle}"/>
-        
         <!-- NOTE: Placing Families and GroupPicker in the same row/column.
              Using JumpList.ZIndex to show/hide the picker.
         -->
         <controls:JumpList x:Name="GroupPicker" 
-                           Grid.Row="2"
+                           Grid.Row="21"
                            Grid.RowSpan="2"
                            ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"
                            SelectedItem="{Binding SelectedFamilyGroup, Mode=OneWayToSource}"
@@ -89,7 +86,7 @@
                            />
 
         <CollectionView x:Name="Families"
-                        Grid.Row="2"
+                        Grid.Row="1"
                         Grid.RowSpan="2"
                         Style="{StaticResource FontFamilyGroupStyle}"
                         ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"

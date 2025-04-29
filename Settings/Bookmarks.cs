@@ -1,15 +1,18 @@
-﻿namespace GlyphViewer.Text;
+﻿using GlyphViewer.Text;
+
+namespace GlyphViewer.Settings;
 
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Resources;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Text.Json;
 
 /// <summary>
 /// Provides a group of bookmarked font families.
 /// </summary>
-public sealed class FontFamilyBookmarks : ReadOnlyCollection<string>, IFontFamilyGroup, INotifyCollectionChanged, INotifyPropertyChanged
+public sealed class Bookmarks : ReadOnlyCollection<string>, IFontFamilyGroup, INotifyCollectionChanged, INotifyPropertyChanged, ISetting
 {
     // ISSUE: CollectionView will not subscribe to CollectionChanged events
     // for a class that implements IReadOnlyList<T> and INotifyCollectionChanged.
@@ -20,18 +23,21 @@ public sealed class FontFamilyBookmarks : ReadOnlyCollection<string>, IFontFamil
     #region Fields
 
     readonly OrderedList<string> _families;
-    readonly IComparer<string> _comparer = StringComparer.CurrentCulture;
+    readonly SettingCollection _settings;
+
 
     #endregion Fields
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    public FontFamilyBookmarks()
+    public Bookmarks(SettingCollection settings)
         : base(new OrderedList<string>(StringComparer.CurrentCulture))
     {
-        _families = base.Items as OrderedList<string>;
-        Name = Strings.BookmarkGroupName;
+        _settings = settings;
+        _families = Items as OrderedList<string>;
+        DisplayName = Name = Strings.BookmarkGroupName;
+        Description = string.Empty;
     }
 
     #region Properties
@@ -42,6 +48,31 @@ public sealed class FontFamilyBookmarks : ReadOnlyCollection<string>, IFontFamil
     public string Name
     {
         get;
+        init;
+    }
+
+    /// <summary>
+    /// Gets the name to display in the UI.
+    /// </summary>
+    public string DisplayName
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the description of the setting.
+    /// </summary>
+    public string Description
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the value indicating if the setting has the default value.
+    /// </summary>
+    public bool IsDefault
+    {
+        get => Count == 0;
     }
 
     #endregion Properties
@@ -110,6 +141,14 @@ public sealed class FontFamilyBookmarks : ReadOnlyCollection<string>, IFontFamil
         OnClear();
     }
 
+    /// <summary>
+    /// Resets the collection to the default values.
+    /// </summary>
+    public void Reset()
+    {
+        OnClear();
+    }
+
     #endregion Methods
 
     #region INotifyPropertyChanged
@@ -120,6 +159,15 @@ public sealed class FontFamilyBookmarks : ReadOnlyCollection<string>, IFontFamil
     /// Occurs when a property changes.
     /// </summary>
     public event PropertyChangedEventHandler PropertyChanged;
+
+    void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        PropertyChanged?.Invoke(this, e);
+        // NOTE: The bookmarks instance does not change but the contents do,
+        // so notify the parent collection that the bookmarks have changed.
+        _settings.HasChanges = true;
+    }
 
     #endregion INotifyPropertyChanged
 
@@ -143,7 +191,7 @@ public sealed class FontFamilyBookmarks : ReadOnlyCollection<string>, IFontFamil
         {
             handler?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
-        PropertyChanged?.Invoke(this, CountChangedEventArgs);
+        OnPropertyChanged(CountChangedEventArgs);
     }
 
     void OnItemRemoved(int index, string item)
@@ -153,25 +201,44 @@ public sealed class FontFamilyBookmarks : ReadOnlyCollection<string>, IFontFamil
         {
             handler?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
         }
-        PropertyChanged?.Invoke(this, CountChangedEventArgs);
+        OnPropertyChanged(CountChangedEventArgs);
     }
 
     void OnClear()
     {
-        NotifyCollectionChangedEventHandler handler = CollectionChanged;
-        List<string> removed = null;
-        if (handler is not null)
+        if (Count > 0)
         {
-            removed = new(_families);
+            NotifyCollectionChangedEventHandler handler = CollectionChanged;
+            List<string> removed = null;
+            if (handler is not null)
+            {
+                removed = new(_families);
+            }
+            _families.Clear();
+            if (handler is not null)
+            {
+                handler.Invoke(this, new(NotifyCollectionChangedAction.Remove, removed, 0));
+                handler.Invoke(this, CollectionResetEventArgs);
+            }
+            OnPropertyChanged(CountChangedEventArgs);
         }
-        _families.Clear();
-        if (handler is not null)
-        {
-            handler.Invoke(this, new(NotifyCollectionChangedAction.Remove, removed, 0));
-            handler.Invoke(this, CollectionResetEventArgs);
-        }
-        PropertyChanged?.Invoke(this, CountChangedEventArgs);
     }
 
     #endregion Collection Updates
+
+    #region Serialization
+
+    public void ReadValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    {
+        List<string> families = JsonSerializer.Deserialize<List<string>>(ref reader, options);
+        Update(families);
+    }
+
+    public void WriteValue(Utf8JsonWriter writer, JsonSerializerOptions options)
+    {
+        List<string> families = new(this);
+        JsonSerializer.Serialize(writer, families, options);
+    }
+
+    #endregion Serialization
 }

@@ -1,27 +1,39 @@
 ﻿namespace GlyphViewer.Settings;
 
-using GlyphViewer.ObjectModel;
+using GlyphViewer.Resources;
+using GlyphViewer.Views;
 using System.ComponentModel;
 
-internal class GlyphWidthSetting : DoubleSetting
+/// <summary>
+/// Provides an <see cref="ISetting"/> for the <see cref="GlyphView"/> width.
+/// </summary>
+public class GlyphWidthSetting : DoubleSetting
 {
+    /// <summary>
+    /// Defines the minimum width of the <see cref="GlyphView"/>.
+    /// </summary>
+    public const double Minimum = 200;
+
+    /// <summary>
+    /// Defines the minimum width of the <see cref="GlyphView"/>.
+    /// </summary>
+    public const double Maximum = 500;
+
+    /// <summary>
+    /// Defines the default width of the <see cref="GlyphView"/>.
+    /// </summary>
+    public const double Default = 300;
+
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="propertyChanged">The <see cref="ObservableProperty.NotifyPropertyChangedDelegate"/>  delegate to invoke to raised the property chagned event.</param>
-    /// <param name="eventArgs">The optional <see cref="PropertyChangedEventArgs"/> to use when the value changes.</param>
-    /// <param name="defaultValue">The default <see cref="Setting{T}.DefaultValue"/> of the setting.</param>
-    /// <param name="displayName">The <see cref="Setting{T}.DisplayName"/> of the setting..</param>
-    /// <param name="description">The <see cref="Setting{T}.Description"/> of the setting.</param>
-    public GlyphWidthSetting
-    (
-        NotifyPropertyChangedDelegate propertyChanged,
-        PropertyChangedEventArgs eventArgs,
-        double defaultValue,
-        string displayName,
-        string description
-    )
-        : base(propertyChanged, eventArgs, defaultValue, displayName, description)
+    /// <param name="settings">The containing <see cref="SettingCollection"/>.</param>
+    /// <param name="eventArgs">The <see cref="PropertyChangedEventArgs"/> for the associated property.</param>
+    public GlyphWidthSetting(SettingCollection settings, PropertyChangedEventArgs eventArgs)
+        : base(settings, eventArgs, Default, Strings.GlyphWidthLabel, Strings.GlyphWidthDescription)
     {
+        MininumValue = Minimum;
+        MaximumValue = Maximum;
+        Increment = 10;
     }
 }
