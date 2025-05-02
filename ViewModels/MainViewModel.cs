@@ -33,7 +33,7 @@ internal sealed class MainViewModel : ObservableObject
     {
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
         Settings = UserSettings.Load();
-        Settings.PropertyChanged += OnSettingsPropertyChanged;
+
         _metrics = new MetricsModel(Settings.ItemFont.FontSize);
         _metrics.PropertyChanged += OnMetricsPropertyChanged;
         BookmarkCommand = new(Settings.Bookmarks, _metrics);
@@ -254,21 +254,6 @@ internal sealed class MainViewModel : ObservableObject
     #endregion Font Info Loading
 
     #region Event Handlers
-
-    private void OnSettingsPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (ReferenceEquals(e, ObservableProperty.ValueChangedEventArgs))
-        {
-            if (ReferenceEquals(sender, Settings.ItemFont))
-            {
-                _metrics.FontSize = Settings.ItemFont.FontSize;
-            }
-            else if (ReferenceEquals(sender, Settings.GlyphWidth))
-            {
-                _metrics.GlyphWidth = Settings.GlyphWidth.Value;
-            }
-        }
-    }
 
     private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
     {

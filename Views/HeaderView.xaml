@@ -10,9 +10,9 @@
 
     <ContentView.Resources>
         <Style TargetType="Label" x:Key="TitleLabelStyle">
-            <!-- TODO: Use Binding.FontSize when Setting is updated -->
-            <Setter Property="FontSize" Value="{Binding Settings.TitleFont.Value}"/>
-            <Setter Property="FontAttributes" Value="{Binding Settings.TitleFont.FontAttributes}"/>
+            <Setter Property="FontFamily" Value="{Binding Settings.TitleFont.FontFamily.Value}"/>
+            <Setter Property="FontSize" Value="{Binding Settings.TitleFont.FontSize.Value}"/>
+            <Setter Property="FontAttributes" Value="{Binding Settings.TitleFont.FontAttributes.Value}"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         </Style>
         

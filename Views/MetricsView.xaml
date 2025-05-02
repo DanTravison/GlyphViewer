@@ -6,7 +6,6 @@
              xmlns:controls="clr-namespace:GlyphViewer.Controls"
              x:Class="GlyphViewer.Views.MetricsView"
              x:DataType="viewmodel:MetricsModel"
-             WidthRequest="{Binding GlyphWidth}"
             >
 
     <ScrollView>

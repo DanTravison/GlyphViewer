@@ -1,5 +1,7 @@
 ﻿namespace GlyphViewer.Settings;
 
+using GlyphViewer.Settings.Properties;
+
 /// <summary>
 /// Provides a <see cref="DataTemplateSelector"/> for selecting the appropriate <see cref="DataTemplate"/> 
 /// various <see cref="ISetting"/> instances.
@@ -9,23 +11,23 @@ internal class SettingDataTemplateSelector : DataTemplateSelector
     /// <summary>
     /// Gets the <see cref="DataTemplate"/> for a <see cref="FontSetting"/>.
     /// </summary>
-    public DataTemplate FontSize
+    public DataTemplate Font
     {
         get;
         set;
     }
 
     /// <summary>
-    /// Gets the <see cref="DataTemplate"/> for a <see cref="GlyphWidthSetting"/>.
+    /// Gets the <see cref="DataTemplate"/> for a <see cref="GlyphSetting"/>.
     /// </summary>
-    public DataTemplate GlyphWidth
+    public DataTemplate Glyph
     {
         get;
         set;
     }
 
     /// <summary>
-    /// Gets the <see cref="DataTemplate"/> for a <see cref="DoubleSetting"/>.
+    /// Gets the <see cref="DataTemplate"/> for a <see cref="DoubleProperty"/>.
     /// </summary>
     public DataTemplate Double
     {
@@ -47,13 +49,13 @@ internal class SettingDataTemplateSelector : DataTemplateSelector
     {
         if (item is FontSetting)
         {
-            return FontSize;
+            return Font;
         }
-        if (item is GlyphWidthSetting)
+        if (item is GlyphSetting)
         {
-            return GlyphWidth;
+            return Glyph;
         }
-        if (item is DoubleSetting)
+        if (item is DoubleProperty)
         {
             return Double;
         }

@@ -78,8 +78,7 @@ public abstract class ObservableProperty : ObservableObject
     #endregion Methods
 
     /// <summary>
-    /// Defines the <see cref="PropertyChangedEventArgs"/> passed to <see cref="INotifyPropertyChanged.PropertyChanged"/>
-    /// when the property value changes.
+    /// Provides <see cref="PropertyChangedEventArgs"/> when the property value changes.
     /// </summary>
     public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new("Value");
 }
@@ -130,10 +129,12 @@ public class ObservableProperty<T> : ObservableProperty
     (
         NotifyPropertyChangedDelegate propertyChanged,
         PropertyChangedEventArgs eventArgs,
+        T defaultValue,
         IEqualityComparer<T> comparer = null
     )
         : base(propertyChanged, eventArgs)
     {
+        DefaultValue = defaultValue;
         _comparer = comparer ?? EqualityComparer<T>.Default;
     }
 
@@ -158,7 +159,32 @@ public class ObservableProperty<T> : ObservableProperty
         }
     }
 
+    /// <summary>
+    /// Gets the default <see cref="Value"/> for the property.
+    /// </summary>
+    public T DefaultValue
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the value indicating the current value is the <see cref="DefaultValue"/>.
+    /// </summary>
+    public bool IsDefault
+    {
+        get => _comparer.Equals(_value, DefaultValue);
+    }
+
+
     #endregion Properties
+
+    /// <summary>
+    /// Resets the <see cref="Value"/> to the <see cref="DefaultValue"/>.
+    /// </summary>
+    public void Reset()
+    {
+        Value = DefaultValue;
+    }
 
     /// <summary>
     /// Compares the <see cref="Value"/> to the specified value using the <see cref="IEqualityComparer{T}"/> instance.

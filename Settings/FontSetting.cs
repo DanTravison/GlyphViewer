@@ -1,73 +1,131 @@
 ﻿namespace GlyphViewer.Settings;
 
 using GlyphViewer.ObjectModel;
+using GlyphViewer.Settings.Properties;
 using System.ComponentModel;
 
 /// <summary>
-/// Provides a <see cref="DoubleSetting"/> for a font size.
+/// Provides a <see cref="Setting"/> for font properties.
 /// </summary>
-public abstract class FontSetting : DoubleSetting
+public abstract class FontSetting : Setting
 {
+    #region Fields
+
+    string _sample = string.Empty;
+
+    #endregion Fields
+
+    #region Constructors
+
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="settings">The containing <see cref="SettingCollection"/>.</param>
-    /// <param name="eventArgs">The optional <see cref="PropertyChangedEventArgs"/> to use when the value changes.</param>
-    /// <param name="defaultValue">The default <see cref="Setting{T}.DefaultValue"/> of the setting.</param>
-    /// <param name="displayName">The <see cref="Setting{T}.DisplayName"/> of the setting..</param>
-    /// <param name="description">The <see cref="Setting{T}.Description"/> of the setting.</param>
-    /// <param name="comparer">
-    /// The optional <see cref="IEqualityComparer{T}"/> to use to compare the <see cref="ObservableProperty{T}.Value"/>.
-    /// <para>
-    /// The default value is <see cref="EqualityComparer{T}.Default"/>.
-    /// </para>
-    /// </param>
+    /// <param name="parent">The parent <see cref="ISetting"/>.</param>
+    /// <param name="name">The <see cref="ISettingProperty.Name"/> of the setting..</param>
+    /// <param name="displayName">The <see cref="ISettingProperty.DisplayName"/> of the setting..</param>
+    /// <param name="description">The <see cref="ISettingProperty.Description"/> of the setting.</param>
+    /// <param name="defaultFontFamily">The <see cref="FontFamily"/> default value.</param>
+    /// <param name="defaultFontSize">The <see cref="FontSize"/> default value.</param>
+    /// <param name="minimumFontSize">The <see cref="FontSize"/> minimum value.</param>
+    /// <param name="maximumFonSize">The <see cref="FontSize"/> maximum value.</param>
+    /// <param name="defualtFontAttributes">The <see cref="FontAttributes"/> default value.</param>
+    /// <param name="sample">The <see cref="Sample"/> to display in the UI.</param>
     protected FontSetting
     (
-        SettingCollection settings,
-        PropertyChangedEventArgs eventArgs,
-        double defaultValue,
+        ISetting parent,
+        string name,
         string displayName,
         string description,
-        IEqualityComparer<double> comparer = null
+        string defaultFontFamily,
+        double defaultFontSize,
+        double minimumFontSize,
+        double maximumFonSize,
+        FontAttributes defualtFontAttributes,
+        string sample = null
     )
-        : base(settings, eventArgs, defaultValue, displayName, description, comparer)
+        : base(parent, name, displayName, description)
     {
-        Increment = 1;
+        FontFamily = new
+        (
+            defaultFontFamily
+        );
+        FontSize = new
+        (
+            defaultFontSize,
+            minimumFontSize,
+            maximumFonSize
+        );
+        FontAttributes = new
+        (
+            defualtFontAttributes
+        );
+        AddRange(FontFamily, FontSize, FontAttributes);
+
+        // Consider making this a StringProperty
+        Sample = sample;
+        FontFamily.PropertyChanged += OnFamilyNameChanged;
     }
 
+    #endregion Constructors
+
+    #region Event Handlers
+
+    private void OnFamilyNameChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (ReferenceEquals(e, ObservableProperty.ValueChangedEventArgs) && string.IsNullOrEmpty(_sample))
+        {
+            OnPropertyChanged(SampleChangedEventArgs);
+        }
+    }
+
+    #endregion Event Handlers
+
+    #region Properties
+
     /// <summary>
-    /// Gets the font family to use to display the sample text.
+    /// Gets the <see cref="String"/> font family name.
     /// </summary>
-    public string FontFamily
+    public FontFamilyProperty FontFamily
     {
         get;
-        init;
     }
 
     /// <summary>
-    /// Gets the font size to use to display the sample text.
+    /// Gets the <see cref="Double"/> font size.
     /// </summary>
-    public double FontSize
-    {
-        get => Value;
-    }
-
-    /// <summary>
-    /// Gets the <see cref="FontAttributes"/> to use to display the sample text.
-    /// </summary>
-    public FontAttributes FontAttributes
+    public FontSizeProperty FontSize
     {
         get;
-        init;
     }
 
     /// <summary>
-    /// Gets the sample text to display.
+    /// Gets the <see cref="FontAttributes"/> font attributes.
     /// </summary>
-    public string Text
+    public FontAttributesProperty FontAttributes 
     {
         get;
-        init;
     }
+
+    /// <summary>
+    /// Gets or sets the sample text to display in the UI when configuring the font.
+    /// </summary>
+    /// <remarks>
+    /// The default value is the <see cref="FontFamily"/> value.
+    /// </remarks>
+    public string Sample
+    {
+        get => string.IsNullOrEmpty(_sample) ? FontFamily.Value : _sample;
+        set => SetProperty(ref _sample, value, SampleChangedEventArgs);
+    }
+
+    #endregion Properties
+
+    #region PropertyChangedEventArgs
+
+    /// <summary>
+    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="Sample"/> changes.
+    /// </summary>
+    public static readonly PropertyChangedEventArgs SampleChangedEventArgs = new(nameof(Sample));
+
+    #endregion PropertyChangedEventArgs
 }

@@ -28,21 +28,6 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public const double DefaultSpacing = 5.0;
 
-    /// <summary>
-    /// Defines the default <see cref="HeaderColor"/>.
-    /// </summary>
-    public static readonly Color DefaultHeaderColor = Colors.Black;
-
-    /// <summary>
-    /// Defines the default <see cref="ItemColor"/>.
-    /// </summary>
-    public static readonly Color DefaultItemColor = Colors.Black;
-
-    /// <summary>
-    /// Defines the default colors for the <see cref="SelectedItem"/> border.
-    /// </summary>
-    public static readonly Color DefaultSelectedItemColor = Colors.Plum;
-
     #endregion Constants
 
     #region Fields
@@ -208,7 +193,7 @@ public sealed class GlyphsView : SKCanvasView
         nameof(ItemColor),
         typeof(Color),
         typeof(GlyphsView),
-        DefaultItemColor,
+        ItemFontSetting.DefaultItemColor,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
@@ -216,7 +201,7 @@ public sealed class GlyphsView : SKCanvasView
             {
                 return color;
             }
-            return DefaultItemColor;
+            return ItemFontSetting.DefaultItemColor;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -248,7 +233,7 @@ public sealed class GlyphsView : SKCanvasView
         nameof(SelectedItemColor),
         typeof(Color),
         typeof(GlyphsView),
-        DefaultSelectedItemColor,
+        ItemFontSetting.DefaultSelectedItemColor,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
@@ -256,7 +241,7 @@ public sealed class GlyphsView : SKCanvasView
             {
                 return color;
             }
-            return DefaultSelectedItemColor;
+            return ItemFontSetting.DefaultSelectedItemColor;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -288,15 +273,15 @@ public sealed class GlyphsView : SKCanvasView
         nameof(ItemFontSize),
         typeof(double),
         typeof(GlyphsView),
-        ItemFontSetting.Default,
+        ItemFontSetting.DefaultFontSize,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is double fontSize)
             {
-                return Math.Clamp(fontSize, ItemFontSetting.Minimum, ItemFontSetting.Maximum);
+                return Math.Clamp(fontSize, ItemFontSetting.MinimumFontSize, ItemFontSetting.MaximumFontSize);
             }
-            return ItemFontSetting.Default;
+            return ItemFontSetting.DefaultFontSize;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -328,7 +313,7 @@ public sealed class GlyphsView : SKCanvasView
         nameof(HeaderColor),
         typeof(Color),
         typeof(GlyphsView),
-        UserSettings.DefaultItemHeaderColor,
+        ItemHeaderFontSetting.DefaultTextColor,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
@@ -336,7 +321,7 @@ public sealed class GlyphsView : SKCanvasView
             {
                 return color;
             }
-            return DefaultHeaderColor;
+            return ItemHeaderFontSetting.DefaultTextColor;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -452,15 +437,15 @@ public sealed class GlyphsView : SKCanvasView
         nameof(HeaderFontSize),
         typeof(double),
         typeof(GlyphsView),
-        ItemHeaderFontSetting.Default,
+        ItemHeaderFontSetting.DefaultFontSize,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is double fontSize)
             {
-                return Math.Clamp(fontSize, ItemHeaderFontSetting.Minimum, ItemHeaderFontSetting.Maximum);
+                return Math.Clamp(fontSize, ItemHeaderFontSetting.MinimumFontSize, ItemHeaderFontSetting.MaximumFontSize);
             }
-            return ItemHeaderFontSetting.Default;
+            return ItemHeaderFontSetting.DefaultFontSize;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {

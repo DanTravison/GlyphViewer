@@ -158,7 +158,7 @@ This is used to select a font family group in the FontFamiliesView and a unicode
   * Allows SettingsPage to present Settings properties as a bindable collection. 
 * Command: An implementation of ICommand with IsEnabled for controlling CanExecute.
 * OrderedList: A simple ordered list of objects.
-  * This is a placeholder for use by FontFamilyGroup until CollectionView issue is resolved.
+  * This is a placeholder for use by Bookmarks until CollectionView issue is resolved.
   * The list is used to display the glyph and font metrics properties.
 
 ## Other

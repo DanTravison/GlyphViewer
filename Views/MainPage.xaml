@@ -47,10 +47,10 @@
                               ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               HeaderColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
                               BackgroundColor="Transparent"
-                              ItemFontSize="{Binding Settings.ItemFont.Value}"
-                              HeaderFontSize="{Binding Settings.ItemHeaderFont.Value}"
-                              HeaderFontAttributes="{Binding Settings.ItemHeaderFont.FontAttributes}"
-                              HeaderFontFamily="{Binding Settings.ItemHeaderFont.FontFamily}"
+                              ItemFontSize="{Binding Settings.ItemFont.FontSize.Value}"
+                              HeaderFontSize="{Binding Settings.ItemHeaderFont.FontSize.Value}"
+                              HeaderFontAttributes="{Binding Settings.ItemHeaderFont.FontAttributes.Value}"
+                              HeaderFontFamily="{Binding Settings.ItemHeaderFont.FontFamily.Value}"
                               SelectedItem="{Binding Metrics.Glyph, Mode=TwoWay}"
                               HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
                               UnicodeRanges="{Binding UnicodeRanges}"
@@ -77,7 +77,7 @@
                                  BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                                  LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"
                                  BaselineColor="{AppThemeBinding Light=LightGreen, Dark=Green}"
-                                 WidthRequest="{Binding Metrics.GlyphWidth}"
+                                 GlyphWidth="{Binding Settings.Glyph.Width}"
                                  />
 
                 <views:MetricsView Grid.Row="1"

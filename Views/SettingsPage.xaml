@@ -3,14 +3,31 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
              xmlns:settings="clr-namespace:GlyphViewer.Settings"
+             xmlns:properties="clr-namespace:GlyphViewer.Settings.Properties"
              xmlns:controls="clr-namespace:GlyphViewer.Controls"
              xmlns:res="clr-namespace:GlyphViewer.Resources"
              x:Class="GlyphViewer.Views.SettingsPage"
              x:DataType="settings:UserSettings">
     
     <ContentPage.Resources>
-        
-        <Style TargetType="controls:Slider" x:Key="SliderStyle" x:DataType="settings:DoubleSetting">
+
+        <Style TargetType="controls:Slider" x:Key="FontSizeSliderStyle" x:DataType="settings:FontSetting">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="Value" Value="{Binding FontSize.Value, Mode=TwoWay}"/>
+            <Setter Property="Minimum" Value="{Binding FontSize.MininumValue}"/>
+            <Setter Property="Maximum" Value="{Binding FontSize.MaximumValue}"/>
+            <Setter Property="Interval" Value="{Binding FontSize.Increment}"/>
+        </Style>
+
+        <Style TargetType="controls:Slider" x:Key="GlyphWidthStyle" x:DataType="settings:GlyphSetting">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="Value" Value="{Binding Width.Value, Mode=TwoWay}"/>
+            <Setter Property="Minimum" Value="{Binding Width.MininumValue}"/>
+            <Setter Property="Maximum" Value="{Binding Width.MaximumValue}"/>
+            <Setter Property="Interval" Value="{Binding Width.Increment}"/>
+        </Style>
+
+        <Style TargetType="controls:Slider" x:Key="DoubleSliderStyle" x:DataType="properties:DoubleProperty">
             <Setter Property="Orientation" Value="Horizontal"/>
             <Setter Property="Value" Value="{Binding Value, Mode=TwoWay}"/>
             <Setter Property="Minimum" Value="{Binding MininumValue}"/>
@@ -18,7 +35,13 @@
             <Setter Property="Interval" Value="{Binding Increment}"/>
         </Style>
 
-        <Style TargetType="Label" x:Key="DisplayNameStyle"  x:DataType="settings:DoubleSetting">
+        <Style TargetType="BoxView" x:Key="SettingSeparatorStyle"
+               BasedOn="{StaticResource HorizontalSeparatorStyle}">
+            <Setter Property="Grid.Column" Value="0"/>
+            <Setter Property="Grid.ColumnSpan" Value="3"/>
+        </Style>
+
+        <Style TargetType="Label" x:Key="DisplayNameStyle"  x:DataType="settings:ISetting">
             <Setter Property="Text" Value="{Binding DisplayName}"/>
             <Setter Property="ToolTipProperties.Text" Value="{Binding Description}"/>
             <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}"/>
@@ -28,39 +51,17 @@
         </Style>
 
         <Style TargetType="controls:SkLabel" x:Key="FontSizeStyle" x:DataType="settings:FontSetting">
-            <Setter Property="FontFamily" Value="{Binding FontFamily}"/>
-            <!-- TODO: Use Binding.FontSize when Setting is updated -->
-            <Setter Property="FontSize" Value="{Binding Value}"/>
-            <Setter Property="FontAttributes" Value="{Binding FontAttributes}"/>
-            <Setter Property="Text" Value="{Binding Text}"/>
+            <Setter Property="FontFamily" Value="{Binding FontFamily.Value}"/>
+            <Setter Property="FontSize" Value="{Binding FontSize.Value}"/>
+            <Setter Property="FontAttributes" Value="{Binding FontAttributes.Value}"/>
+            <Setter Property="Text" Value="{Binding Sample}"/>
             <Setter Property="ToolTipProperties.Text" Value="{Binding Description}"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         </Style>
 
         <settings:SettingDataTemplateSelector x:Key="SettingDataTemplateSelector">
             <settings:SettingDataTemplateSelector.Double>
-                <DataTemplate x:DataType="settings:DoubleSetting">
-                    <Grid ColumnDefinitions="*, 400, Auto"
-                          RowSpacing="5"
-                          >
-                        <Label Grid.Row="0"
-                               Grid.Column="0"
-                               Style="{StaticResource DisplayNameStyle}"/>
-
-                        <controls:Slider Grid.Row="0"
-                                         Grid.Column="1"
-                                         Style="{StaticResource SliderStyle}"/>
-                        
-                        <Label Text="{Binding Value, StringFormat='{0,3:000}'}"
-                               Style="{StaticResource DisplayNameStyle}"
-                               Grid.Row="0"
-                               Grid.Column="2"/>
-                    </Grid>
-                </DataTemplate>
-            </settings:SettingDataTemplateSelector.Double>
-
-            <settings:SettingDataTemplateSelector.GlyphWidth>
-                <DataTemplate x:DataType="settings:GlyphWidthSetting">
+                <DataTemplate x:DataType="properties:DoubleProperty">
                     <Grid ColumnDefinitions="*, 400, Auto"
                           RowDefinitions="Auto, Auto"
                           RowSpacing="5"
@@ -71,9 +72,35 @@
 
                         <controls:Slider Grid.Row="0"
                                          Grid.Column="1"
-                                         Style="{StaticResource SliderStyle}"/>
-
+                                         Style="{StaticResource DoubleSliderStyle}"/>
+                        
                         <Label Text="{Binding Value, StringFormat='{0,3:000}'}"
+                               Style="{StaticResource DisplayNameStyle}"
+                               Grid.Row="0"
+                               Grid.Column="2"/>
+                        
+                        <BoxView Style="{StaticResource SettingSeparatorStyle}"
+                                 Grid.Row="1"
+                                 />
+                    </Grid>
+                </DataTemplate>
+            </settings:SettingDataTemplateSelector.Double>
+
+            <settings:SettingDataTemplateSelector.Glyph>
+                <DataTemplate x:DataType="settings:GlyphSetting">
+                    <Grid ColumnDefinitions="*, 400, Auto"
+                          RowDefinitions="Auto, Auto, Auto"
+                          RowSpacing="5"
+                          >
+                        <Label Grid.Row="0"
+                               Grid.Column="0"
+                               Style="{StaticResource DisplayNameStyle}"/>
+
+                        <controls:Slider Grid.Row="0"
+                                         Grid.Column="1"
+                                         Style="{StaticResource GlyphWidthStyle}"/>
+
+                        <Label Text="{Binding Width.Value, StringFormat='{0,3:000}'}"
                                Style="{StaticResource DisplayNameStyle}"
                                Grid.Row="0"
                                Grid.Column="2"/>
@@ -82,18 +109,22 @@
                                  Grid.Column="0"
                                  Grid.ColumnSpan="3"
                                  Margin="5,0,5,0"
-                                 HeightRequest="{Binding Value, Mode=OneWay}"
-                                 WidthRequest="{Binding Value, Mode=OneWay}"
+                                 HeightRequest="{Binding Width.Value, Mode=OneWay}"
+                                 WidthRequest="{Binding Width.Value, Mode=OneWay}"
                                  HorizontalOptions="Start"
                                  VerticalOptions="Center"/>
+
+                        <BoxView Style="{StaticResource SettingSeparatorStyle}"
+                                 Grid.Row="2"
+                                 />
                     </Grid>
                 </DataTemplate>
-            </settings:SettingDataTemplateSelector.GlyphWidth>
+            </settings:SettingDataTemplateSelector.Glyph>
 
-            <settings:SettingDataTemplateSelector.FontSize>
+            <settings:SettingDataTemplateSelector.Font>
                 <DataTemplate x:DataType="settings:FontSetting">
                     <Grid ColumnDefinitions="*, 400, Auto"
-                          RowDefinitions="Auto, Auto"
+                          RowDefinitions="Auto, Auto, Auto"
                           RowSpacing="5"
                           >
                         <Label Grid.Row="0"
@@ -103,9 +134,10 @@
                         <controls:Slider Grid.Row="0"
                                          Grid.Column="1"
                                          Orientation="Horizontal"
-                                         Style="{StaticResource SliderStyle}"/>
+                                         Style="{StaticResource FontSizeSliderStyle}"/>
 
-                        <Label Text="{Binding Value, StringFormat='{0,3:000}'}"
+                        <Label Text="{Binding FontSize.Value, StringFormat='{0,3:000}'}"
+                               ToolTipProperties.Text="{Binding FontSize.Description}"
                                Style="{StaticResource DisplayNameStyle}"
                                Grid.Row="0"
                                Grid.Column="2"/>
@@ -114,9 +146,13 @@
                                           Grid.Column="0"
                                           Grid.ColumnSpan="3"
                                           Style="{StaticResource FontSizeStyle}"/>
+
+                        <BoxView Style="{StaticResource SettingSeparatorStyle}"
+                                 Grid.Row="2"
+                                />
                     </Grid>
                 </DataTemplate>
-            </settings:SettingDataTemplateSelector.FontSize>
+            </settings:SettingDataTemplateSelector.Font>
         </settings:SettingDataTemplateSelector>
 
     </ContentPage.Resources>
@@ -133,10 +169,9 @@
                 Grid.Column="0"
                 />
 
-        <!-- TODO: Use Binding.FontSize when Setting is updated -->
         <Label Text="{x:Static res:Strings.SettingsTitle}"
                HorizontalOptions="Center"
-               FontSize="{Binding TitleFont.Value, Mode=OneWay}"
+               FontSize="{Binding TitleFont.FontSize.Value, Mode=OneWay}"
                Grid.Row="0"
                Grid.Column="0"
                Grid.ColumnSpan="3"

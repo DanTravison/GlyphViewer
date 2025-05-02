@@ -1,4 +1,4 @@
-﻿namespace GlyphViewer.Settings;
+﻿namespace GlyphViewer.Settings.Properties;
 
 using GlyphViewer.ObjectModel;
 using System.ComponentModel;
@@ -6,34 +6,32 @@ using System.Diagnostics;
 using System.Text.Json;
 
 /// <summary>
-/// Provides a <see cref="Setting{Double}"/>.
+/// Provides a <see cref="SettingProperty{Double}"/>.
 /// </summary>
-public class DoubleSetting : Setting<double>
+public class DoubleProperty : SettingProperty<double>
 {
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="settings">The containing <see cref="SettingCollection"/>.</param>
-    /// <param name="eventArgs">The optional <see cref="PropertyChangedEventArgs"/> to use when the value changes.</param>
-    /// <param name="defaultValue">The default <see cref="Setting{T}.DefaultValue"/> of the setting.</param>
-    /// <param name="displayName">The <see cref="Setting{T}.DisplayName"/> of the setting..</param>
-    /// <param name="description">The <see cref="Setting{T}.Description"/> of the setting.</param>
+    /// <param name="name">The property <see cref="SettingProperty{Double}.Name"/>.</param>
+    /// <param name="defaultValue">The default <see cref="ObservableProperty{Double}.Value"/>.</param>
+    /// <param name="displayName">The <see cref="SettingProperty{Double}.DisplayName"/>.</param>
+    /// <param name="description">The <see cref="SettingProperty{Double}.Description"/>.</param>
     /// <param name="comparer">
     /// The optional <see cref="IEqualityComparer{T}"/> to use to compare the <see cref="ObservableProperty{T}.Value"/>.
     /// <para>
     /// The default value is <see cref="EqualityComparer{T}.Default"/>.
     /// </para>
     /// </param>
-    public DoubleSetting
+    public DoubleProperty
     (
-        SettingCollection settings,
-        PropertyChangedEventArgs eventArgs,
+        string name,
         double defaultValue,
         string displayName,
         string description,
         IEqualityComparer<double> comparer = null
     )
-        : base(settings, eventArgs, defaultValue, displayName, description, comparer)
+        : base(name, defaultValue, displayName, description, comparer)
     {
     }
 
@@ -76,7 +74,7 @@ public class DoubleSetting : Setting<double>
     /// <param name="writer">The <see cref="Utf8JsonWriter"/> to write.</param>
     /// <param name="value">The <see cref="double"/> value to write.</param>
     /// <param name="options">The <see cref="JsonSerializerOptions"/> to use to serialize the value.</param>
-    protected override void OnWriteValue(Utf8JsonWriter writer, double value, JsonSerializerOptions options)
+    protected override void WriteValue(Utf8JsonWriter writer, double value, JsonSerializerOptions options)
     {
         writer.WriteNumberValue(value);
     }
@@ -87,7 +85,7 @@ public class DoubleSetting : Setting<double>
     /// <param name="reader">The <see cref="Utf8JsonReader"/> positioned at the value.</param>
     /// <param name="options">The <see cref="JsonSerializerOptions"/> to use to read the serialized value.</param>
     /// <returns>The double value.</returns>
-    protected override double OnReadValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
+    protected override double ReadValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         double value;
         try
