@@ -179,7 +179,7 @@ public sealed class Bookmarks : ReadOnlyCollection<string>, IFontFamilyGroup, IN
     /// </returns>
     public bool Remove(string familyName)
     {
-         return _families.RemoveItem(familyName) >= 0;
+        return _families.RemoveItem(familyName) >= 0;
     }
 
     /// <summary>

@@ -52,7 +52,7 @@ public sealed class ItemHeaderFontSetting : FontSetting
     (
         parent,
         nameof(UserSettings.ItemHeaderFont),
-        Strings.ItemHeaderFontLabel, 
+        Strings.ItemHeaderFontLabel,
         Strings.ItemHeaderFontDescription,
         DefaultFontFamily,
         DefaultFontSize,

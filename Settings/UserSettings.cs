@@ -107,7 +107,7 @@ public sealed class UserSettings : SettingPropertyCollection, ISetting
 
     #region ISettings Properties
 
-     /// <summary>
+    /// <summary>
     /// Gets the name to display in the UI.
     /// </summary>
     public string DisplayName
@@ -144,7 +144,7 @@ public sealed class UserSettings : SettingPropertyCollection, ISetting
     {
         get => new FileInfo(Path.Combine(FileSystem.AppDataDirectory, SettingsFileName));
     }
-    
+
     /// <summary>
     /// Loads the <see cref="UserSettings"/>.
     /// </summary>

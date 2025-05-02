@@ -15,7 +15,7 @@ public class GlyphView : SKCanvasView
 {
     #region Fields
 
-    SKFont _font; 
+    SKFont _font;
     GlyphMetrics _glyphMetrics = GlyphMetrics.Empty;
 
     #endregion Fields
@@ -162,7 +162,7 @@ public class GlyphView : SKCanvasView
     /// <param name="e">The <see cref="PropertyChangedEventArgs"/> identifying the property that changed.</param>
     private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if 
+        if
         (
             // indicates either this.FontSize or this.Metrics.Font changed
             ReferenceEquals(e, MetricsModel.FontChangedEventArgs)
@@ -326,7 +326,7 @@ public class GlyphView : SKCanvasView
             _glyphMetrics = GlyphMetrics.Empty;
         }
     }
-    
+
     /// <summary>
     /// Determines the size needed to draw the <see cref="Glyph"/>.
     /// </summary>
@@ -386,7 +386,7 @@ public class GlyphView : SKCanvasView
     /// <param name="canvas">The <see cref="SKCanvas"/> to draw to.</param>
     /// <param name="font">The <see cref="SKFont"/> to use to draw.</param>
     /// <param name="paint">The <see cref="SKPaint"/> to use to draw.</param>
-    void Draw(GlyphMetrics metrics, SKCanvas canvas,SKFont font, SKPaint paint)
+    void Draw(GlyphMetrics metrics, SKCanvas canvas, SKFont font, SKPaint paint)
     {
         float width = CanvasSize.Width;
         float height = CanvasSize.Height;

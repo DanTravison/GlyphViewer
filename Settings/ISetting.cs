@@ -1,7 +1,6 @@
 ﻿namespace GlyphViewer.Settings;
 
 using GlyphViewer.Settings.Properties;
-using System.ComponentModel;
 
 /// <summary>
 /// Provides an interface for a setting property.

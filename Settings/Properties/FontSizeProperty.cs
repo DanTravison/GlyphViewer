@@ -25,7 +25,7 @@ public sealed class FontSizeProperty : DoubleProperty
         double minimum,
         double maximum,
         double increment = DefaultSizeIncrement
-    ) 
+    )
         : base(nameof(FontSetting.FontSize), defaultValue, Strings.FontSizeLabel, Strings.FontSizeDescription)
     {
         base.MininumValue = minimum;

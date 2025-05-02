@@ -207,7 +207,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         {
             string text = ToClipboardString();
             _ = Clipboard.Default.SetTextAsync(text);
-         }
+        }
     }
 
     static void Append(StringBuilder sb, IEnumerable<NamedValue> properties)
@@ -233,7 +233,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         Append(sb, _glyphProperties.Properties);
         Append(sb, _glyphProperties.ExtendedProperties);
 
-        sb.AppendLine(); 
+        sb.AppendLine();
         sb.AppendLine("Font Metrics");
         foreach (NamedValue property in _fontProperties)
         {
@@ -294,9 +294,9 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// <param name="changed">The <see cref="ChangedProperty"/> indentifying the proeprty that changed.</param>
     void Update(ChangedProperty changed)
     {
-        if 
+        if
         (
-            changed.HasFlag(ChangedProperty.FontProperties) 
+            changed.HasFlag(ChangedProperty.FontProperties)
             ||
             changed.HasFlag(ChangedProperty.GlyphMetrics))
         {

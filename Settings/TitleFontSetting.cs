@@ -42,7 +42,7 @@ public class TitleFontSetting : FontSetting
         (
             parent,
             nameof(UserSettings.TitleFont),
-            Strings.TitleFontLabel, 
+            Strings.TitleFontLabel,
             Strings.TitleFontDescription,
             DefaultFontFamily,
             DefaultFontSize,

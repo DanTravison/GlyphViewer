@@ -54,7 +54,6 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Provides the property for the current Glyph. 
   * Provides a list of glyph metrics properties for the selected glyph.
   * Provides a list of font metrics properties for the selected typeface.
- 
 
 ## Views
 * MainPage: The application's main page
@@ -76,34 +75,42 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Contains the various fonts, colors, and layout metrics used by the renderers
   * Called by various GlyphsView properties to synchronize changes needed for rendering.
 
-## Setting
-* UserSettings - encapsulates all user-configurable settings
-  * Storage is currently through Maui Preferences.
-* Setting<T> - An ObservableObject providing a abstract base class for a setting property.
-* ISetting - An interface for the setting property used for data binding and template resolution.
-* DoubleSetting - provides a setting property for a setting based on aDouble
-* FontSizeSettings - provides a setting property for FontSize settings.
-* GlyphWidthSetting - provides a DoubleSetting for the width of the GlyphView.
-* SettingDataTemplateSelector - A DataTemplateSelector for the SettingsPage.
-  * The template selector is used to select the appropriate data template for each setting.
-  * The templates are defined in the SettingsPage.xaml file.
+## Settings
+* ISettingSerializer - defines the JSON serialization contract.
+* ISetting - an ISettingProperty with a Parent property.
+* Setting - Implements ISetting.
+  * Derives from SettingPropertyCollection
+  * Implements ISettingSerializer via the base SettingPropertyCollection.
+* UserSettings - encapsulates all settings.
+  * Provides properties for concrete Settings. 
+  * Provides Load and Save method using UserSettingsJsonConverter. 
+  * Settings are serialized to AppDataDirectory/settings.json
+* Boomarks - An ISetting containing the set of bookmarked font family names.
+* FontSetting - an abstract base class for font settings.
+* ItemFontSetting - Provides the font settings rows in the GlyphsView
+* ItemHeaderFontSetting - Provides the font settings for header rows in the GlyphsView
+* TitleFontSetting - Provides the font settings for the main page's title view.
+* GlyphsSettings - Provides general Glyph properties and constants
+  * Width - the width of the GlyphView pane. 
+* SettingDataTemplateSelector - Provides the template selector for the SettingsPage.
+* Constants and Defaults
+  * All constants and defaults are defined in the associated Setting class. 
+  * Various View BindingProperty definitions refer to the associated Setting property for default values.
+  * When a property has a defined range, the setting will declare Minimum/Maximum/Increment constants.
+  * BindableProperty coerce delegates will clamp the value to the constants intead of failing.
+  * The sliders presented in SettingsPage will also use these values to define the range and increment. 
 
-## Setting<T> Notes
-This class is logically equivalent to a BindableProperty in that it manages the 
-underlying value. UserSettings defines an instance of a derived Setting and 
-defines a property that proxies get and set through to the Setting.
-Additionally,UserSettings provides a delegate that Setting invokes to raise 
-the PropertyChanged event on the UserSettings instance.
-
-The Setting<T> class is also an ObservableObject. This allows UserSettings to 
-provide a collection of 'Properties' that are bound to a CollectionView in the SettingsPage.
-The goal is to avoid hard-coding the properties directly in the XAML.
-
-Setting<T> defines abstract ReadValue and WriteValue that are implemented in the derived
-classes to serialize the setting value and supports resetting the setting to its default value.
-
-Derived classes provide the setting name, the display name, and the default value.
-ReadValue and WriteValue currently use Maui's Preferences class.
+## Settings/Properties
+* SettingPropertyCollection - provides an ISettingProperty collection.
+  * Implements ISettingSerializer for both ISetting and ISettingProperty. 
+* ISettingProperty - contract for named setting property
+  * Derives from ISettingSerializer 
+* SettingProperty\<T\> implements ISettingProperty and ISettingSerializer
+* DoubleProperty - provides an ISettingProperty<double>
+* StringProperty - provides an ISettingProperty<string>
+* FontFamilyProperty - a StringProperty for a font family name
+* FontSizeProperty - a DoubleProperty for a font size.
+* FontAttributesProperty - an ISettingProperty<FontAttributes>
 
 ## Text
 Contains the various Glyph classes:
@@ -147,6 +154,15 @@ This is used to scroll the GlyphsView content versus scrolling a large SKCanvasV
 ## Controls\JumpList
 Provide a control template for a jump list.
 This is used to select a font family group in the FontFamiliesView and a unicode range in GlyphsView. 
+
+## Converters
+* JsonConverter - an abstract base class for a JsonConverter
+  * Provides basic argument validation
+  * Declares abstract OnRead and OnWrite methods.
+* JsonExtensions - provides various JSON extension methods
+  * Utf8JsonReader extensions for reading property names, verifing JsonTokenType and reporting unexpected tokens and values.
+  * JsonSerializationOptions.Add(params JsonConverter[])
+* UserSettingsJsonConverter - The JSON implementation for UserSettings.Load and Save.
 
 ## ObjectModel
 * ObservableObject: An implementation of INotifyPropertyChanged with SetProperty overloads.

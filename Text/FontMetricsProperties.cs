@@ -26,7 +26,7 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
 
         font.GetFontMetrics(out SKFontMetrics metrics);
         Metrics = metrics;
-        _values.Add(new(nameof(SKTypeface.FamilyName),font.Typeface.FamilyName));
+        _values.Add(new(nameof(SKTypeface.FamilyName), font.Typeface.FamilyName));
         _values.Add(new("FontSize", font.Size));
 
         Add(_values, nameof(SKFontMetrics.Top), metrics.Top);

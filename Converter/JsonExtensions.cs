@@ -51,7 +51,6 @@ public static class JsonExtensions
         return reader.GetString();
     }
 
-
     #endregion Read
 
     #region Add
@@ -116,7 +115,7 @@ public static class JsonExtensions
         );
     }
 
-   #endregion Unexpected
+    #endregion Unexpected
 
     #region InvalidValue
 

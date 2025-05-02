@@ -1,7 +1,6 @@
 ﻿namespace GlyphViewer.Settings.Properties;
 
 using GlyphViewer.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.Json;
 

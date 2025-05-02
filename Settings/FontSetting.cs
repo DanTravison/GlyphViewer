@@ -101,7 +101,7 @@ public abstract class FontSetting : Setting
     /// <summary>
     /// Gets the <see cref="FontAttributes"/> font attributes.
     /// </summary>
-    public FontAttributesProperty FontAttributes 
+    public FontAttributesProperty FontAttributes
     {
         get;
     }
