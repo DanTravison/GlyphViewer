@@ -123,22 +123,22 @@
   <data name="GlyphWidthLabel" xml:space="preserve">
     <value>Glyph Width</value>
   </data>
-  <data name="ItemFontSizeDescription" xml:space="preserve">
-    <value>The font size to use to display the glyphs in the currently selected font.</value>
+  <data name="ItemFontDescription" xml:space="preserve">
+    <value>The font to use to display the glyphs in the currently selected font.</value>
   </data>
-  <data name="ItemFontSizeLabel" xml:space="preserve">
+  <data name="ItemFontName" xml:space="preserve">
     <value>Item Font Size</value>
   </data>
-  <data name="ItemHeaderFontSizeLabel" xml:space="preserve">
-    <value>Item Header Font Size</value>
+  <data name="ItemHeaderFontLabel" xml:space="preserve">
+    <value>Item Header Font</value>
   </data>
-  <data name="ItemHeaderFontSizeDescription" xml:space="preserve">
-    <value>The font size to use to display the name of  Glyphs group</value>
+  <data name="ItemHeaderFontDescription" xml:space="preserve">
+    <value>The font to use to display the name of  Glyphs group</value>
   </data>
-  <data name="TitleFontSizeLabel" xml:space="preserve">
+  <data name="TitleFontLabel" xml:space="preserve">
     <value>Title Font Size</value>
   </data>
-  <data name="TitleFontSizeDescription" xml:space="preserve">
+  <data name="TitleFontDescription" xml:space="preserve">
     <value>The size of the font to use to display the title.</value>
   </data>
   <data name="BackButtonLabel" xml:space="preserve">
@@ -170,5 +170,32 @@
   </data>
   <data name="BookmarkCommandDescription" xml:space="preserve">
     <value>Bookmark the current font family</value>
+  </data>
+  <data name="FontAttributesName" xml:space="preserve">
+    <value>Font Attributes</value>
+  </data>
+  <data name="FontSizeLabel" xml:space="preserve">
+    <value>Font Size</value>
+  </data>
+  <data name="FontSizeDescription" xml:space="preserve">
+    <value>The size of the font in points</value>
+  </data>
+  <data name="FontAttributesLabel" xml:space="preserve">
+    <value>Font Attributes</value>
+  </data>
+  <data name="FontAttributesDescription" xml:space="preserve">
+    <value>The font attributes to use for the font.</value>
+  </data>
+  <data name="FamilyNameLabel" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="FamilyNameDescription" xml:space="preserve">
+    <value>The name of the font.</value>
+  </data>
+  <data name="UserSettingsLabel" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="UserSettingsDescription" xml:space="preserve">
+    <value>The settings for the GlyphViewer</value>
   </data>
 </root>

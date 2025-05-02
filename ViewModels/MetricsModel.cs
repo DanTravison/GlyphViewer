@@ -2,6 +2,7 @@
 
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Settings;
+using GlyphViewer.Settings.Properties;
 using GlyphViewer.Text;
 using SkiaSharp;
 using System.ComponentModel;
@@ -18,13 +19,13 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
 
     SKFont _font;
     string _fontFamily = string.Empty;
-    double _fontSize;
     FontMetricsProperties _fontProperties;
 
     Glyph _glyph = Glyph.Empty;
     GlyphMetricProperties _glyphProperties;
+
     readonly Command _clipboardCommand;
-    double _glyphWidth;
+    readonly FontSizeProperty _fontSize;
 
     #endregion Fields
 
@@ -33,17 +34,18 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="fontSize">The initial font size in points.</param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="fontSize"/> is less than <see cref="ItemFontSetting.Minimum"/>.</exception>
-    public MetricsModel(double fontSize)
+    /// <param name="fontSize">The <see cref="FontSetting.FontSize"/> from <see cref="ItemFontSetting"/>.
+    /// <para>
+    /// This parameter is used to determine the font size when calculating metrics.
+    /// </para>
+    /// </param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="fontSize"/> is less than <see cref="ItemFontSetting.MinimumFontSize"/>.</exception>
+    public MetricsModel(FontSizeProperty fontSize)
     {
-        if (fontSize < ItemFontSetting.Minimum)
-        {
-            throw new ArgumentOutOfRangeException(nameof(fontSize), fontSize, $"Font size must be greater than {ItemFontSetting.Minimum}.");
-        }
+        _fontSize = fontSize;
+        _fontSize.PropertyChanged += OnFontSizeChanged;
         _fontFamily = string.Empty;
         _glyph = Glyph.Empty;
-        _fontSize = fontSize;
 
         ClipboardCommand = _clipboardCommand = new Command(OnCopyToClipboard)
         {
@@ -91,14 +93,19 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// </remarks>
     public double FontSize
     {
-        get => _fontSize;
-        set
+        get => _fontSize.Value;
+    }
+
+    /// <summary>
+    /// Handles changes to <see cref="FontSizeProperty"/> of <see cref="ItemFontSetting"/>.
+    /// </summary>
+    /// <param name="sender">The sender of the event.</param>
+    /// <param name="e">The <see cref="PropertyChangedEventArgs"/> identifying the property that changed.</param>
+    private void OnFontSizeChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (ReferenceEquals(e, ObservableProperty.ValueChangedEventArgs))
         {
-            if (value != _fontSize)
-            {
-                _fontSize = value;
-                Update(ChangedProperty.FontSize);
-            }
+            OnPropertyChanged(FontSizeChangedEventArgs);
         }
     }
 
@@ -179,15 +186,6 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         get => _glyphProperties;
     }
 
-    /// <summary>
-    /// Gets the width, in pixels, to display the glyph.
-    /// </summary>
-    public double GlyphWidth
-    {
-        get => _glyphWidth;
-        set => SetProperty(ref _glyphWidth, value, GlyphWidthChangedEventArgs);
-    }
-
     #endregion Glyph Properties
 
     #region Clipboard
@@ -209,7 +207,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         {
             string text = ToClipboardString();
             _ = Clipboard.Default.SetTextAsync(text);
-         }
+        }
     }
 
     static void Append(StringBuilder sb, IEnumerable<NamedValue> properties)
@@ -235,7 +233,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         Append(sb, _glyphProperties.Properties);
         Append(sb, _glyphProperties.ExtendedProperties);
 
-        sb.AppendLine(); 
+        sb.AppendLine();
         sb.AppendLine("Font Metrics");
         foreach (NamedValue property in _fontProperties)
         {
@@ -296,9 +294,9 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// <param name="changed">The <see cref="ChangedProperty"/> indentifying the proeprty that changed.</param>
     void Update(ChangedProperty changed)
     {
-        if 
+        if
         (
-            changed.HasFlag(ChangedProperty.FontProperties) 
+            changed.HasFlag(ChangedProperty.FontProperties)
             ||
             changed.HasFlag(ChangedProperty.GlyphMetrics))
         {
@@ -385,7 +383,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         _font = null;
         if (!string.IsNullOrEmpty(_fontFamily))
         {
-            _font = FontFamily.CreateFont((float)_fontSize);
+            _font = FontFamily.CreateFont((float)_fontSize.Value);
             _fontProperties = new FontMetricsProperties(_font);
         }
         else
@@ -456,12 +454,6 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="FontProperties"/> property.
     /// </summary>
     public static readonly PropertyChangedEventArgs FontPropertiesChangedEventArgs = new(nameof(FontProperties));
-
-    /// <summary>
-    /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="GlyphWidth"/> property.
-    /// </summary>
-    public static readonly PropertyChangedEventArgs GlyphWidthChangedEventArgs = new(nameof(GlyphWidth));
-
 
     /// <summary>
     /// The <see cref="PropertyChangedEventArgs"/> for the <see cref="Glyph"/> property.

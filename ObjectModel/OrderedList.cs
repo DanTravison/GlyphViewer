@@ -1,24 +1,31 @@
 ﻿namespace GlyphViewer.ObjectModel;
 
 using System.Collections;
+using System.Collections.Specialized;
+using System.ComponentModel;
 
 /// <summary>
-/// This is a placeholder class used by FontFamilyGroup to workaround https://github.com/dotnet/maui/discussions/29221
+/// This is a placeholder class used by the bookmarks class to workaround https://github.com/dotnet/maui/discussions/29221
 /// </summary>
 /// <typeparam name="T">The type of item in the list.</typeparam>
-internal class OrderedList<T> : IList<T>
+internal class OrderedList<T> : IList<T>, INotifyCollectionChanged, INotifyPropertyChanged
 {
+    // Once https://github.com/dotnet/maui/discussions/29221 is resolved...
+    //  Change OrderedList<T> to ReadOnlyOrderedList<T>
+    //  - implement IReadOnlyList<T>
+    //  - add protected Add/Remove methods.
+
     private readonly IComparer<T> _comparer;
     private readonly List<T> _items = [];
 
-    public OrderedList(IComparer<T> comparer, IEnumerable<T> colors = null)
+    public OrderedList(IComparer<T> comparer, IEnumerable<T> items = null)
     {
         _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
-        if (colors is not null)
+        if (items is not null)
         {
-            foreach (T color in colors)
+            foreach (T item in items)
             {
-                AddItem(color);
+                AddItem(item);
             }
         }
     }
@@ -73,6 +80,8 @@ internal class OrderedList<T> : IList<T>
         {
             index = ~index;
             _items.Insert(index, item);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            PropertyChanged?.Invoke(this, CountChangedEventArgs);
         }
         else
         {
@@ -87,6 +96,8 @@ internal class OrderedList<T> : IList<T>
         {
             index = ~index;
             _items.Insert(index, item);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            PropertyChanged?.Invoke(this, CountChangedEventArgs);
             return index;
         }
         return -1;
@@ -112,6 +123,8 @@ internal class OrderedList<T> : IList<T>
         if (index >= 0)
         {
             _items.RemoveAt(index);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+            PropertyChanged?.Invoke(this, CountChangedEventArgs);
             return index;
         }
         return -1;
@@ -119,7 +132,14 @@ internal class OrderedList<T> : IList<T>
 
     public void Clear()
     {
-        _items.Clear();
+        if (_items.Count > 0)
+        {
+            List<T> removed = new(_items);
+            _items.Clear();
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removed, 0));
+            CollectionChanged?.Invoke(this, CollectionResetEventArgs);
+            PropertyChanged?.Invoke(this, CountChangedEventArgs);
+        }
     }
 
     #endregion Remove
@@ -137,6 +157,16 @@ internal class OrderedList<T> : IList<T>
     }
 
     #endregion Misc
+
+    #region Properties
+
+    static readonly NotifyCollectionChangedEventArgs CollectionResetEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+    public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+    static readonly PropertyChangedEventArgs CountChangedEventArgs = new(nameof(Count));
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    #endregion Properties
 
     #region IEnumerable
 

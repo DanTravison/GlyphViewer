@@ -144,16 +144,8 @@ public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
             group.Add(fontFamily);
         }
 
-        if (availableBookmarks.Count > 0)
-        {
-            // NOTE: Update the UserSettings.Bookmarks collection to ensure it doesn't
-            // include fonts that are no longer available.
-            bookmarks.Update(availableBookmarks);
-        }
-        else
-        {
-            bookmarks.Clear();
-        }
+        bookmarks.Update(availableBookmarks);
+
         return new(groupTable, groups, bookmarks);
     }
 

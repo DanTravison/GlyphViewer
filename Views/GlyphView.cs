@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Views;
 
+using GlyphViewer.Settings;
 using GlyphViewer.Text;
 using GlyphViewer.ViewModels;
 using SkiaSharp;
@@ -12,34 +13,66 @@ using System.ComponentModel;
 /// </summary>
 public class GlyphView : SKCanvasView
 {
-    #region Constants
-
-    // TODO: Consider making these user settings.
-    // If so, Theme support will be needed and the background color need to be configurable.
-
-    /// <summary>
-    /// Defines the default text color to use to draw the glyph.
-    /// </summary>
-    public static readonly Color DefaultTextColor = Colors.Black;
-
-    /// <summary>
-    /// Defines the default color to use to draw the edges of the glyph.
-    /// </summary>
-    public static readonly Color DefaultLineColor = Colors.Red;
-
-    /// <summary>
-    /// Defines the default color to use to draw the baseline and <see cref="SKTextMetrics.Left"/> lines.
-    /// </summary>
-    public static readonly Color DefaultBaselineColor = Colors.Blue;
-
-    #endregion Constants
-
     #region Fields
 
-    SKFont _font; 
+    SKFont _font;
     GlyphMetrics _glyphMetrics = GlyphMetrics.Empty;
-   
+
     #endregion Fields
+
+    public GlyphView()
+    {
+        MinimumHeightRequest = GlyphSetting.MinimumWidth;
+        MinimumWidthRequest = GlyphSetting.MinimumWidth;
+    }
+
+    #region GlyphWidth
+
+    /// <summary>
+    /// Gets or sets the font size to use to draw the <see cref="Glyph"/>.
+    /// </summary>
+    public double GlyphWidth
+    {
+        get => (double)GetValue(GlyphWidthProperty);
+        set => SetValue(GlyphWidthProperty, value);
+    }
+
+    /// <summary>
+    /// Provides the <see cref="BindableProperty"/> for <see cref="GlyphWidth"/>.
+    /// </summary>
+    public static readonly BindableProperty GlyphWidthProperty = BindableProperty.Create
+    (
+        nameof(GlyphWidth),
+        typeof(double),
+        typeof(GlyphView),
+        GlyphSetting.DefaultWidth,
+        BindingMode.OneWay,
+        coerceValue: (bindable, value) =>
+        {
+            if (value is double width)
+            {
+                return Math.Clamp(width, GlyphSetting.MinimumWidth, GlyphSetting.MaximumWidth);
+            }
+            return GlyphSetting.DefaultWidth;
+        },
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            if (bindable is GlyphView view)
+            {
+                view.OnGlyphWidthChanged();
+            }
+        }
+    );
+
+    void OnGlyphWidthChanged()
+    {
+        // Address GlyphView does not size correctly when glyph's height exceeds the height of the glyph view.
+        HeightRequest = GlyphWidth;
+        InvalidateMeasure();
+        InvalidateSurface();
+    }
+
+    #endregion GlyphWidth
 
     #region FontSize
 
@@ -126,10 +159,10 @@ public class GlyphView : SKCanvasView
     /// Handles PropertyChanged notifications from the <see cref="MetricsModel"/> instance.
     /// </summary>
     /// <param name="sender">The object that raised the event (not used).</param>
-    /// <param name="e">The <see cref="PropertyChangedEventArgs"/> identifying the properyt that changed.</param>
+    /// <param name="e">The <see cref="PropertyChangedEventArgs"/> identifying the property that changed.</param>
     private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if 
+        if
         (
             // indicates either this.FontSize or this.Metrics.Font changed
             ReferenceEquals(e, MetricsModel.FontChangedEventArgs)
@@ -148,7 +181,7 @@ public class GlyphView : SKCanvasView
     /// <summary>
     /// Gets or sets the color to use to draw text.
     /// </summary>
-    /// <remarks>The default value is <see cref="DefaultTextColor"/>.</remarks>
+    /// <remarks>The default value is <see cref="GlyphSetting.DefaultTextColor"/>.</remarks>
     public Color TextColor
     {
         get => GetValue(TextColorProperty) as Color;
@@ -163,7 +196,7 @@ public class GlyphView : SKCanvasView
         nameof(TextColor),
         typeof(Color),
         typeof(GlyphView),
-        DefaultTextColor,
+        GlyphSetting.DefaultTextColor,
         BindingMode.OneWay,
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -181,7 +214,7 @@ public class GlyphView : SKCanvasView
     /// <summary>
     /// Gets or sets the color to use to draw the indicator lines.
     /// </summary>
-    /// <remarks>The default value is <see cref="DefaultLineColor"/>.</remarks>
+    /// <remarks>The default value is <see cref="GlyphSetting.DefaultLineColor"/>.</remarks>
     public Color LineColor
     {
         get => GetValue(LineColorProperty) as Color;
@@ -196,7 +229,7 @@ public class GlyphView : SKCanvasView
         nameof(LineColor),
         typeof(Color),
         typeof(GlyphView),
-        DefaultLineColor,
+        GlyphSetting.DefaultLineColor,
         BindingMode.OneWay,
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -214,7 +247,7 @@ public class GlyphView : SKCanvasView
     /// <summary>
     /// Gets or sets the color to use to draw the indicator lines.
     /// </summary>
-    /// <remarks>The default value is <see cref="DefaultBaselineColor"/>.</remarks>
+    /// <remarks>The default value is <see cref="GlyphSetting.DefaultBaselineColor"/>.</remarks>
     public Color BaselineColor
     {
         get => GetValue(BaselineColorProperty) as Color;
@@ -229,7 +262,7 @@ public class GlyphView : SKCanvasView
         nameof(BaselineColor),
         typeof(Color),
         typeof(GlyphView),
-        DefaultBaselineColor,
+        GlyphSetting.DefaultBaselineColor,
         BindingMode.OneWay,
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -249,16 +282,14 @@ public class GlyphView : SKCanvasView
     /// </summary>
     void OnGlyphChanged()
     {
-        // By default, the desired view size is a square (MininumWidthRequest,MinimumWidthRequest)
-        double heightRequest = MinimumWidthRequest;
+        double heightRequest = GlyphWidth;
 
         Glyph glyph = Metrics is not null ? Metrics.Glyph : Glyph.Empty;
         UpdateGlyph(glyph);
 
         if (!glyph.IsEmpty)
         {
-            // NOTE: MinimumWidthRequest is interpreted as the desired size.
-            if (_glyphMetrics.Size.Height > MinimumWidthRequest)
+            if (_glyphMetrics.Size.Height > heightRequest)
             {
                 heightRequest = _glyphMetrics.Size.Height;
             }
@@ -295,7 +326,7 @@ public class GlyphView : SKCanvasView
             _glyphMetrics = GlyphMetrics.Empty;
         }
     }
-    
+
     /// <summary>
     /// Determines the size needed to draw the <see cref="Glyph"/>.
     /// </summary>
@@ -307,13 +338,13 @@ public class GlyphView : SKCanvasView
         Size size = base.MeasureOverride(widthConstraint, heightConstraint);
         if (!_glyphMetrics.Glyph.IsEmpty)
         {
-            double height = Math.Max(_glyphMetrics.Size.Height, MinimumWidthRequest);
-            size = new Size(MinimumWidthRequest, height);
+            double height = Math.Max(_glyphMetrics.Size.Height, GlyphWidth);
+            size = new Size(GlyphWidth, height);
         }
         else
         {
             // Set a minimum size to ensure the glyph pane is visible. 
-            size = new(MinimumWidthRequest, MinimumWidthRequest);
+            size = new(GlyphWidth, GlyphWidth);
         }
         return size;
     }
@@ -355,7 +386,7 @@ public class GlyphView : SKCanvasView
     /// <param name="canvas">The <see cref="SKCanvas"/> to draw to.</param>
     /// <param name="font">The <see cref="SKFont"/> to use to draw.</param>
     /// <param name="paint">The <see cref="SKPaint"/> to use to draw.</param>
-    void Draw(GlyphMetrics metrics, SKCanvas canvas,SKFont font, SKPaint paint)
+    void Draw(GlyphMetrics metrics, SKCanvas canvas, SKFont font, SKPaint paint)
     {
         float width = CanvasSize.Width;
         float height = CanvasSize.Height;

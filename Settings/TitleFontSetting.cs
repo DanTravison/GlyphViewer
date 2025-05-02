@@ -1,25 +1,27 @@
 ﻿namespace GlyphViewer.Settings;
 
 using GlyphViewer.Resources;
-using GlyphViewer.Views;
-using System.ComponentModel;
+using FontAttr = Microsoft.Maui.Controls.FontAttributes;
 
+/// <summary>
+/// Provides a <see cref="FontSetting"/> for the main page title.
+/// </summary>
 public class TitleFontSetting : FontSetting
 {
     /// <summary>
-    /// Defines the minimum width of the <see cref="GlyphView"/>.
+    /// Defines the minimum font size of the main page title.
     /// </summary>
-    public const double Minimum = 20;
+    public const double MinimumFontSize = 20;
 
     /// <summary>
-    /// Defines the minimum width of the <see cref="GlyphView"/>.
+    /// Defines the minimum font size of the main page title.
     /// </summary>
-    public const double Maximum = 50;
+    public const double MaximumFontSize = 50;
 
     /// <summary>
-    /// Define the default font size of the main page header text.
+    /// Define the default font size of the main page title.
     /// </summary>
-    public const double Default = 32;
+    public const double DefaultFontSize = 32;
 
     /// <summary>
     /// Define the default font family name.
@@ -27,22 +29,27 @@ public class TitleFontSetting : FontSetting
     public const string DefaultFontFamily = App.DefaultFontFamily;
 
     /// <summary>
-    /// Define the default <see cref="FontAttributes"/>.
+    /// Define the default <see cref="Microsoft.Maui.Controls.FontAttributes"/>.
     /// </summary>
-    public const FontAttributes DefaultFontAttributes = FontAttributes.Bold | FontAttributes.Italic;
+    public const FontAttr DefaultFontAttributes = FontAttr.Bold | FontAttr.Italic;
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="settings">The containing <see cref="SettingCollection"/>.</param>
-    /// <param name="eventArgs">The <see cref="PropertyChangedEventArgs"/> for the associated property.</param>
-    public TitleFontSetting(SettingCollection settings, PropertyChangedEventArgs eventArgs)
-        : base(settings, eventArgs, Default, Strings.TitleFontSizeLabel, Strings.TitleFontSizeDescription)
+    /// <param name="parent">The parent <see cref="ISetting"/>.</param>
+    public TitleFontSetting(ISetting parent)
+        : base
+        (
+            parent,
+            nameof(UserSettings.TitleFont),
+            Strings.TitleFontLabel,
+            Strings.TitleFontDescription,
+            DefaultFontFamily,
+            DefaultFontSize,
+            MinimumFontSize,
+            MaximumFontSize,
+            DefaultFontAttributes
+        )
     {
-        MininumValue = Minimum;
-        MaximumValue = Maximum;
-        Text = DefaultFontFamily;
-        FontFamily = DefaultFontFamily;
-        FontAttributes = DefaultFontAttributes;
     }
 }

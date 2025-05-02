@@ -1,47 +1,67 @@
 ﻿namespace GlyphViewer.Settings;
 
-using GlyphViewer.Views;
 using GlyphViewer.Resources;
-using System.ComponentModel;
+using GlyphViewer.Views;
 
 /// <summary>
-/// Provides an <see cref="ISetting"/> for the <see cref="GlyphsView.ItemFontSize"/>.
+/// Provides an <see cref="FontSetting"/> for the <see cref="GlyphsView"/> item font.
 /// </summary>
 public sealed class ItemFontSetting : FontSetting
 {
+    #region Constants
+
     /// <summary>
     /// Defines the minimum <see cref="FontSetting.FontSize"/>.
     /// </summary>
-    public const double Minimum = 12;
+    public const double MinimumFontSize = 12;
 
     /// <summary>
     /// Defines the maximum <see cref="FontSetting.FontSize"/>.
     /// </summary>
-    public const double Maximum = 40;
+    public const double MaximumFontSize = 40;
 
     /// <summary>
     /// Defines the default <see cref="FontSetting.FontSize"/>.
     /// </summary>
-    public const double Default = 32;
+    public const double DefaultFontSize = 32;
 
-    const string SampleItemFontText =
+    const string SampleText =
         FluentUI.ArrowExportRTL + " "
         + FluentUI.MusicNote1 + " "
         + FluentUI.MusicNote2 + " "
         + FluentUI.ArrowExportLTR;
 
     /// <summary>
+    /// Defines the default text color to use to draw the glyph.
+    /// </summary>
+    public static readonly Color DefaultItemColor = Colors.Black;
+
+    /// <summary>
+    /// Defines the default color for the seleted glyph.
+    /// </summary>
+    public static readonly Color DefaultSelectedItemColor = Colors.Plum;
+
+
+    #endregion Constants
+
+    /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="settings">The containing <see cref="SettingCollection"/>.</param>
-    /// <param name="eventArgs">The <see cref="PropertyChangedEventArgs"/> for the associated property.</param>
-    public ItemFontSetting(SettingCollection settings, PropertyChangedEventArgs eventArgs)
-        : base(settings, eventArgs, Default, Strings.ItemFontSizeLabel, Strings.ItemFontSizeDescription)
+    /// <param name="parent">The parent <see cref="ISetting"/>.</param>
+    public ItemFontSetting(ISetting parent)
+        : base
+        (
+            parent,
+            nameof(UserSettings.ItemFont),
+            Strings.ItemFontName,
+            Strings.ItemFontDescription,
+            FluentUI.FamilyName, // NOTE: This is only used by PageSettings.
+            DefaultFontSize,
+            MinimumFontSize,
+            MaximumFontSize,
+            Microsoft.Maui.Controls.FontAttributes.None,
+            SampleText
+        )
     {
-        MininumValue = Minimum;
-        MaximumValue = Maximum;
-        Text = SampleItemFontText;
-        FontFamily = FluentUI.FamilyName;
-        FontAttributes = FontAttributes.None;
     }
 }

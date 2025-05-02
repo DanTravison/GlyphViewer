@@ -1,28 +1,30 @@
 ﻿namespace GlyphViewer.Settings;
 
-using GlyphViewer.Views;
 using GlyphViewer.Resources;
-using System.ComponentModel;
+using GlyphViewer.Views;
+using FontAttr = Microsoft.Maui.Controls.FontAttributes;
 
 /// <summary>
 /// Provides an <see cref="ISetting"/> for the <see cref="GlyphsView.HeaderFontSize"/>.
 /// </summary>
 public sealed class ItemHeaderFontSetting : FontSetting
 {
+    #region Constants
+
     /// <summary>
     /// Defines the minimum <see cref="GlyphsView.HeaderFontSize"/>.
     /// </summary>
-    public const double Minimum = 8;
+    public const double MinimumFontSize = 8;
 
     /// <summary>
     /// Defines the maximum <see cref="GlyphsView.HeaderFontSize"/>.
     /// </summary>
-    public const double Maximum = 40;
+    public const double MaximumFontSize = 40;
 
     /// <summary>
     /// Define the default font size.
     /// </summary>
-    public const double Default = 20;
+    public const double DefaultFontSize = 20;
 
     /// <summary>
     /// Define the default font family name.
@@ -30,22 +32,34 @@ public sealed class ItemHeaderFontSetting : FontSetting
     public const string DefaultFontFamily = App.DefaultFontFamily;
 
     /// <summary>
-    /// Define the default <see cref="FontAttributes"/>.
+    /// Define the default <see cref="Microsoft.Maui.Controls.FontAttributes"/>.
     /// </summary>
-    public const FontAttributes DefaultFontAttributes = FontAttributes.Bold | FontAttributes.Italic;
+    public const FontAttr DefaultFontAttributes = FontAttr.Bold | FontAttr.Italic;
+
+    /// <summary>
+    /// Defines the default color for the <see cref="GlyphsView.HeaderColor"/>.
+    /// </summary>
+    public static readonly Color DefaultTextColor = Colors.Black;
+
+    #endregion Constants
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="settings">The containing <see cref="SettingCollection"/>.</param>
-    /// <param name="eventArgs">The <see cref="PropertyChangedEventArgs"/> for the associated property.</param>
-    public ItemHeaderFontSetting(SettingCollection settings, PropertyChangedEventArgs eventArgs)
-        : base(settings, eventArgs, Default, Strings.ItemHeaderFontSizeLabel, Strings.ItemHeaderFontSizeDescription)
+    /// <param name="parent">The parent <see cref="ISetting"/>.</param>
+    public ItemHeaderFontSetting(ISetting parent)
+        : base
+    (
+        parent,
+        nameof(UserSettings.ItemHeaderFont),
+        Strings.ItemHeaderFontLabel,
+        Strings.ItemHeaderFontDescription,
+        DefaultFontFamily,
+        DefaultFontSize,
+        MinimumFontSize,
+        MaximumFontSize,
+        DefaultFontAttributes
+    )
     {
-        MininumValue = Minimum;
-        MaximumValue = Maximum;
-        Text = GlyphViewer.Text.Unicode.Ranges.Latin1Supplement.Name;
-        FontFamily = Strings.DefaultFontFamily;
-        FontAttributes = DefaultFontAttributes;
     }
 }

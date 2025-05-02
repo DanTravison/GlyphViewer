@@ -2,56 +2,33 @@
 
 using GlyphViewer.Converter;
 using GlyphViewer.ObjectModel;
+using GlyphViewer.Resources;
+using GlyphViewer.Settings.Properties;
 using GlyphViewer.ViewModels;
 using GlyphViewer.Views;
-using System.Collections;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.Json;
 
 /// <summary>
 /// Provides a model for managing user settings.
 /// </summary>
-public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
+public sealed class UserSettings : SettingPropertyCollection, ISetting
 {
-    #region Fields
-
-    readonly SettingCollection _settings;
-
-    /// <summary>
-    /// Defines the default color for the <see cref="GlyphsView.HeaderColor"/>.
-    /// </summary>
-    public static readonly Color DefaultItemHeaderColor = Colors.Black;
-
-    /// <summary>
-    /// Defines the default color Glyphs in the <see cref="GlyphsView.Items"/> collection.
-    /// </summary>
-    public static readonly Color DefaultItemColor = Colors.Black;
-
-    /// <summary>
-    /// Defines the default border color for the <see cref="GlyphsView.SelectedItem"/>
-    /// </summary>
-    public static readonly Color DefaultSelectedItemColor = Colors.Plum;
-
-    #endregion Fields
-
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     public UserSettings()
+        : base(null, nameof(UserSettings))
     {
-        _settings = new(this.OnPropertyChanged);
-        Properties = _settings.Properties;
-
-        GlyphWidth = _settings.Add(new GlyphWidthSetting(_settings, GlyphWidthChangedEventArgs));
-        ItemFont = _settings.Add(new ItemFontSetting(_settings, ItemFontSizeChangedEventArgs));
-        ItemHeaderFont = _settings.Add(new ItemHeaderFontSetting(_settings, ItemHeaderFontSizeChangedEventArgs));
-        TitleFont = _settings.Add(new TitleFontSetting(_settings, TitleFontSizeChangedEventArgs));
-        Bookmarks = _settings.Add(new Bookmarks(_settings), false);
+        Glyph = AddItem(new GlyphSetting(this));
+        ItemFont = AddItem(new ItemFontSetting(this));
+        ItemHeaderFont = AddItem(new ItemHeaderFontSetting(this));
+        TitleFont = AddItem(new TitleFontSetting(this));
+        Bookmarks = AddItem(new Bookmarks(this));
 
         Navigator = new PageNavigator<SettingsPage>(true, this);
 
-        ResetCommand = new Command(Reset)
+        ResetCommand = new Command(ResetEditable)
         {
             IsEnabled = true
         };
@@ -62,7 +39,7 @@ public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
     /// <summary>
     /// Gets or sets the desired width of the <see cref="GlyphView"/>
     /// </summary>
-    public GlyphWidthSetting GlyphWidth
+    public GlyphSetting Glyph
     {
         get;
     }
@@ -92,27 +69,6 @@ public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
     }
 
     /// <summary>
-    /// Gets the <see cref="ISetting"/> properties as a collection.
-    /// </summary>
-    public IReadOnlyCollection<ISetting> Properties
-    {
-        get;
-    }
-
-    /// <summary>
-    /// Gets the <see cref="ISetting"/> with the specified <paramref name="name"/>.
-    /// </summary>
-    /// <param name="name">The name of the <see cref="ISetting"/> to get.</param>
-    /// <returns>
-    /// The <see cref="ISetting"/> with the specified <paramref name="name"/>;
-    /// otherwise, a null reference.
-    /// </returns>
-    internal ISetting this[string name]
-    {
-        get => _settings[name];
-    }
-
-    /// <summary>
     /// Gets the <see cref="PageNavigator"/> for opening and closing the settings page.
     /// </summary>
     public PageNavigator<SettingsPage> Navigator
@@ -121,7 +77,7 @@ public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
     }
 
     /// <summary>
-    /// Gets the command to reset the settings to the default values.
+    /// Gets the command to reset the user editable settings to the default values.
     /// </summary>
     public Command ResetCommand
     {
@@ -131,22 +87,56 @@ public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
     /// <summary>
     /// Gets the <see cref="Bookmarks"/>.
     /// </summary>
-    internal Bookmarks Bookmarks
+    public Bookmarks Bookmarks
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the parent <see cref="ISetting"/>.
+    /// </summary>
+    /// <value>
+    /// This property always returns a null reference.
+    /// </value>
+    public ISetting Parent
     {
         get;
     }
 
     #endregion Properties
 
+    #region ISettings Properties
+
     /// <summary>
-    /// Reset the settings to the default values.
+    /// Gets the name to display in the UI.
     /// </summary>
-    public void Reset()
+    public string DisplayName
     {
-        _settings.Reset();
+        get => Strings.UserSettingsLabel;
     }
 
-    #region Serialization
+    /// <summary>
+    /// Gets the description of the setting.
+    /// </summary>
+    public string Description
+    {
+        get => Strings.UserSettingsDescription;
+    }
+
+    /// <summary>
+    /// Gets the value indicating if the instance is user editable.
+    /// </summary>
+    /// <value>
+    /// this property is alwasy false.
+    /// </value>
+    public bool CanEdit
+    {
+        get;
+    }
+
+    #endregion ISettings Properties
+
+    #region FileIO
 
     const string SettingsFileName = "settings.json";
 
@@ -154,7 +144,7 @@ public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
     {
         get => new FileInfo(Path.Combine(FileSystem.AppDataDirectory, SettingsFileName));
     }
-    
+
     /// <summary>
     /// Loads the <see cref="UserSettings"/>.
     /// </summary>
@@ -201,7 +191,7 @@ public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
         } while (false);
 
         settings ??= new();
-        settings._settings.HasChanges = false;
+        settings.HasChanges = false;
         return settings;
     }
 
@@ -210,7 +200,7 @@ public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
     /// </summary>
     public void Save()
     {
-        if (_settings.HasChanges)
+        if (HasChanges)
         {
             FileInfo fileInfo = SettingsFile;
             string content = JsonSerializer.Serialize(this, UserSettingsJsonConverter.Options);
@@ -223,52 +213,9 @@ public sealed class UserSettings : ObservableObject, IEnumerable<ISetting>
                 string message = $"Unable to save settings to {fileInfo.FullName}.\n{ex.Message}";
                 Trace.WriteLine(message);
             }
-            _settings.HasChanges = false;
+            HasChanges = false;
         }
     }
 
-    #endregion Serialization
-
-    #region IEnumerable
-
-    /// <summary>
-    /// Gets an  <see cref="IEnumerator{ISetting}"/> to enumerate all <see cref="ISetting"/> instances.
-    /// </summary>
-    /// <returns>An <see cref="IEnumerator{ISetting}"/>.</returns>
-    public IEnumerator<ISetting> GetEnumerator()
-    {
-       return _settings.GetEnumerator();
-    }
-
-    /// <summary>
-    /// Gets an  <see cref="IEnumerator"/> to enumerate all <see cref="ISetting"/> instances.
-    /// </summary>
-    /// <returns>An <see cref="IEnumerator"/>.</returns>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return ((IEnumerable)_settings).GetEnumerator();
-    }
-
-    #endregion IEnumerable
-
-    #region PropertyChangedEventArgs
-
-    /// <summary>
-    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="GlyphWidth"/> changes.
-    /// </summary>
-    public static readonly PropertyChangedEventArgs GlyphWidthChangedEventArgs = new(nameof(GlyphWidth));
-    /// <summary>
-    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="ItemFont"/> changes.
-    /// </summary>
-    public static readonly PropertyChangedEventArgs ItemFontSizeChangedEventArgs = new(nameof(ItemFont));
-    /// <summary>
-    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="ItemHeaderFont"/> changes.
-    /// </summary>
-    public static readonly PropertyChangedEventArgs ItemHeaderFontSizeChangedEventArgs = new(nameof(ItemHeaderFont));
-    /// <summary>
-    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="TitleFont"/> changes.
-    /// </summary>
-    public static readonly PropertyChangedEventArgs TitleFontSizeChangedEventArgs = new(nameof(TitleFont));
-
-    #endregion PropertyChangedEventArgs
+    #endregion FileIO
 }

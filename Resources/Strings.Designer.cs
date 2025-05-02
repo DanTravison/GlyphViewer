@@ -124,6 +124,69 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The name of the font..
+        /// </summary>
+        internal static string FamilyNameDescription {
+            get {
+                return ResourceManager.GetString("FamilyNameDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name.
+        /// </summary>
+        internal static string FamilyNameLabel {
+            get {
+                return ResourceManager.GetString("FamilyNameLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The font attributes to use for the font..
+        /// </summary>
+        internal static string FontAttributesDescription {
+            get {
+                return ResourceManager.GetString("FontAttributesDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Font Attributes.
+        /// </summary>
+        internal static string FontAttributesLabel {
+            get {
+                return ResourceManager.GetString("FontAttributesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Font Attributes.
+        /// </summary>
+        internal static string FontAttributesName {
+            get {
+                return ResourceManager.GetString("FontAttributesName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The size of the font in points.
+        /// </summary>
+        internal static string FontSizeDescription {
+            get {
+                return ResourceManager.GetString("FontSizeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Font Size.
+        /// </summary>
+        internal static string FontSizeLabel {
+            get {
+                return ResourceManager.GetString("FontSizeLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The width to use to display the currently selected glyph..
         /// </summary>
         internal static string GlyphWidthDescription {
@@ -142,38 +205,38 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The font size to use to display the glyphs in the currently selected font..
+        ///   Looks up a localized string similar to The font to use to display the glyphs in the currently selected font..
         /// </summary>
-        internal static string ItemFontSizeDescription {
+        internal static string ItemFontDescription {
             get {
-                return ResourceManager.GetString("ItemFontSizeDescription", resourceCulture);
+                return ResourceManager.GetString("ItemFontDescription", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Item Font Size.
         /// </summary>
-        internal static string ItemFontSizeLabel {
+        internal static string ItemFontName {
             get {
-                return ResourceManager.GetString("ItemFontSizeLabel", resourceCulture);
+                return ResourceManager.GetString("ItemFontName", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The font size to use to display the name of  Glyphs group.
+        ///   Looks up a localized string similar to The font to use to display the name of  Glyphs group.
         /// </summary>
-        internal static string ItemHeaderFontSizeDescription {
+        internal static string ItemHeaderFontDescription {
             get {
-                return ResourceManager.GetString("ItemHeaderFontSizeDescription", resourceCulture);
+                return ResourceManager.GetString("ItemHeaderFontDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Item Header Font Size.
+        ///   Looks up a localized string similar to Item Header Font.
         /// </summary>
-        internal static string ItemHeaderFontSizeLabel {
+        internal static string ItemHeaderFontLabel {
             get {
-                return ResourceManager.GetString("ItemHeaderFontSizeLabel", resourceCulture);
+                return ResourceManager.GetString("ItemHeaderFontLabel", resourceCulture);
             }
         }
         
@@ -207,18 +270,36 @@ namespace GlyphViewer.Resources {
         /// <summary>
         ///   Looks up a localized string similar to The size of the font to use to display the title..
         /// </summary>
-        internal static string TitleFontSizeDescription {
+        internal static string TitleFontDescription {
             get {
-                return ResourceManager.GetString("TitleFontSizeDescription", resourceCulture);
+                return ResourceManager.GetString("TitleFontDescription", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Title Font Size.
         /// </summary>
-        internal static string TitleFontSizeLabel {
+        internal static string TitleFontLabel {
             get {
-                return ResourceManager.GetString("TitleFontSizeLabel", resourceCulture);
+                return ResourceManager.GetString("TitleFontLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The settings for the GlyphViewer.
+        /// </summary>
+        internal static string UserSettingsDescription {
+            get {
+                return ResourceManager.GetString("UserSettingsDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Settings.
+        /// </summary>
+        internal static string UserSettingsLabel {
+            get {
+                return ResourceManager.GetString("UserSettingsLabel", resourceCulture);
             }
         }
     }

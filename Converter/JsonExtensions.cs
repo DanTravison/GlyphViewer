@@ -39,6 +39,18 @@ public static class JsonExtensions
         return propertyName;
     }
 
+    /// <summary>
+    /// Reads and returns a property name from the <paramref name="reader"/>.
+    /// </summary>
+    /// <param name="reader">The <see cref="Utf8JsonReader"/> to read.</param>
+    /// <returns>The property name read from the reader.</returns>
+    /// <exception cref="JsonException">The value of <see cref="Utf8JsonReader.TokenType"/> is not <see cref="JsonTokenType.PropertyName"/>.</exception>
+    public static string GetPropertyName(this ref Utf8JsonReader reader)
+    {
+        reader.Verify(JsonTokenType.PropertyName);
+        return reader.GetString();
+    }
+
     #endregion Read
 
     #region Add
@@ -103,7 +115,7 @@ public static class JsonExtensions
         );
     }
 
-   #endregion Unexpected
+    #endregion Unexpected
 
     #region InvalidValue
 

@@ -27,19 +27,22 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 </p>
 
 # Status
-* The project is a work in progress.
-  * The logic for enumerating glyphs in a typeface is a work in progress. 
-  * The range of Unicode characters is currently 0x0000-0xFFFF.
+* The basically functionality is complete.
+  * The range of Unicode characters is currently limited to 0x0000-0xFFFF.
 * Testing is manual on Windows.
   * Testing on iOS, MacCatalyst, and Android is planned.
-* The GlyphsView is still rather minimal. I'm considering the following changes:
-  * Display the text code for each glyph.
-  * Display the glyph name when available.
+* The GlyphsView is still in progress. I'm considering the following enhancements:
+  * Display the text code for each glyph in the font's glyph list.
+  * [Consider dynamic sizing for displaying glyphs in the GlyphsView](https://github.com/DanTravison/GlyphViewer/issues/40)
 * Currently tracking [issue 3239](https://github.com/mono/SkiaSharp/issues/3239) in SkiaSharp
   * There is a workaround in the [GLyphView](https://github.com/DanTravison/GlyphViewer/issues/23)
   * There is another workaround in [SkLabel](https://github.com/DanTravison/GlyphViewer/issues/25)
-* Currently tracking [Discussion](https://github.com/dotnet/maui/discussions/29221)
-  * CollectionView does not support CollectionChanged events from custom collections for ItemsSource.
+* Currently tracking [issue 29284](https://github.com/dotnet/maui/issues/29284)
+  * CollectionView should support CollectionChanged events on a custom collection class
+  * [Bookmarks](https://github.com/DanTravison/GlyphViewer/blob/main/Settings/Bookmarks.cs) is using a temporary workaround based on ReadOnlyCollection\<T\>.
+* The repo file structure will change to support the unit test assembly.
+  * Move GlyphViewer into a child directory.
+  * Merge the unit tests assembly into the repo. 
 
 # The Project Structure
 
@@ -54,7 +57,6 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Provides the property for the current Glyph. 
   * Provides a list of glyph metrics properties for the selected glyph.
   * Provides a list of font metrics properties for the selected typeface.
- 
 
 ## Views
 * MainPage: The application's main page
@@ -76,34 +78,42 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Contains the various fonts, colors, and layout metrics used by the renderers
   * Called by various GlyphsView properties to synchronize changes needed for rendering.
 
-## Setting
-* UserSettings - encapsulates all user-configurable settings
-  * Storage is currently through Maui Preferences.
-* Setting<T> - An ObservableObject providing a abstract base class for a setting property.
-* ISetting - An interface for the setting property used for data binding and template resolution.
-* DoubleSetting - provides a setting property for a setting based on aDouble
-* FontSizeSettings - provides a setting property for FontSize settings.
-* GlyphWidthSetting - provides a DoubleSetting for the width of the GlyphView.
-* SettingDataTemplateSelector - A DataTemplateSelector for the SettingsPage.
-  * The template selector is used to select the appropriate data template for each setting.
-  * The templates are defined in the SettingsPage.xaml file.
+## Settings
+* ISettingSerializer - defines the JSON serialization contract.
+* ISetting - an ISettingProperty with a Parent property.
+* Setting - Implements ISetting.
+  * Derives from SettingPropertyCollection
+  * Implements ISettingSerializer via the base SettingPropertyCollection.
+* UserSettings - encapsulates all settings.
+  * Provides properties for concrete Settings. 
+  * Provides Load and Save method using UserSettingsJsonConverter. 
+  * Settings are serialized to AppDataDirectory/settings.json
+* Boomarks - An ISetting containing the set of bookmarked font family names.
+* FontSetting - an abstract base class for font settings.
+* ItemFontSetting - Provides the font settings rows in the GlyphsView
+* ItemHeaderFontSetting - Provides the font settings for header rows in the GlyphsView
+* TitleFontSetting - Provides the font settings for the main page's title view.
+* GlyphsSettings - Provides general Glyph properties and constants
+  * Width - the width of the GlyphView pane. 
+* SettingDataTemplateSelector - Provides the template selector for the SettingsPage.
+* Constants and Defaults
+  * All constants and defaults are defined in the associated Setting class. 
+  * Various View BindingProperty definitions refer to the associated Setting property for default values.
+  * When a property has a defined range, the setting will declare Minimum/Maximum/Increment constants.
+  * BindableProperty coerce delegates will clamp the value to the constants intead of failing.
+  * The sliders presented in SettingsPage will also use these values to define the range and increment. 
 
-## Setting<T> Notes
-This class is logically equivalent to a BindableProperty in that it manages the 
-underlying value. UserSettings defines an instance of a derived Setting and 
-defines a property that proxies get and set through to the Setting.
-Additionally,UserSettings provides a delegate that Setting invokes to raise 
-the PropertyChanged event on the UserSettings instance.
-
-The Setting<T> class is also an ObservableObject. This allows UserSettings to 
-provide a collection of 'Properties' that are bound to a CollectionView in the SettingsPage.
-The goal is to avoid hard-coding the properties directly in the XAML.
-
-Setting<T> defines abstract ReadValue and WriteValue that are implemented in the derived
-classes to serialize the setting value and supports resetting the setting to its default value.
-
-Derived classes provide the setting name, the display name, and the default value.
-ReadValue and WriteValue currently use Maui's Preferences class.
+## Settings/Properties
+* SettingPropertyCollection - provides an ISettingProperty collection.
+  * Implements ISettingSerializer for both ISetting and ISettingProperty. 
+* ISettingProperty - contract for named setting property
+  * Derives from ISettingSerializer 
+* SettingProperty\<T\> implements ISettingProperty and ISettingSerializer
+* DoubleProperty - provides an ISettingProperty<double>
+* StringProperty - provides an ISettingProperty<string>
+* FontFamilyProperty - a StringProperty for a font family name
+* FontSizeProperty - a DoubleProperty for a font size.
+* FontAttributesProperty - an ISettingProperty<FontAttributes>
 
 ## Text
 Contains the various Glyph classes:
@@ -148,6 +158,15 @@ This is used to scroll the GlyphsView content versus scrolling a large SKCanvasV
 Provide a control template for a jump list.
 This is used to select a font family group in the FontFamiliesView and a unicode range in GlyphsView. 
 
+## Converters
+* JsonConverter - an abstract base class for a JsonConverter
+  * Provides basic argument validation
+  * Declares abstract OnRead and OnWrite methods.
+* JsonExtensions - provides various JSON extension methods
+  * Utf8JsonReader extensions for reading property names, verifing JsonTokenType and reporting unexpected tokens and values.
+  * JsonSerializationOptions.Add(params JsonConverter[])
+* UserSettingsJsonConverter - The JSON implementation for UserSettings.Load and Save.
+
 ## ObjectModel
 * ObservableObject: An implementation of INotifyPropertyChanged with SetProperty overloads.
   * SetProperty takes an instance of a PropertyChangedEventArgs to allow derived class to statically define 
@@ -158,11 +177,12 @@ This is used to select a font family group in the FontFamiliesView and a unicode
   * Allows SettingsPage to present Settings properties as a bindable collection. 
 * Command: An implementation of ICommand with IsEnabled for controlling CanExecute.
 * OrderedList: A simple ordered list of objects.
-  * This is a placeholder for use by FontFamilyGroup until CollectionView issue is resolved.
-  * The list is used to display the glyph and font metrics properties.
+  * Bookmarks uses it to manage the list of bookmarked font family names. 
+  * This is a placeholder for use by Bookmarks until CollectionView issue is resolved.
+  * Assuming the CollectionView issue is resolved in Maui 10, this class will be changed to ReadOnlyOrderedList and ReadOnlyCollection\<T\> will be removed. 
 
 ## Other
-* ExtendedUnicode.txt: A text file containing links to the Unicode ranges on www.unicode.org
+* ExtendedUnicode.txt: A text file containing links to the extended Unicode ranges on www.unicode.org
 * Images/GlyphView.png: A screen shot of the GlyphView
 
 ## Dependencies
