@@ -77,7 +77,7 @@
                                  BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                                  LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"
                                  BaselineColor="{AppThemeBinding Light=LightGreen, Dark=Green}"
-                                 GlyphWidth="{Binding Settings.Glyph.Width}"
+                                 GlyphWidth="{Binding Settings.Glyph.Width.Value}"
                                  />
 
                 <views:MetricsView Grid.Row="1"
