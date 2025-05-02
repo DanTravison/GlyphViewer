@@ -27,19 +27,22 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 </p>
 
 # Status
-* The project is a work in progress.
-  * The logic for enumerating glyphs in a typeface is a work in progress. 
-  * The range of Unicode characters is currently 0x0000-0xFFFF.
+* The basically functionality is complete.
+  * The range of Unicode characters is currently limited to 0x0000-0xFFFF.
 * Testing is manual on Windows.
   * Testing on iOS, MacCatalyst, and Android is planned.
-* The GlyphsView is still rather minimal. I'm considering the following changes:
-  * Display the text code for each glyph.
-  * Display the glyph name when available.
+* The GlyphsView is still in progress. I'm considering the following enhancements:
+  * Display the text code for each glyph in the font's glyph list.
+  * [Consider dynamic sizing for displaying glyphs in the GlyphsView](https://github.com/DanTravison/GlyphViewer/issues/40)
 * Currently tracking [issue 3239](https://github.com/mono/SkiaSharp/issues/3239) in SkiaSharp
   * There is a workaround in the [GLyphView](https://github.com/DanTravison/GlyphViewer/issues/23)
   * There is another workaround in [SkLabel](https://github.com/DanTravison/GlyphViewer/issues/25)
-* Currently tracking [Discussion](https://github.com/dotnet/maui/discussions/29221)
-  * CollectionView does not support CollectionChanged events from custom collections for ItemsSource.
+* Currently tracking [issue 29284](https://github.com/dotnet/maui/issues/29284)
+  * CollectionView should support CollectionChanged events on a custom collection class
+  * [Bookmarks](https://github.com/DanTravison/GlyphViewer/blob/main/Settings/Bookmarks.cs) is using a temporary workaround based on ReadOnlyCollection\<T\>.
+* The repo file structure will change to support the unit test assembly.
+  * Move GlyphViewer into a child directory.
+  * Merge the unit tests assembly into the repo. 
 
 # The Project Structure
 
@@ -174,11 +177,12 @@ This is used to select a font family group in the FontFamiliesView and a unicode
   * Allows SettingsPage to present Settings properties as a bindable collection. 
 * Command: An implementation of ICommand with IsEnabled for controlling CanExecute.
 * OrderedList: A simple ordered list of objects.
+  * Bookmarks uses it to manage the list of bookmarked font family names. 
   * This is a placeholder for use by Bookmarks until CollectionView issue is resolved.
-  * The list is used to display the glyph and font metrics properties.
+  * Assuming the CollectionView issue is resolved in Maui 10, this class will be changed to ReadOnlyOrderedList and ReadOnlyCollection\<T\> will be removed. 
 
 ## Other
-* ExtendedUnicode.txt: A text file containing links to the Unicode ranges on www.unicode.org
+* ExtendedUnicode.txt: A text file containing links to the extended Unicode ranges on www.unicode.org
 * Images/GlyphView.png: A screen shot of the GlyphView
 
 ## Dependencies
