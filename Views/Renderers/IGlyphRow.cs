@@ -10,36 +10,38 @@ using SkiaSharp;
 interface IGlyphRow
 {
     /// <summary>
-    /// Gets the bounds for the row.
+    /// Gets the <see cref="SKRect"/> identifying the bounds to render.
     /// </summary>
+    /// <remarks>
+    /// This property is set by <see cref="Arrange"/>.
+    /// </remarks>
     SKRect Bounds
     {
         get;
     }
 
     /// <summary>
-    /// Layouts the contents of the glyph row.
+    /// Arranges <see cref="IGlyphRow"/>.
     /// </summary>
-    /// <param name="location">The location of the <see cref="IGlyphRow"/></param>
-    /// <param name="width">The width of the drawing area.</param>
-    void Arrange(SKPoint location, float width);
+    /// <param name="location">The <see cref="SKPoint"/> identifying the upper left coordinate.</param>
+    /// <param name="size">The recommended size.</param>
+    void Arrange(SKPoint location, SKSize size);
 
     /// <summary>
-    /// Draws the glyph row on the specified canvas.
+    /// Draws the renderer on the <paramref name="canvas"/>.
     /// </summary>
-    /// <param name="canvas">The <see cref="SKCanvas"/> to draw.</param>
+    /// <param name="canvas">The <see cref="SKCanvas"/> to draw on.</param>
     /// <param name="paint">The <see cref="SKPaint"/> to use to draw.</param>
     void Draw(SKCanvas canvas, SKPaint paint);
 
     /// <summary>
-    /// Determines if the specified point is within the bounds of the glyph row.
+    /// Determines if the specified point is within the bounds of the row.
     /// </summary>
     /// <param name="point">The <see cref="SKPoint"/> to test.</param>
-    /// <param name="metrics">
-    /// The <see cref="GlyphMetrics"/> that was hit;
-    /// otherwise, <see cref="GlyphMetrics.Empty"/> if no <see cref="GlyphMetrics"/> 
-    /// is present at the specified <paramref name="point"/>.
+    /// <param name="renderer">
+    /// The <see cref="GlyphRenderer"/> for the associated <see cref="Glyph"/>; 
+    /// otherwise, a null reference if the row is a header row.
     /// </param>
-    /// <returns>true if the specified point is within the bounds of the glyph row; otherwise, false.</returns>
-    bool HitTest(SKPoint point, out GlyphMetrics metrics);
+    /// <returns>true if the specified point is within the <see cref="Bounds"/> of the row; otherwise, false.</returns>
+    bool HitTest(SKPoint point, out GlyphRenderer renderer);
 }
