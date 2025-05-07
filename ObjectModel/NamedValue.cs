@@ -22,7 +22,7 @@ public class NamedValue<T> : ObservableObject
     public NamedValue(string name, T defaultValue, IEqualityComparer<T> comparer = null)
     {
         Name = name;
-        Comparer = comparer;
+        Comparer = comparer ?? EqualityComparer<T>.Default;
         Value = defaultValue;
         DefaultValue = defaultValue;
     }

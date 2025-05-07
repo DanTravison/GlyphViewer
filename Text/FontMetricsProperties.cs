@@ -29,10 +29,10 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
 
         font.GetFontMetrics(out SKFontMetrics metrics);
         Metrics = metrics;
-        _values.Add(new(nameof(SKTypeface.FamilyName), font.Typeface.FamilyName));
-        _values.Add(_glyphCount);
-        _values.Add(new("FontSize", font.Size));
 
+        Add(_values, nameof(SKTextMetrics.FamilyName), font.Typeface.FamilyName);
+        _values.Add(_glyphCount); 
+        Add(_values, nameof(SKTextMetrics.FontSize), font.Size);
         Add(_values, nameof(SKFontMetrics.Top), metrics.Top);
         Add(_values, nameof(SKFontMetrics.Ascent), metrics.Ascent);
         Add(_values, nameof(SKFontMetrics.Descent), metrics.Descent);
@@ -44,14 +44,23 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
         Add(_values, nameof(SKFontMetrics.XMax), metrics.XMax);
         Add(_values, "AvgWidth", metrics.AverageCharacterWidth);
         Add(_values, "MaxWidth", metrics.MaxCharacterWidth);
-        
     }
+
+    #region Add
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static void Add(List<NamedValue> values, string name, float value)
     {
         values.Add(new NamedValue(name, Math.Round(value, 2)));
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static void Add(List<NamedValue> values, string name, string value)
+    {
+        values.Add(new NamedValue(name, value));
+    }
+
+    #endregion Add
 
     #region Properties
 

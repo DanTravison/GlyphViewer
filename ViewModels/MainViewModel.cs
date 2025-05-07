@@ -35,7 +35,7 @@ internal sealed class MainViewModel : ObservableObject
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
         Settings = UserSettings.Load();
 
-        _metrics = new MetricsModel(Settings.ItemFont.FontSize);
+        _metrics = new MetricsModel(Settings.ItemFont);
         _metrics.PropertyChanged += OnMetricsPropertyChanged;
         BookmarkCommand = new(Settings.Bookmarks, _metrics);
     }

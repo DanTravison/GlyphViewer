@@ -1,7 +1,6 @@
 ﻿namespace GlyphViewer.ViewModels;
 
 using GlyphViewer.ObjectModel;
-using GlyphViewer.Resources;
 using GlyphViewer.Settings;
 using GlyphViewer.Settings.Properties;
 using GlyphViewer.Text;
@@ -11,8 +10,7 @@ using System.Text;
 using System.Windows.Input;
 
 /// <summary>
-/// Provides a view model for managing <see cref="Glyph"/>, <see cref="FontFamily"/>, <see cref="FontSize"/>,
-/// and the metrics and property collections.
+/// Provides a view model for managing <see cref="Glyph"/> and font metrics.
 /// </summary>
 internal sealed class MetricsModel : ObservableObject, IDisposable
 {
@@ -35,17 +33,16 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="fontSize">The <see cref="FontSetting.FontSize"/> from <see cref="ItemFontSetting"/>.
+    /// <param name="settings">The <see cref="ItemFontSetting"/>.
     /// <para>
     /// This parameter is used to determine the font size when calculating metrics.
     /// </para>
     /// </param>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="fontSize"/> is less than <see cref="ItemFontSetting.MinimumFontSize"/>.</exception>
-    public MetricsModel(FontSizeProperty fontSize)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="settings"/> a null reference.</exception>
+    public MetricsModel(ItemFontSetting settings)
     {
-        _fontSize = fontSize;
-        _fontSize.PropertyChanged += OnFontSizeChanged;
-        _fontFamily = string.Empty;
+        _fontSize = settings.FontSize;
+        _fontSize.PropertyChanged += OnFontSizePropertyChanged;
         _glyph = Glyph.Empty;
 
         ClipboardCommand = _clipboardCommand = new Command(OnCopyToClipboard)
@@ -74,43 +71,6 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-    /// The <see cref="SKTypeface"/> for the current <see cref="Font"/>.
-    /// </summary>
-    /// <value>see cref="SKTypeface"/> for the current <see cref="Font"/>; otherwise, 
-    /// a null reference if the <see cref="Font"/> is not set.</value>
-    public SKTypeface Typeface
-    {
-        get => _font?.Typeface;
-    }
-
-    /// <summary>
-    /// Gets or sets the font size in points.
-    /// </summary>
-    /// <value>
-    /// The font size in points; otherwise, 0 if the font size has not been set.
-    /// </value>
-    /// <remarks>
-    /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> with <see cref="FontSizeChangedEventArgs"/>.
-    /// </remarks>
-    public double FontSize
-    {
-        get => _fontSize.Value;
-    }
-
-    /// <summary>
-    /// Handles changes to <see cref="FontSizeProperty"/> of <see cref="ItemFontSetting"/>.
-    /// </summary>
-    /// <param name="sender">The sender of the event.</param>
-    /// <param name="e">The <see cref="PropertyChangedEventArgs"/> identifying the property that changed.</param>
-    private void OnFontSizeChanged(object sender, PropertyChangedEventArgs e)
-    {
-        if (ReferenceEquals(e, ValueChangedEventArgs))
-        {
-            OnPropertyChanged(FontSizeChangedEventArgs);
-        }
-    }
-
-    /// <summary>
     /// Gets the font family name.
     /// </summary>
     /// <value>The font family name; otherwise, <see cref="String.Empty"/> if the family name has not been set.</value>
@@ -122,16 +82,20 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         get => _fontFamily;
         set
         {
-            if (string.IsNullOrEmpty(value))
-            {
-                value = string.Empty;
-            }
-            if (value != _fontFamily)
-            {
-                _fontFamily = value;
-                Update(ChangedProperty.FontFamily);
-            }
+            _fontFamily = value;
+            Update(ChangedProperty.FontFamily);
         }
+    }
+
+    /// <summary>
+    /// Gets or sets the font size in points.
+    /// </summary>
+    /// <value>
+    /// The font size in points; otherwise, 0 if the font size has not been set.
+    /// </value>
+    public double FontSize
+    {
+        get =>_fontSize.Value;
     }
 
     /// <summary>
@@ -247,6 +211,14 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
 
     #region Update
 
+    private void OnFontSizePropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (ReferenceEquals(e, ValueChangedEventArgs))
+        {
+            Update(ChangedProperty.FontSize);
+        }
+    }
+
     /// <summary>
     /// Provides flags to identify properties that need to be updated by <see cref="Update"/>.
     /// </summary>
@@ -297,6 +269,8 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     {
         if
         (
+            changed == ChangedProperty.None
+            ||
             changed.HasFlag(ChangedProperty.FontProperties)
             ||
             changed.HasFlag(ChangedProperty.GlyphMetrics))
@@ -309,7 +283,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         PropertyChanges changes = new(changed);
 
         // NOTE: Before raising any PropertyChanged event,
-        // update all  side-effect properties to ensure
+        // update all side-effect properties to ensure
         // PropertyChanged subscribers see a consistent state.
         // Additionally, avoid raising PropertyChanged events for 
         // properties that do not change.
@@ -372,7 +346,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
             OnPropertyChanged(GlyphChangedEventArgs);
         }
 
-        if (changes.IsSet(ChangedProperty.GlyphMetrics))
+        if (changes.ContainsAny(ChangedProperty.GlyphProperties))
         {
             OnPropertyChanged(GlyphPropertiesChangedEventArgs);
         }
