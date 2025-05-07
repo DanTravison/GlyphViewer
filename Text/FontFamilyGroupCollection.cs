@@ -84,6 +84,27 @@ public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
 
     #endregion Properties
 
+    /// <summary>
+    /// Gets the <see cref="FontFamilyGroup"/> containing the specified <paramref name="familyName"/>.
+    /// </summary>
+    /// <param name="familyName">The family name to query.</param>
+    /// <returns>
+    /// The <see cref="FontFamilyGroup"/> containing the specified <paramref name="familyName"/>; otherwise, 
+    /// a null reference.
+    /// </returns>
+    public FontFamilyGroup FromFamilyName(string familyName)
+    {
+        if (!string.IsNullOrEmpty(familyName))
+        {
+            string groupName = familyName[0].ToString();
+            if (_groupTable.TryGetValue(groupName, out FontFamilyGroup group))
+            {
+                return group;
+            }
+        }
+        return null;
+    }
+
     #region IEnumerable
 
     /// <summary>

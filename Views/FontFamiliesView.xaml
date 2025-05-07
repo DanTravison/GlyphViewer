@@ -56,7 +56,6 @@
         <Style TargetType="CollectionView" x:Key="FontFamilyGroupStyle">
             <Setter Property="IsGrouped" Value="True"/>
             <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="SelectedItem" Value="{Binding Metrics.FontFamily, Mode=TwoWay}"/>
             <Setter Property="GroupHeaderTemplate" Value="{StaticResource GroupHeaderTemplate}"/>
             <Setter Property="ItemTemplate" Value="{StaticResource GroupItemTemplate}"/>
         </Style>
@@ -71,6 +70,7 @@
         <CollectionView Grid.Row="0"
                         Style="{StaticResource FontFamilyGroupStyle}"
                         ItemsSource="{Binding FontFamilyGroups.Bookmarks, Mode=OneWay}"
+                        SelectedItem="{Binding SelectedBookmark, Mode=TwoWay}"
                         Margin="0"
                         />
 
@@ -90,7 +90,11 @@
                         Grid.RowSpan="2"
                         Style="{StaticResource FontFamilyGroupStyle}"
                         ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"
+                        SelectedItem="{Binding Metrics.FontFamily, Mode=TwoWay}"
                         />
+                    <!-- ISSUE: CollectionView.ScrollTo is not working
+                        SelectionChanged="OnSelectionChanged"
+                    -->
     </Grid>
 
 </ContentView>

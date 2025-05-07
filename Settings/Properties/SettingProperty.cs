@@ -8,24 +8,17 @@ using System.Text.Json;
 /// Provides an abstract base class for a <see cref="Setting"/> property.
 /// </summary>
 /// <typeparam name="T">The type of property value.</typeparam>
-public abstract class SettingProperty<T> : ObservableObject, ISettingProperty
+public abstract class SettingProperty<T> : NamedValue<T>, ISettingProperty
 {
-    #region Fields
-
-    T _value;
-    readonly IEqualityComparer<T> _comparer;
-
-    #endregion Fields
-
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="name">The property <see cref="Name"/>.</param>
-    /// <param name="defaultValue">The default <see cref="ObservableProperty{T}.Value"/> of the setting.</param>
+    /// <param name="name">The property <see cref="NamedValue{T}.Name"/>.</param>
+    /// <param name="defaultValue">The default <see cref="NamedValue{T}.Value"/> of the setting.</param>
     /// <param name="displayName">The <see cref="DisplayName"/> to display in the UI.</param>
     /// <param name="description">The <see cref="Description"/> of the setting.</param>
     /// <param name="comparer">
-    /// The optional <see cref="IEqualityComparer{T}"/> to use to compare the <see cref="ObservableProperty{T}.Value"/>.
+    /// The optional <see cref="IEqualityComparer{T}"/> to use to compare the <see cref="NamedValue{T}.Value"/>.
     /// <para>
     /// The default value is <see cref="EqualityComparer{T}.Default"/>.
     /// </para>
@@ -38,24 +31,13 @@ public abstract class SettingProperty<T> : ObservableObject, ISettingProperty
         string description,
         IEqualityComparer<T> comparer = null
     )
+        : base(name, defaultValue, comparer)
     {
-        Name = name;
-        DefaultValue = defaultValue;
         DisplayName = displayName ?? throw new ArgumentNullException(nameof(displayName));
         Description = description ?? throw new ArgumentNullException(nameof(description));
-        _value = defaultValue;
-        _comparer = comparer ?? EqualityComparer<T>.Default;
     }
 
     #region Properties
-
-    /// <summary>
-    /// Gets the name of the property on the containing <see cref="Setting"/>.
-    /// </summary>
-    public string Name
-    {
-        get;
-    }
 
     /// <summary>
     /// Gets the name to display in the UI.
@@ -74,31 +56,6 @@ public abstract class SettingProperty<T> : ObservableObject, ISettingProperty
     }
 
     /// <summary>
-    /// Gets or sets the value of the property.
-    /// </summary>
-    public T Value
-    {
-        get => _value;
-        set => SetProperty(ref _value, value, _comparer, ObservableProperty.ValueChangedEventArgs);
-    }
-
-    /// <summary>
-    /// Gets the default <see cref="Value"/> for the property.
-    /// </summary>
-    public T DefaultValue
-    {
-        get;
-    }
-
-    /// <summary>
-    /// Gets the value indicating the current value is the <see cref="DefaultValue"/>.
-    /// </summary>
-    public bool IsDefault
-    {
-        get => _comparer.Equals(_value, DefaultValue);
-    }
-
-    /// <summary>
     /// Gets the value indicating if the instance is user editable.
     /// </summary>
     public bool CanEdit
@@ -108,14 +65,6 @@ public abstract class SettingProperty<T> : ObservableObject, ISettingProperty
     } = true;
 
     #endregion Properties
-
-    /// <summary>
-    /// Resets the <see cref="Value"/> to the <see cref="DefaultValue"/>.
-    /// </summary>
-    public void Reset()
-    {
-        Value = DefaultValue;
-    }
 
     #region Serialization
 

@@ -11,8 +11,8 @@ public class StringProperty : SettingProperty<string>
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="name">The property <see cref="SettingProperty{String}.Name"/>.</param>
-    /// <param name="defaultValue">The <see cref="ObservableProperty{String}.DefaultValue"/>.</param>
+    /// <param name="name">The property <see cref="NamedValue{String}.Name"/>.</param>
+    /// <param name="defaultValue">The <see cref="NamedValue{String}.DefaultValue"/>.</param>
     /// <param name="displayName">The <see cref="SettingProperty{String}.DisplayName"/>.</param>
     /// <param name="description">The <see cref="SettingProperty{String}.Description"/>.</param>
     /// <param name="comparer">

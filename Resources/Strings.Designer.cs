@@ -97,6 +97,24 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Determines how glyphs are arranged in the Glyphs View..
+        /// </summary>
+        internal static string CellLayoutDescription {
+            get {
+                return ResourceManager.GetString("CellLayoutDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CellLayout.
+        /// </summary>
+        internal static string CellLayoutStyleName {
+            get {
+                return ResourceManager.GetString("CellLayoutStyleName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Copied..
         /// </summary>
         internal static string CopiedText {
@@ -183,6 +201,33 @@ namespace GlyphViewer.Resources {
         internal static string FontSizeLabel {
             get {
                 return ResourceManager.GetString("FontSizeLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Glyphs.
+        /// </summary>
+        internal static string GlyphCountName {
+            get {
+                return ResourceManager.GetString("GlyphCountName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The settings defined for a glyph..
+        /// </summary>
+        internal static string GlyphSettingDescription {
+            get {
+                return ResourceManager.GetString("GlyphSettingDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Glyph Settings.
+        /// </summary>
+        internal static string GlyphSettingLabel {
+            get {
+                return ResourceManager.GetString("GlyphSettingLabel", resourceCulture);
             }
         }
         

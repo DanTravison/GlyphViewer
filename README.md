@@ -6,7 +6,7 @@ displaying the Glyph and associated metrics using SkiaSharp.
 The application enumerates all fonts available via SkiaSharp and, for each,
 lists the available glyphs. When a glyph is selected, a zoomed view of the 
 glyph is displayed with the ascent, baseline, left and right edges displayed
-via a set of dotted lines.
+via a set of dotted lines.  Additionally, both the glyph and font metrics are displayed.
 
 The need for this came out of another project where I display a piano keyboard
 and associated sheet music.  
@@ -70,31 +70,42 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * SettingsPage: A page for user configurable settings.
 
 ## Views/Renderers
+* GlyphsViewRenderer - provides layout, rendering and hit testing for GlyphsView
 * IGlyphRow: Interface for the GlyphRow and HeaderRow classes
 * GlyphRowBase: Base class for header and glyph rows
-* HeaderRow: A row in the GlyphsView for each Unicode range.
 * GlyphRow: A row in the Glyphs
+* GlyphRowRenderer: Provides layout, rendering and it testing for GlypRow.
+* GlyphRenderer: Renders a glyph in the GlyphRow.
+* HeaderRow: A row in the GlyphsView for each Unicode range in the font.
+* CellLayoutStyle: Describes the layout for sizing cells in a GlyphRow.
+  * This is considered experimental to allow visualizing various cell sizing models.
+  * The default sets the cell to the tallest and widest glyph in the font.
+  * Cell and Row height can be set to the default or to the tallest glyph in a GlyphRow.
+  * Cell width can be set to the default, the width of the widest glyph in a row or the individual glyph widths.  
+* SkSpacing: Defines the spacing around a glyph in the GlyphRow.
+  * This is a simplfied Thickness class since only Horizontal and Vertical values are needed. 
 * DrawingContext: The context for drawing the glyphs and rows
   * Contains the various fonts, colors, and layout metrics used by the renderers
-  * Called by various GlyphsView properties to synchronize changes needed for rendering.
+  * Listens for changes on GlyphsView to synchronizing drawing properties.
 
 ## Settings
-* ISettingSerializer - defines the JSON serialization contract.
-* ISetting - an ISettingProperty with a Parent property.
-* Setting - Implements ISetting.
+* ISettingSerializer: defines the JSON serialization contract.
+* ISetting: an ISettingProperty with a Parent property.
+* Setting: Implements ISetting.
   * Derives from SettingPropertyCollection
   * Implements ISettingSerializer via the base SettingPropertyCollection.
 * UserSettings - encapsulates all settings.
   * Provides properties for concrete Settings. 
   * Provides Load and Save method using UserSettingsJsonConverter. 
   * Settings are serialized to AppDataDirectory/settings.json
-* Boomarks - An ISetting containing the set of bookmarked font family names.
-* FontSetting - an abstract base class for font settings.
-* ItemFontSetting - Provides the font settings rows in the GlyphsView
-* ItemHeaderFontSetting - Provides the font settings for header rows in the GlyphsView
-* TitleFontSetting - Provides the font settings for the main page's title view.
-* GlyphsSettings - Provides general Glyph properties and constants
+* Boomarks: An ISetting containing the set of bookmarked font family names.
+* FontSetting: an abstract base class for font settings.
+* ItemFontSetting: Provides the font settings rows in the GlyphsView
+* ItemHeaderFontSetting: Provides the font settings for header rows in the GlyphsView
+* TitleFontSetting: Provides the font settings for the main page's title view.
+* GlyphsSettings: Provides general Glyph properties and constants
   * Width - the width of the GlyphView pane. 
+  * CellLayout - the CellLayoutStyle for GlyphRow cells. 
 * SettingDataTemplateSelector - Provides the template selector for the SettingsPage.
 * Constants and Defaults
   * All constants and defaults are defined in the associated Setting class. 
@@ -104,16 +115,18 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * The sliders presented in SettingsPage will also use these values to define the range and increment. 
 
 ## Settings/Properties
-* SettingPropertyCollection - provides an ISettingProperty collection.
+* SettingPropertyCollection: provides an ISettingProperty collection.
   * Implements ISettingSerializer for both ISetting and ISettingProperty. 
-* ISettingProperty - contract for named setting property
+* ISettingProperty: contract for named setting property
   * Derives from ISettingSerializer 
-* SettingProperty\<T\> implements ISettingProperty and ISettingSerializer
-* DoubleProperty - provides an ISettingProperty<double>
-* StringProperty - provides an ISettingProperty<string>
-* FontFamilyProperty - a StringProperty for a font family name
-* FontSizeProperty - a DoubleProperty for a font size.
-* FontAttributesProperty - an ISettingProperty<FontAttributes>
+* SettingProperty\<T\>: implements ISettingProperty and ISettingSerializer
+* DoubleProperty: provides an ISettingProperty\<double\>
+* StringProperty: provides an ISettingProperty\<string\>
+* FontFamilyProperty: a StringProperty for a font family name
+* FontSizeProperty: a DoubleProperty for a font size.
+* EnumProperty: An ISettingProperty for Enum types.
+* FontAttributesProperty: an ISettingProperty\<FontAttributes\>
+* CellLayoutProperty: An ISettingProperty\<CellLayoutStyle\>
 
 ## Text
 Contains the various Glyph classes:
@@ -128,14 +141,14 @@ Contains the various Glyph classes:
 * FontFamilyGroup: A collection of font families in a given group.
 * FontMetricsProperties: A A NamedValue collection for displaying displaying font metrics
 * Fonts.cs: A set of extension methods
-  * ToStyleFont - converts FontAttributes to SKFontStyle
-  * GetFontFamilies - enumerate all font families visible to SkiSharp
-  * ToPixels - converts a point size to pixels using 96/72
+  * ToStyleFont: converts FontAttributes to SKFontStyle
+  * GetFontFamilies: enumerate all font families visible to SkiSharp
+  * ToPixels: converts a point size to pixels using 96/72
 	
 Fonts.cs Experimental Extension Methods:
-  * ScalePoints - Scales font points to pixels at the current display density 
-  * DrawText - Wraps Canvas.DrawText by scaling the SKFont.Size using ScalePoints
-  * Measure - wraps SKFont.MeasureText by scaling the SKFont.Size using ScalePoints 
+  * ScalePoints: Scales font points to pixels at the current display density 
+  * DrawText: Wraps Canvas.DrawText by scaling the SKFont.Size using ScalePoints
+  * Measure: wraps SKFont.MeasureText by scaling the SKFont.Size using ScalePoints 
 
 ## Text\Unicode
 * Range: A Unicode range

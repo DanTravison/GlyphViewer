@@ -94,5 +94,10 @@ public abstract class ObservableObject : INotifyPropertyChanged
     /// </summary>
     protected readonly IEqualityComparer<object> ReferenceComparer = ReferenceEqualityComparer.Instance;
 
+    /// <summary>
+    /// Provides <see cref="PropertyChangedEventArgs"/> when the property value changes.
+    /// </summary>
+    public static readonly PropertyChangedEventArgs ValueChangedEventArgs = new("Value");
+
     #endregion SetProperty
 }

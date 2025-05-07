@@ -17,7 +17,14 @@ internal class GlyphRenderer
     public GlyphRenderer(Glyph glyph, DrawContext drawContext, SKPaint paint)
     {
         Metrics = GlyphMetrics.CreateInstance(glyph, drawContext.ItemFont, paint);
-        Measure(drawContext);
+        float height = Metrics.Descent - Metrics.Ascent;
+        if (height == 0)
+        {
+            // for characters such as space, height may be zero.
+            // if so, use the text width.
+            height = Metrics.TextWidth;
+        }
+        PreferredSize = new (Metrics.TextWidth, height);
     }
 
     /// <summary>
@@ -28,9 +35,6 @@ internal class GlyphRenderer
     /// <summary>
     /// Gets the initial preferred size needed to render the glyph.
     /// </summary>
-    /// <remarks>
-    /// This property is set by <see cref="Measure"/>.
-    /// </remarks>
     public SKSize PreferredSize
     {
         get;
@@ -48,37 +52,6 @@ internal class GlyphRenderer
     {
         get;
         private set;
-    }
-
-    /// <summary>
-    /// Measures the renderer.
-    /// </summary>
-    /// <param name="drawContext">The <see cref="DrawContext"/> to use render.</param>
-    void Measure(DrawContext drawContext)
-    {
-        GlyphLayoutStyle layoutStyle = drawContext.LayoutStyle;
-        float width;
-        float height;
-
-        if (layoutStyle.HasFlag(GlyphLayoutStyle.Height))
-        {
-            height = Metrics.Descent - Metrics.Ascent;
-        }
-        else
-        {
-             height = drawContext.GlyphSize.Height;
-        }
-
-        if (layoutStyle.HasFlag(GlyphLayoutStyle.Width) || layoutStyle.HasFlag(GlyphLayoutStyle.GlyphWidth))
-        {
-            width = Metrics.TextWidth;
-        }
-        else
-        {
-            width = drawContext.GlyphSize.Width;
-        }
-
-        PreferredSize = new SKSize(width, height);
     }
 
     /// <summary>

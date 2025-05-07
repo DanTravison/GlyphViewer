@@ -1,6 +1,6 @@
-﻿using SkiaSharp;
+﻿namespace GlyphViewer.Views.Renderers;
 
-namespace GlyphViewer.Views.Renderers;
+using SkiaSharp;
 
 /// <summary>
 /// Provides a layout and rendering class for a <see cref="GlyphRow"/>
@@ -11,7 +11,7 @@ internal sealed class GlyphRowRenderer
 
     readonly List<GlyphRenderer> _items = [];
 
-    readonly GlyphLayoutStyle _style;
+    readonly CellLayoutStyle _cellLayout;
 
     // The width of the canvas.
     readonly float _canvasWidth;
@@ -22,6 +22,8 @@ internal sealed class GlyphRowRenderer
     // The cell spacing.
     readonly SkSpacing _cellSpacing;
 
+    readonly DrawContext _drawContext;
+
     #endregion Fields
 
     /// <summary>
@@ -30,14 +32,36 @@ internal sealed class GlyphRowRenderer
     /// <param name="drawContext">The <see cref="DrawContext"/> to use to arrange and draw cells.</param>
     public GlyphRowRenderer(DrawContext drawContext)
     {
-        _style = drawContext.LayoutStyle;
+        _cellLayout = drawContext.CellLayout;
         _canvasWidth = drawContext.CanvasSize.Width;
         _cellSpacing = drawContext.Spacing;
+        _drawContext = drawContext;
     }
 
     /// <summary>
-    /// Gets the maximum glyph width
+    /// Gets the maximum glyph width.
     /// </summary>
+    /// <value>
+    /// The value is based on the <see cref="CellWidthLayout"/> value in the <see cref="CellLayoutStyle"/>.
+    /// <list type="table">
+    ///     <listheader>
+    ///         <term><see cref="CellWidthLayout"/></term>
+    ///         <description>value</description>
+    ///     </listheader>
+    ///     <item>
+    ///         <term><see cref="CellWidthLayout.Default"/>.</term>
+    ///         <description>The maximum width of all glyphs in the font.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="CellWidthLayout.Width"/></term>
+    ///         <description>The maximum width of all glyphs in the row.</description>
+    ///     </item>
+    ///     <item>
+    ///         <term><see cref="CellWidthLayout.Dynamic"/>.</term>
+    ///         <description>Zero. The glyph width is used.</description>
+    ///     </item>
+    /// </list>    
+    /// </value>
     public float GlyphWidth
     {
         get;
@@ -47,6 +71,10 @@ internal sealed class GlyphRowRenderer
     /// <summary>
     /// Gets the maximum glyph height
     /// </summary>
+    /// <value>
+    /// When using <see cref="CellHeightLayout.Dynamic"/>, the maximum height of the glyphs in the row;
+    /// otherwise, the maximimum height of all glyphs in the font.
+    /// </value>
     public float GlyphHeight
     {
         get;
@@ -85,41 +113,49 @@ internal sealed class GlyphRowRenderer
     {
         ArgumentNullException.ThrowIfNull(renderer, nameof(renderer));
         
-        float glyphWidth = Math.Max(GlyphWidth, renderer.PreferredSize.Width);
-        float glyphHeight = Math.Max(GlyphHeight, renderer.PreferredSize.Height);
+        float glyphWidth = renderer.PreferredSize.Width;
+        float glyphHeight = renderer.PreferredSize.Height;
 
-        if (_style.HasFlag(GlyphLayoutStyle.Width))
+        if (_cellLayout.Width == CellWidthLayout.Width)
         {
+            float currentWidth = _currentWidth;
+            // if the current glyph width would cause the cell width to increase...
             if (glyphWidth > GlyphWidth)
             {
-                // recalculate the current width based on a larger cell width. 
-                float currentWidth = _items.Count * (glyphWidth + _cellSpacing.Horizontal);
-                if (currentWidth + glyphWidth > _canvasWidth)
+                // Adjust the current width based on the increased glyph width.
+                currentWidth = _items.Count * (glyphWidth + _cellSpacing.Horizontal);
+                if (currentWidth > _canvasWidth)
                 {
+                    // The adjusted width is wider than the canvas.
                     return false;
                 }
-                // save the accumulated width of the existing glyphs based on the 
-                // increased cell width.
+                if (currentWidth + glyphWidth + _cellSpacing.Horizontal > _canvasWidth)
+                {
+                    // The new width is wider than the canvas.
+                    return false;
+                }
+                // Save the adjusted current width.
                 _currentWidth = currentWidth;
             }
-            else if (_currentWidth + GlyphWidth > _canvasWidth)
-            {
-                return false;
-            }
         }
-        else if (_style.HasFlag(GlyphLayoutStyle.GlyphWidth))
+        else if (_cellLayout.Width == CellWidthLayout.Dynamic)
         {
             // size cell width to the glyph width.
         }
         else
         {
-            // default: use cached DrawContext.GlyphSize.Width;
-            glyphWidth = GlyphWidth;
+            // use the global width.
+            glyphWidth = _drawContext.GlyphSize.Width;
         }
 
-        if (_style.HasFlag(GlyphLayoutStyle.Height))
+        if (_cellLayout.Height == CellHeightLayout.Dynamic)
         {
             glyphHeight = Math.Max(glyphHeight, GlyphHeight);
+        }
+        else
+        {
+            // use the global height
+            glyphHeight = _drawContext.GlyphSize.Height;
         }
 
         float cellWidth = glyphWidth + _cellSpacing.Horizontal;
@@ -128,14 +164,8 @@ internal sealed class GlyphRowRenderer
             _items.Add(renderer);
             _currentWidth += cellWidth;
 
-            if (glyphHeight > GlyphHeight)
-            {
-                GlyphHeight = glyphHeight;
-            }
-            if (glyphWidth > GlyphWidth)
-            {
-                GlyphWidth = glyphWidth;
-            }
+            GlyphHeight = Math.Max(GlyphHeight, glyphHeight);
+            GlyphWidth = Math.Max(GlyphWidth, glyphWidth);
             return true;
         }
         return false;
@@ -158,7 +188,7 @@ internal sealed class GlyphRowRenderer
             float width = _cellSpacing.Horizontal;
             float height = GlyphHeight + _cellSpacing.Vertical;
 
-            if (_style.HasFlag(GlyphLayoutStyle.GlyphWidth))
+            if (_cellLayout.Width == CellWidthLayout.Dynamic)
             {
                 width += renderer.PreferredSize.Width;
             }
@@ -194,7 +224,7 @@ internal sealed class GlyphRowRenderer
         {
             // no match.
         }
-        else if (_style.HasFlag(GlyphLayoutStyle.GlyphWidth))
+        else if (_cellLayout.Width == CellWidthLayout.Dynamic)
         {
             // variable cell widths
             for (int x = 0; x < _items.Count; x++)

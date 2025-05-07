@@ -85,7 +85,11 @@ class GlyphRow : GlyphRowBase
     /// <returns>true if the specified point is within the bounds of the glyph row; otherwise, false.</returns>
     public override bool HitTest(SKPoint point, out GlyphRenderer renderer)
     {
-        return _items.HitTest(point, out renderer);
+        if (base.HitTest(point, out renderer))
+        {
+            return _items.HitTest(point, out renderer);
+        }
+        return false;
     }
 
     /// <summary>

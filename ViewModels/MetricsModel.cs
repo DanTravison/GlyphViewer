@@ -1,6 +1,7 @@
 ﻿namespace GlyphViewer.ViewModels;
 
 using GlyphViewer.ObjectModel;
+using GlyphViewer.Resources;
 using GlyphViewer.Settings;
 using GlyphViewer.Settings.Properties;
 using GlyphViewer.Text;
@@ -103,7 +104,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// <param name="e">The <see cref="PropertyChangedEventArgs"/> identifying the property that changed.</param>
     private void OnFontSizeChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (ReferenceEquals(e, ObservableProperty.ValueChangedEventArgs))
+        if (ReferenceEquals(e, ValueChangedEventArgs))
         {
             OnPropertyChanged(FontSizeChangedEventArgs);
         }
@@ -165,7 +166,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         {
             if (value != _glyph)
             {
-                _glyph = value;
+                _glyph = value ?? Glyph.Empty;
                 Update(ChangedProperty.Glyph);
             }
         }

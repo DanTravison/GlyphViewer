@@ -12,6 +12,7 @@ using HarfBuzzFont = HarfBuzzSharp.Font;
 /// <summary>
 /// Provides a <see cref="Glyph"/> collection for the glyphs in a <see cref="SKTypeface"/>.
 /// </summary>
+[DebuggerDisplay("{FamilyName,nq}[{Count,nq}]")]
 public sealed class GlyphCollection : IReadOnlyList<Glyph>
 {
     #region Fields
@@ -31,9 +32,18 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     {
         _glyphs = glyphs;
         HasGlyphNames = hasGlyphNames;
+        FamilyName = typeface.FamilyName;
     }
 
     #region Properties
+
+    /// <summary>
+    /// Gets the font family name.
+    /// </summary>
+    public string FamilyName
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the number of glyphs in the collection.

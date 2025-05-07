@@ -198,4 +198,19 @@
   <data name="UserSettingsDescription" xml:space="preserve">
     <value>The settings for the GlyphViewer</value>
   </data>
+  <data name="CellLayoutStyleName" xml:space="preserve">
+    <value>CellLayout</value>
+  </data>
+  <data name="CellLayoutDescription" xml:space="preserve">
+    <value>Determines how glyphs are arranged in the Glyphs View.</value>
+  </data>
+  <data name="GlyphCountName" xml:space="preserve">
+    <value>Glyphs</value>
+  </data>
+  <data name="GlyphSettingLabel" xml:space="preserve">
+    <value>Glyph Settings</value>
+  </data>
+  <data name="GlyphSettingDescription" xml:space="preserve">
+    <value>The settings defined for a glyph.</value>
+  </data>
 </root>

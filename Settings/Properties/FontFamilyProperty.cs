@@ -11,7 +11,7 @@ public sealed class FontFamilyProperty : StringProperty
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="defaultValue">The <see cref="ObservableProperty{String}.DefaultValue"/>.</param>
+    /// <param name="defaultValue">The <see cref="NamedValue{String}.DefaultValue"/>.</param>
     public FontFamilyProperty(string defaultValue = App.DefaultFontFamily)
         : base(nameof(FontSetting.FontFamily), defaultValue, Strings.FamilyNameLabel, Strings.FamilyNameDescription)
     {

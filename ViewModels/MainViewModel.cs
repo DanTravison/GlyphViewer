@@ -21,6 +21,7 @@ internal sealed class MainViewModel : ObservableObject
     int _rows;
     ICommand _pickUnicodeRangeCommand;
     readonly MetricsModel _metrics;
+    string _selectedBookmark;
 
     #endregion Fields
 
@@ -143,7 +144,13 @@ internal sealed class MainViewModel : ObservableObject
     public GlyphCollection Glyphs
     {
         get => _glyphs;
-        private set => SetProperty(ref _glyphs, value, ReferenceComparer, GlyphsChangedEventArgs);
+        private set
+        {
+            if (SetProperty(ref _glyphs, value, ReferenceComparer, GlyphsChangedEventArgs))
+            {
+                Metrics.FontProperties.GlyphCount = value?.Count ?? 0;
+            }
+        }
     }
 
     #endregion Glyphs
@@ -181,6 +188,25 @@ internal sealed class MainViewModel : ObservableObject
     }
 
     #endregion Family Group
+
+    public string SelectedBookmark
+    {
+        get => _selectedBookmark;
+        set
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                Metrics.FontFamily = value;
+            }
+            else
+            {
+                // This path occurs after Glyphs are updated
+                // to clear the selected bookmark in FontFamiliesView.
+                _selectedBookmark = null;
+                OnPropertyChanged(SelectedBookmarkChangedEventArgs);
+            }
+        }
+    }
 
     #region Unicode Range Properties
 
@@ -248,6 +274,11 @@ internal sealed class MainViewModel : ObservableObject
         _ = dispatcher.DispatchAsync(() =>
         {
             Glyphs = glyphs;
+            // Intent: Clear the selected bookmark after selection to 
+            // ensure there are not two selections active in FontFamiliesView.
+            // We're doing it here to avoid reentrancy when a bookmark is selected
+            // in the FontFamiliesView.
+            SelectedBookmark = null;
         });
     }
 
@@ -275,6 +306,8 @@ internal sealed class MainViewModel : ObservableObject
     static readonly PropertyChangedEventArgs UnicodeRangesChangedEventArgs = new(nameof(UnicodeRanges));
     static readonly PropertyChangedEventArgs SelectedUnicodeRangeChangedEventArgs = new(nameof(SelectedUnicodeRange));
     static readonly PropertyChangedEventArgs PickUnicodeRangeCommandChangedEventArgs = new(nameof(PickUnicodeRangeCommand));
+
+    static readonly PropertyChangedEventArgs SelectedBookmarkChangedEventArgs = new(nameof(SelectedBookmark));
 
     static readonly PropertyChangedEventArgs RowChangedEventArgs = new(nameof(Row));
     static readonly PropertyChangedEventArgs RowsChangedEventArgs = new(nameof(Rows));

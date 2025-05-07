@@ -11,15 +11,15 @@ sealed class DrawContext : IDisposable
 
     SKFont _headerFont;
     SKFont _itemFont;
-    GlyphsRenderer _layout;
+    GlyphsViewRenderer _layout;
 
     /// <summary>
     /// Provides a delegate for handling <see cref="GlyphsView"/> property changes.
     /// </summary>
-    /// <param name="layout">The <see cref="GlyphsRenderer"/> for the <see cref="GlyphsView"/>.</param>
+    /// <param name="layout">The <see cref="GlyphsViewRenderer"/> for the <see cref="GlyphsView"/>.</param>
     /// <param name="context">The <see cref="DrawContext"/>.</param>
     /// <returns>true if arrange is needed; otherwise, false.</returns>
-    delegate bool PropertyChangedHandler(GlyphsRenderer layout, DrawContext context);
+    delegate bool PropertyChangedHandler(GlyphsViewRenderer layout, DrawContext context);
 
     static readonly Dictionary<string, PropertyChangedHandler> _handlers = new(StringComparer.Ordinal);
 
@@ -37,7 +37,7 @@ sealed class DrawContext : IDisposable
         Add(GlyphsView.SelectedItemColorProperty, OnSelectedItemColorChanged);
         Add(GlyphsView.SelectedItemProperty, OnSelectedItemChanged);
         Add(GlyphsView.SpacingProperty, OnSpacingChanged);
-        Add(GlyphsView.LayoutStyleProperty, OnLayoutStyleChanged);
+        Add(GlyphsView.CellLayoutProperty, OnCellLayoutChanged);
     }
 
     static void Add(BindableProperty property, PropertyChangedHandler handler)
@@ -50,8 +50,8 @@ sealed class DrawContext : IDisposable
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="layout">The <see cref="GlyphsRenderer"/>.</param>
-    public DrawContext(GlyphsRenderer layout)
+    /// <param name="layout">The <see cref="GlyphsViewRenderer"/>.</param>
+    public DrawContext(GlyphsViewRenderer layout)
     {
         ArgumentNullException.ThrowIfNull(layout, nameof(layout));
         _layout = layout;
@@ -111,7 +111,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderFontFamilyChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnHeaderFontFamilyChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         context.HeaderFontFamily = layout.View.HeaderFontFamily;
         context._headerFont?.Dispose();
@@ -130,7 +130,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderFontSizeChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnHeaderFontSizeChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         context.HeaderFontSize = (float)layout.View.HeaderFontSize;
         context._headerFont?.Dispose();
@@ -149,7 +149,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderFontAttributesChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnHeaderFontAttributesChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         context.HeaderFontStyle = layout.View.HeaderFontAttributes.ToFontStyle();
         context._headerFont?.Dispose();
@@ -168,7 +168,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderColorChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnHeaderColorChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         context.HeaderColor = layout.View.HeaderColor.ToSKColor();
         return false;
@@ -185,7 +185,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderBackgroundColorChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnHeaderBackgroundColorChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         context.HeaderBackgroundColor = layout.View.HeaderBackgroundColor.ToSKColor();
         return false;
@@ -206,7 +206,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnItemsChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnItemsChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         GlyphCollection items = layout.View.Items;
         if (items is not null && items.Count > 0)
@@ -229,7 +229,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnItemFontSizeChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnItemFontSizeChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         context.ItemFontSize = (float)layout.View.ItemFontSize;
         context._itemFont?.Dispose();
@@ -263,7 +263,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnItemColorChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnItemColorChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         context.ItemColor = layout.View.ItemColor.ToSKColor();
         return false;
@@ -280,7 +280,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnSelectedItemChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnSelectedItemChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         context.SelectedItem = layout.View.SelectedItem;
         return false;
@@ -297,7 +297,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnSelectedItemColorChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnSelectedItemColorChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         context.SelectedItemColor = layout.View.SelectedItemColor.ToSKColor();
         return false;
@@ -339,7 +339,7 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnSpacingChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnSpacingChanged(GlyphsViewRenderer layout, DrawContext context)
     {
         SkSpacing spacing = new(layout.View.Spacing);
         if (spacing != context.Spacing)
@@ -349,24 +349,21 @@ sealed class DrawContext : IDisposable
         }
         return false;
     }
-
-    /// <summary>
-    /// Gets the glyph layout style.
-    /// </summary>
-    /// <remarks>
-    /// This property is set from <see cref="GlyphsView.LayoutStyle"/>.
-    /// </remarks>
-    public GlyphLayoutStyle LayoutStyle
+    public CellLayoutStyle CellLayout
     {
         get;
         private set;
     }
-    static bool OnLayoutStyleChanged(GlyphsRenderer layout, DrawContext context)
+    static bool OnCellLayoutChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.LayoutStyle = layout.View.LayoutStyle;
-        return true;
+        SkSpacing spacing = new(layout.View.Spacing);
+        if (spacing != context.Spacing)
+        {
+            context.Spacing = spacing;
+            return true;
+        }
+        return false;
     }
-
 
     #endregion Layout Properties
 

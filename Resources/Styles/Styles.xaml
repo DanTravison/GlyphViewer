@@ -62,24 +62,24 @@
     </Style>
     
     <DataTemplate x:Key="NamedValueNameTemplate"
-                  x:DataType="text:NamedValue">
+                  x:DataType="objectmodel:NamedValue">
         <Label Text="{Binding Name}" Style="{StaticResource NamedValuePropertyStyle}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="NamedValueValueTemplate"
-                  x:DataType="text:NamedValue">
+                  x:DataType="objectmodel:NamedValue">
         <Label Text="{Binding Value}" Style="{StaticResource NamedValuePropertyStyle}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="NamedValueSeparatorTemplate"
-                      x:DataType="text:NamedValue">
+                      x:DataType="objectmodel:NamedValue">
         <Label Text=":" 
                Padding="5,0,5,0"
                Style="{StaticResource NamedValuePropertyStyle}"/>
     </DataTemplate>
 
     <DataTemplate x:Key="NamedValueTwoRowItemTemplate"
-                  x:DataType="text:NamedValue">
+                  x:DataType="objectmodel:NamedValue">
         <Grid RowDefinitions="Auto, Auto"
               ColumnDefinitions="Auto, *">
             <Label Text="{Binding Name}" 

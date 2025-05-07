@@ -2,6 +2,7 @@
 using GlyphViewer.Text;
 using SkiaSharp;
 using System.ComponentModel;
+using System.Diagnostics;
 using UnicodeRange = GlyphViewer.Text.Unicode.Range;
 
 namespace GlyphViewer.Views.Renderers;
@@ -9,12 +10,15 @@ namespace GlyphViewer.Views.Renderers;
 /// <summary>
 /// Provides a layout and rendering class for a <see cref="GlyphsView"/>.
 /// </summary>
-internal class GlyphsRenderer : ObservableObject
+internal class GlyphsViewRenderer : ObservableObject
 {
+    #region Private Classes
+
     /// <summary>
     /// Provides the set of <see cref="GlyphRenderer"/> instances in a <see cref="UnicodeRange"/>.
     /// </summary>
-    class GlyphRange
+    [DebuggerDisplay("{UnicodeRange.Name, nq}[{Count,nq}]")]
+    class GlyphRenderers
     {
         List<GlyphRenderer> _renderers = [];
         SKSize _size;
@@ -23,7 +27,7 @@ internal class GlyphsRenderer : ObservableObject
         /// Initializes a new instance of this class.
         /// </summary>
         /// <param name="unicodeRange">The <see cref="UnicodeRange"/>.</param>
-        public GlyphRange(UnicodeRange unicodeRange)
+        public GlyphRenderers(UnicodeRange unicodeRange)
         {
             UnicodeRange = unicodeRange;
         }
@@ -42,6 +46,19 @@ internal class GlyphsRenderer : ObservableObject
         public SKSize Size
         {
             get;
+        }
+
+        /// <summary>
+        /// Gets the number of <see cref="GlyphRenderer"/> elements in the list.
+        /// </summary>
+        public int Count
+        {
+            get => _renderers.Count;
+        }
+
+        public GlyphRenderer this[int index]
+        {
+            get => _renderers[index];
         }
 
         /// <summary>
@@ -65,6 +82,108 @@ internal class GlyphsRenderer : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Provides the list of <see cref="UnicodeRange"/> and the associated <see cref="GlyphRenderers"/>.
+    /// </summary>
+    class GlyphRanges
+    {
+        #region Fields
+
+        readonly Dictionary<UnicodeRange, GlyphRenderers> _glyphRenderers = [];
+        readonly List<UnicodeRange> _unicodeRanges = [];
+        readonly Dictionary<ushort, GlyphRenderer> _renderers = [];
+
+        #endregion Fields
+
+        #region Properties
+
+        /// <summary>
+        /// Gets the number <see cref="UnicodeRange"/>s in the list.
+        /// </summary>
+        public int Count
+        {
+            get => _unicodeRanges.Count;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="UnicodeRange"/> at the specified <paramref name="index"/>.
+        /// </summary>
+        /// <param name="index">The zero-based index of the <see cref="UnicodeRange"/> to get.</param>
+        /// <returns>The <see cref="UnicodeRange"/> at the specified <paramref name="index"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// <paramref name="index"/> is less than zero or 
+        /// greater than or equal to <see cref="Count"/>.
+        /// </exception>
+        public UnicodeRange this[int index]
+        {
+            get => _unicodeRanges[index];
+        }
+
+        /// <summary>
+        /// Gets the <see cref="GlyphRenderers"/> for the specified <paramref name="unicodeRange"/>.
+        /// </summary>
+        /// <param name="unicodeRange">The <see cref="UnicodeRange"/> for the <see cref="GlyphRenderers"/> to get.</param>
+        /// <returns>
+        /// The <see cref="GlyphRenderers"/> for the specified <paramref name="unicodeRange"/>; otherwise, 
+        /// a null reference.
+        /// </returns>
+        public GlyphRenderers this[UnicodeRange unicodeRange]
+        {
+            get
+            {
+                _glyphRenderers.TryGetValue(unicodeRange, out GlyphRenderers glyphRange);
+                return glyphRange;
+            }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IReadOnlyList{UnicodeRange}"/> of the <see cref="UnicodeRange"/>s in the list.
+        /// </summary>
+        /// <value>A new instance of a <see cref="IReadOnlyList{UnicodeRange}"/>.</value>
+        public IReadOnlyList<UnicodeRange> UnicodeRanges
+        {
+            get => _unicodeRanges;
+        }
+
+        #endregion Properties
+
+        #region Methods
+
+        /// <summary>
+        /// Removes all elements from the list.
+        /// </summary>
+        public void Clear()
+        {
+            _unicodeRanges.Clear();
+            _glyphRenderers.Clear();
+        }
+
+        /// <summary>
+        /// Adds a <see cref="UnicodeRange"/> to the list.
+        /// </summary>
+        /// <param name="unicodeRange">The <see cref="UnicodeRange"/> to add.</param>
+        /// <returns>
+        /// A new instance of a <see cref="GlyphRenderers"/> if <paramref name="unicodeRange"/>
+        /// is not in the list; otherwise, the existing <see cref="GlyphRenderers"/>.
+        /// </returns>
+        public GlyphRenderers Add(UnicodeRange unicodeRange)
+        {
+            ArgumentNullException.ThrowIfNull(unicodeRange, nameof(unicodeRange));
+            if (_glyphRenderers.TryGetValue(unicodeRange, out GlyphRenderers glyphRange))
+            {
+                return glyphRange;
+            }
+            glyphRange = new(unicodeRange);
+            _glyphRenderers.Add(unicodeRange, glyphRange);
+            _unicodeRanges.Add(unicodeRange);
+            return glyphRange;
+        }
+
+        #endregion Methods
+    }
+
+    #endregion Private Classes
+
     #region Fields
 
     // The parent <see cref="GlyphsView"/>.
@@ -73,35 +192,37 @@ internal class GlyphsRenderer : ObservableObject
     // The <see cref="DrawContext"/> to use to measure and draw the glyphs.
     readonly DrawContext _drawContext;
 
-    // The measured <see cref="Glyphs"/>.
-    readonly List<GlyphRenderer> _items = [];
+    // The UnicodeRange to GlyphRange table.
+    readonly GlyphRanges _glyphRanges = new();
 
-    // The CodePoint to GlyphRenderer table.
-    readonly Dictionary<ushort, GlyphRenderer> _glyphTable = [];
+    /// <summary>
+    /// Gets the list of <see cref="UnicodeRange"/>s in the <see cref="Content"/>.
+    /// </summary>
+    IReadOnlyList<UnicodeRange> _unicodeRanges;
 
-    // The list of unicode ranges
-    readonly List<UnicodeRange> _unicodeRanges = [];
+    // The code point to GlyphRenderer table.
+    readonly Dictionary<ushort, GlyphRenderer> _codepoints = [];
 
-    // The table of unicode range to GlyphRenderes.
-    readonly Dictionary<uint, GlyphRange> _glyphRanges = [];
-
+    // The glyphs for the currently selected font family.
     IReadOnlyList<Glyph> _content;
 
     // The glyph rows.
     readonly List<IGlyphRow> _rows = [];
+
+    // The row displayed at the top of the list.
     int _firstRow;
 
     // The table of header rows
-    readonly Dictionary<uint, HeaderRow> _headers = [];
+    readonly Dictionary<UnicodeRange, HeaderRow> _headers = [];
 
     // The current header row
     HeaderRow _currentHeader;
 
-    // Indicates the <see cref="Glyphs"/> need to be arranged.
+    // Indicates the content need to be arranged.
     bool _needsArrange;
 
-    /// Gets the <see cref="SKSize"/> from the last call to <see cref="Arrange"/>
-    SKSize _size;
+    // Indicates the content needs to be drawn.
+    bool _needsDraw;
 
     #endregion Fields
 
@@ -109,7 +230,7 @@ internal class GlyphsRenderer : ObservableObject
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="view">The parent <see cref="GlyphsView"/>.</param>
-    public GlyphsRenderer(GlyphsView view)
+    public GlyphsViewRenderer(GlyphsView view)
     {
         _view = view;
         _drawContext = new(this);
@@ -139,9 +260,6 @@ internal class GlyphsRenderer : ObservableObject
     /// <value>
     /// An <see cref="IReadOnlyList{IGlyphRow}"/> containing zero or more elements.
     /// </value>
-    /// <remarks>
-    /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> with <see cref="RowsChangedEventArgs"/>
-    /// </remarks>
     public IReadOnlyList<IGlyphRow> Rows
     {
         get => _rows;
@@ -155,7 +273,7 @@ internal class GlyphsRenderer : ObservableObject
     /// </remarks>
     public int Count
     {
-        get => _items.Count;
+        get => _rows.Count;
     }
 
     /// <summary>
@@ -200,9 +318,6 @@ internal class GlyphsRenderer : ObservableObject
     /// An <see cref="IReadOnlyList{IGlyphRow}"/> containing one or more elements; otherwise,
     /// a null reference if the content is not set.
     /// </value>
-    /// <remarks>
-    /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> with <see cref="ContentChangedEventArgs"/>
-    /// </remarks>
     public IReadOnlyList<Glyph> Content
     {
         get => _content;
@@ -227,7 +342,7 @@ internal class GlyphsRenderer : ObservableObject
     {
         get
         {
-            if (_glyphTable.TryGetValue(codePoint, out GlyphRenderer renderer))
+            if (_codepoints.TryGetValue(codePoint, out GlyphRenderer renderer))
             {
                 return renderer.Metrics.Glyph;
             }
@@ -236,18 +351,18 @@ internal class GlyphsRenderer : ObservableObject
     }
 
     /// <summary>
-    /// Gets the <see cref="HeaderRow"/> for the specified <paramref name="range"/>.
+    /// Gets the <see cref="HeaderRow"/> for the specified <paramref name="unicodeRange"/>.
     /// </summary>
-    /// <param name="range">The <see cref="UnicodeRange"/> to query.</param>
+    /// <param name="unicodeRange">The <see cref="UnicodeRange"/> to query.</param>
     /// <returns>
-    /// The <see cref="HeaderRow"/> for the specified <paramref name="range"/>; otherwise, 
-    /// a null reference if the <see cref="Content"/> does not contain glyphs in the specified <paramref name="range"/>.
+    /// The <see cref="HeaderRow"/> for the specified <paramref name="unicodeRange"/>; otherwise, 
+    /// a null reference if the <see cref="Content"/> does not contain glyphs in the specified <paramref name="unicodeRange"/>.
     /// </returns>
-    public HeaderRow this[UnicodeRange range]
+    public HeaderRow this[UnicodeRange unicodeRange]
     {
         get
         {
-            if (range is not null && _headers.TryGetValue(range.Id, out HeaderRow headerRow))
+            if (unicodeRange is not null && _headers.TryGetValue(unicodeRange, out HeaderRow headerRow))
             {
                 return headerRow;
             }
@@ -267,70 +382,86 @@ internal class GlyphsRenderer : ObservableObject
     public IReadOnlyList<UnicodeRange> UnicodeRanges
     {
         get => _unicodeRanges;
+        private set
+        {
+            _unicodeRanges = value;
+            OnPropertyChanged(UnicodeRangesChangedEventArgs);
+        }
     }
 
     #endregion Properties
 
     #region ContentChanged
 
+    void ResetContent()
+    {
+        _rows.Clear();
+        _headers.Clear();
+        _codepoints.Clear();
+        _glyphRanges.Clear();
+    }
+
+    /// <summary>
+    /// Handles <see cref="Content"/> changes.
+    /// </summary>
+    /// <param name="content">IReadOnlyList{Glyph} content.</param>
+    /// <remarks>
+    /// This method popupates _codepoints, _glyphRanges, UnicodeRanges and _drawContext.GlyphSize.
+    /// </remarks>
     void OnContentChanged(IReadOnlyList<Glyph> content)
     {
-        bool needsArrange = _items.Count > 0;
-        _items.Clear();
-        _glyphTable.Clear();
-        _unicodeRanges.Clear();
+        ResetContent();
+        bool hasContent = content is not null && content.Count > 0;
 
-        List<UnicodeRange> unicodeRanges = [];
         float width = 0;
         float height = 0;
 
-        if (content is not null && content.Count > 0)
+        if (hasContent)
         {
             UnicodeRange unicodeRange = UnicodeRange.Empty;
-            GlyphRange glyphRange = null;
+            GlyphRenderers renderers = null;
 
             using (SKPaint paint = new SKPaint() { IsAntialias = true })
             {
-                foreach (Glyph glyph in content)
+                for (int i = 0; i < content.Count; i++)
                 {
-                    if (_glyphTable.ContainsKey(glyph.CodePoint))
+                    Glyph glyph = _content[i];
+                    if (_codepoints.ContainsKey(glyph.CodePoint))
                     {
                         continue;
                     }
-                    char ch = (char)glyph.CodePoint;
                     GlyphRenderer renderer = new(glyph, _drawContext, paint);
-                    if (renderer.PreferredSize.Height == 0)
+                    if (renderer.PreferredSize == SKSize.Empty)
                     {
                         continue;
                     }
+                    _codepoints.Add(glyph.CodePoint, renderer);
 
                     if (glyph.Range != unicodeRange)
                     {
-                        glyphRange = new(unicodeRange);
-                        _glyphRanges.Add(glyphRange.UnicodeRange.Id,  glyphRange);
-
+                        renderers = _glyphRanges.Add(glyph.Range);
                         unicodeRange = glyph.Range;
-                        _unicodeRanges.Add(unicodeRange);
                     }
 
                     // calculate maximum size of all glyphs.
-                    height = Math.Max(renderer.Metrics.Size.Height, height);
-                    width = Math.Max(renderer.Metrics.Size.Width, width);
+                    width = Math.Max(renderer.PreferredSize.Width, width);
+                    height = Math.Max(renderer.PreferredSize.Height, height);
 
-                    glyphRange.Add(renderer);
-                    _items.Add(renderer);
-                    _glyphTable.Add(glyph.CodePoint, renderer);
+                    renderers.Add(renderer);
                 }
             }
         }
 
         _drawContext.GlyphSize = new(width, height);
+        UnicodeRanges = _glyphRanges.UnicodeRanges;
 
-        _unicodeRanges.AddRange(unicodeRanges);
-        if (needsArrange)
+        if (hasContent)
         {
-            OnPropertyChanged(UnicodeRangesChangedEventArgs);
             InvalidateArrange();
+        }
+        else
+        {
+            InvalidateDraw();
         }
     }
 
@@ -346,10 +477,14 @@ internal class GlyphsRenderer : ObservableObject
         if (!_needsArrange)
         {
             _needsArrange = true;
-            _view.InvalidateSurface();
+            InvalidateDraw();
         }
     }
 
+    /// <summary>
+    /// Populates _rows, _headers and FirstRow.
+    /// </summary>
+    /// <param name="size">The size of the drawing area.</param>
     void Arrange(SKSize size)
     {
         if (!_needsArrange && size == DrawContext.CanvasSize)
@@ -357,9 +492,11 @@ internal class GlyphsRenderer : ObservableObject
             return;
         }
         DrawContext.CanvasSize = size;
-        bool hasContent = _rows.Count > 0;
+        bool hasContent = _glyphRanges.Count > 0;
 
-        if (hasContent)
+        #if (false)
+
+        if (hasContent && _rows.Count > 0)
         {
             // Identify the previous current row and, optionally, the first glyph in the previous row.
             // Intent: If the previous row is a header row, make that header row the 
@@ -376,6 +513,8 @@ internal class GlyphsRenderer : ObservableObject
             }
         }
 
+        #endif
+
         _rows.Clear();
         _headers.Clear();
 
@@ -383,47 +522,40 @@ internal class GlyphsRenderer : ObservableObject
         {
             using SKPaint paint = new() { IsAntialias = true };
 
-            GlyphRow row = null;
-            UnicodeRange currentRange = UnicodeRange.Empty;
-            HeaderRow header = null;
+            HeaderRow previousHeader = null;
 
-            for (int i = 0; i < _items.Count; i++)
+            for (int i = 0; i < _glyphRanges.Count; i++)
             {
-                GlyphRenderer renderer = new(_content[i], DrawContext, paint);
-                UnicodeRange unicodeRange = renderer.Metrics.Glyph.Range;
+                UnicodeRange unicodeRange = _glyphRanges[i];
+                // get the glyph range for the UnicodeRange.
+                GlyphRenderers renderers = _glyphRanges[unicodeRange];
 
-                // TODO: Handle GlyphLayoutStyle
+                HeaderRow header = new(_drawContext, unicodeRange, previousHeader);
+                _headers.Add(unicodeRange, header);
 
-                if (unicodeRange != currentRange)
+                // NOTE: The header row for the first row is not added to the _rows list
+                // to avoid the header being drawn twice when at the top of the list.
+                if (_rows.Count > 0)
                 {
-                    header = new(_drawContext, unicodeRange, header);
-                    _headers.Add(header.UnicodeRange.Id, header);
-                    // NOTE: The header row for the first row is not added to the _rows list
-                    // to avoid the header being drawn twice for the first glyph group.
-                    if (_rows.Count > 0)
+                    _rows.Add(header);
+                }
+                previousHeader = header;
+
+                GlyphRow row = new(_drawContext);
+                _rows.Add(row);
+
+                for (int r = 0; r < renderers.Count; r++)
+                {
+                    GlyphRenderer renderer = renderers[r];
+                    if (!row.Add(renderer))
                     {
-                        _rows.Add(header);
+                        row = new(_drawContext);
+                        _rows.Add(row);
+                        row.Add(renderer);
                     }
-                    currentRange = unicodeRange;
-                    row = null;
-                }
-                else if (!row.Add(renderer))
-                {
-                    row = null;
-                }
-                if (row is null)
-                {
-                    row = new(_drawContext);
-                    // assuming the first call to add always succeeds.
-                    _ = row.Add(renderer);
                 }
             }
-        }
 
-        if (hasContent)
-        {
-            OnPropertyChanged(ContentChangedEventArgs);
-            OnPropertyChanged(CountChangedEventArgs);
 #if (false)
             if (previousRow is not null)
             {
@@ -431,23 +563,16 @@ internal class GlyphsRenderer : ObservableObject
                 // the previous row.
                 SetFirstRow(previousRow, previousGlyph);
             }
+            else
+            {
+                FirstRow = 0;
+            }
 #else
             FirstRow = 0;
 #endif
+            OnPropertyChanged(CountChangedEventArgs);
         }
-        _size = size;
         _needsArrange = false;
-    }
-
-    void SizeRenderer(GlyphRenderer renderer)
-    {
-        switch (_drawContext.LayoutStyle)
-        {
-            case GlyphLayoutStyle.Default:
-                break;
-        }
-
-
     }
 
     #endregion Arrange
@@ -512,7 +637,11 @@ internal class GlyphsRenderer : ObservableObject
     /// </summary>
     public void InvalidateDraw()
     {
-        _view?.InvalidateSurface();
+        if (!_needsDraw)
+        {
+            _view?.InvalidateSurface();
+            _needsDraw = true;
+        }
     }
 
     /// <summary>
@@ -524,6 +653,7 @@ internal class GlyphsRenderer : ObservableObject
     {
         // NOTE: Calling arrange unconditionally
         Arrange(canvasSize);
+        _needsDraw = false;
 
         if (_rows.Count == 0)
         {
@@ -554,7 +684,6 @@ internal class GlyphsRenderer : ObservableObject
             for (int i = FirstRow; i < _rows.Count; i++)
             {
                 IGlyphRow row = _rows[i];
-                // TODO: Set size based on GlyphLayoutStyle
                 row.Arrange(new SKPoint(x, y), row.Bounds.Size);
                 row.Draw(canvas, paint);
                 y += row.Bounds.Height;
@@ -579,8 +708,8 @@ internal class GlyphsRenderer : ObservableObject
             IGlyphRow row = _rows[FirstRow];
             if (row is GlyphRow glyphRow)
             {
-                uint id = glyphRow[0].Glyph.Range.Id;
-                result = _headers[id];
+                UnicodeRange unicodeRange = glyphRow[0].Glyph.Range;
+                result = _headers[unicodeRange];
                 break;
             }
 
@@ -602,19 +731,9 @@ internal class GlyphsRenderer : ObservableObject
     #region PropertyChangedEventArgs
 
     /// <summary>
-    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="Content"/> changes.
-    /// </summary>
-    public static readonly PropertyChangedEventArgs ContentChangedEventArgs = new(nameof(Content));
-
-    /// <summary>
     /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="FirstRow"/> changes.
     /// </summary>
     public static readonly PropertyChangedEventArgs FirstRowChangedEventArgs = new(nameof(FirstRow));
-
-    /// <summary>
-    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="Rows"/> changes.
-    /// </summary>
-    public static readonly PropertyChangedEventArgs RowsChangedEventArgs = new(nameof(Rows));
 
     /// <summary>
     /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="Count"/> changes.
