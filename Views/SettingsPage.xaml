@@ -58,6 +58,33 @@
             <Setter Property="ToolTipProperties.Text" Value="{Binding Description}"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         </Style>
+        
+        <DataTemplate x:Key="CellLayoutOptionTemplate" x:DataType="settings:CellLayoutOption">
+            <Grid ColumnDefinitions="Auto, Auto, *"
+                  ColumnSpacing="5"
+                  Margin="10, 0, 0, 0"
+                  >
+                <RadioButton BindingContext="{Binding}"
+                             IsChecked="{Binding IsSelected}"
+                             Style="{StaticResource CellLayoutRadioStyle}"
+                             Grid.Column="0"
+                            />
+                <Label FontFamily="FluentUI"
+                       Text="{Binding Text}"
+                       FontSize="40"
+                       Grid.Column="1"/>
+                <Label Style="{StaticResource DisplayNameStyle}"
+                       Text="{Binding Description}"
+                       Grid.Column="2"
+                       VerticalTextAlignment="Center"/>
+            </Grid>
+        </DataTemplate>
+        
+        <Style TargetType="VerticalStackLayout" x:Key="CellLayoutOptionsStyle">
+            <Setter Property="Spacing" Value="5"/>
+            <Setter Property="HorizontalOptions" Value="Start"/>
+            <Setter Property="BindableLayout.ItemTemplate" Value="{StaticResource CellLayoutOptionTemplate}"/>
+        </Style>
 
         <settings:SettingDataTemplateSelector x:Key="SettingDataTemplateSelector">
             <settings:SettingDataTemplateSelector.Double>
@@ -157,33 +184,36 @@
 
     </ContentPage.Resources>
 
-    <Grid ColumnDefinitions="Auto, *, Auto"
-          RowDefinitions="Auto, Auto, *"
-          Margin="5,5,5,5"
+    <Grid ColumnDefinitions="Auto, Auto, *"
+          RowDefinitions="Auto, Auto, Auto, Auto, Auto, *"
+          Margin="10"
           >
-        <Button Style="{StaticResource GlyphButtonStyle}" 
-                Text="{x:Static res:FluentUI.ArrowLeftFilled}"
-                Command="{Binding Navigator.CloseCommand}"
-                ToolTipProperties.Text="{x:Static res:Strings.BackButtonLabel}"
-                Grid.Row="0"
-                Grid.Column="0"
-                />
+        <!-- Title Bar -->
+        <Grid ColumnDefinitions="Auto, *, Auto"
+              Grid.Column="0"
+              Grid.ColumnSpan="3">
+            
+            <Button Style="{StaticResource GlyphButtonStyle}" 
+                    Text="{x:Static res:FluentUI.ArrowLeftFilled}"
+                    HorizontalOptions="Start"
+                    Command="{Binding Navigator.CloseCommand}"
+                    ToolTipProperties.Text="{x:Static res:Strings.BackButtonLabel}"
+                    Grid.Column="0"
+                    />
 
-        <Label Text="{x:Static res:Strings.SettingsTitle}"
-               HorizontalOptions="Center"
-               FontSize="{Binding TitleFont.FontSize.Value, Mode=OneWay}"
-               Grid.Row="0"
-               Grid.Column="0"
-               Grid.ColumnSpan="3"
-               />
+            <Label Text="{x:Static res:Strings.SettingsTitle}"
+                   HorizontalOptions="Center"
+                   FontSize="{Binding TitleFont.FontSize.Value, Mode=OneWay}"
+                   Grid.Column="1"
+                   />
 
-        <Button Style="{StaticResource GlyphButtonStyle}"
-                Text="{x:Static res:FluentUI.ArrowResetFilled}"
-                ToolTipProperties.Text="{x:Static res:Strings.ResetSettingsDescription}"
-                Command="{Binding ResetCommand}"
-                Grid.Row="0"
-                Grid.Column="2"
-                />
+            <Button Style="{StaticResource GlyphButtonStyle}"
+                    Text="{x:Static res:FluentUI.ArrowResetFilled}"
+                    ToolTipProperties.Text="{x:Static res:Strings.ResetSettingsDescription}"
+                    Command="{Binding ResetCommand}"
+                    Grid.Column="2"
+                    />
+        </Grid>
 
         <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
                  Margin="0,0,0,10"
@@ -192,12 +222,54 @@
                  Grid.Column="0"
                  Grid.ColumnSpan="3"
                  />
+
+        <!-- Cell layout options -->
+        <Label Text="{x:Static res:Strings.GlyphItemWidthLabel}" 
+               Style="{StaticResource DisplayNameStyle}"
+               VerticalTextAlignment="Start"
+               Grid.Row="2"
+               Grid.Column="0"
+               />
+
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding CellLayout.WidthOptions}"
+                             RadioButtonGroup.GroupName="CellWidth"
+                             Style="{StaticResource CellLayoutOptionsStyle}"
+                             Grid.Row="2"
+                             Grid.Column="1"
+                             Grid.ColumnSpan="2"
+                             />
+
+        <Label Text="{x:Static res:Strings.GlyphItemHeightLabel}" 
+               Style="{StaticResource DisplayNameStyle}"
+               VerticalTextAlignment="Start"
+               Grid.Row="3"
+               Grid.Column="0"
+               />
+
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding CellLayout.HeightOptions}"
+                             RadioButtonGroup.GroupName="CellHeight"
+                             Style="{StaticResource CellLayoutOptionsStyle}"
+                             Grid.Row="3"
+                             Grid.Column="1"
+                             Grid.ColumnSpan="2"
+                             />
+
+        <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
+                 Margin="0,0,0,10"
+                 HeightRequest="2"
+                 Grid.Row="4"
+                 Grid.Column="0"
+                 Grid.ColumnSpan="3"
+                 />
+
+        <!-- Setting properties -->
         <VerticalStackLayout BindableLayout.ItemsSource="{Binding Properties}"
                              BindableLayout.ItemTemplateSelector="{StaticResource SettingDataTemplateSelector}"
                              Spacing="10"
-                             Grid.Row="2" 
+                             Grid.Row="5" 
                              Grid.Column="0"
                              Grid.ColumnSpan="3"
                              />
+
     </Grid>
 </ContentPage>

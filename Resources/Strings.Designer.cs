@@ -97,6 +97,24 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The tallest glyph in the font..
+        /// </summary>
+        internal static string CellHeightDefaultDescription {
+            get {
+                return ResourceManager.GetString("CellHeightDefaultDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The tallest glyph in the row..
+        /// </summary>
+        internal static string CellHeightDynamicDescription {
+            get {
+                return ResourceManager.GetString("CellHeightDynamicDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Determines how glyphs are arranged in the Glyphs View..
         /// </summary>
         internal static string CellLayoutDescription {
@@ -111,6 +129,33 @@ namespace GlyphViewer.Resources {
         internal static string CellLayoutStyleName {
             get {
                 return ResourceManager.GetString("CellLayoutStyleName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The widest glyph in the font..
+        /// </summary>
+        internal static string CellWidthDefaultDescription {
+            get {
+                return ResourceManager.GetString("CellWidthDefaultDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The width of the glyph..
+        /// </summary>
+        internal static string CellWidthDynamicDescription {
+            get {
+                return ResourceManager.GetString("CellWidthDynamicDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The widest glyph in the row..
+        /// </summary>
+        internal static string CellWidthRowDescription {
+            get {
+                return ResourceManager.GetString("CellWidthRowDescription", resourceCulture);
             }
         }
         
@@ -214,6 +259,33 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item Height.
+        /// </summary>
+        internal static string GlyphItemHeightLabel {
+            get {
+                return ResourceManager.GetString("GlyphItemHeightLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Item Width.
+        /// </summary>
+        internal static string GlyphItemWidthLabel {
+            get {
+                return ResourceManager.GetString("GlyphItemWidthLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Glyph Preview.
+        /// </summary>
+        internal static string GlyphPreviewLayout {
+            get {
+                return ResourceManager.GetString("GlyphPreviewLayout", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The settings defined for a glyph..
         /// </summary>
         internal static string GlyphSettingDescription {
@@ -223,7 +295,7 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Glyph Settings.
+        ///   Looks up a localized string similar to Glyph Preview.
         /// </summary>
         internal static string GlyphSettingLabel {
             get {

@@ -4,7 +4,6 @@ using GlyphViewer.Resources;
 using GlyphViewer.Settings.Properties;
 using GlyphViewer.Text;
 using GlyphViewer.Views;
-using GlyphViewer.Views.Renderers;
 
 /// <summary>
 /// Provides an <see cref="ISetting"/> for the glyph properties.

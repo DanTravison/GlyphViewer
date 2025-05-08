@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Views.Renderers;
 
+using GlyphViewer.Settings;
 using SkiaSharp;
 
 /// <summary>

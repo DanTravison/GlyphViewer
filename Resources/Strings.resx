@@ -208,9 +208,33 @@
     <value>Glyphs</value>
   </data>
   <data name="GlyphSettingLabel" xml:space="preserve">
-    <value>Glyph Settings</value>
+    <value>Glyph Preview</value>
   </data>
   <data name="GlyphSettingDescription" xml:space="preserve">
     <value>The settings defined for a glyph.</value>
+  </data>
+  <data name="GlyphItemWidthLabel" xml:space="preserve">
+    <value>Item Width</value>
+  </data>
+  <data name="GlyphItemHeightLabel" xml:space="preserve">
+    <value>Item Height</value>
+  </data>
+  <data name="CellHeightDefaultDescription" xml:space="preserve">
+    <value>The tallest glyph in the font.</value>
+  </data>
+  <data name="CellHeightDynamicDescription" xml:space="preserve">
+    <value>The tallest glyph in the row.</value>
+  </data>
+  <data name="CellWidthDefaultDescription" xml:space="preserve">
+    <value>The widest glyph in the font.</value>
+  </data>
+  <data name="CellWidthRowDescription" xml:space="preserve">
+    <value>The widest glyph in the row.</value>
+  </data>
+  <data name="CellWidthDynamicDescription" xml:space="preserve">
+    <value>The width of the glyph.</value>
+  </data>
+  <data name="GlyphPreviewLayout" xml:space="preserve">
+    <value>Glyph Preview</value>
   </data>
 </root>

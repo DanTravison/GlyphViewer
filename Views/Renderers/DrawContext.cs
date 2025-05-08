@@ -4,6 +4,7 @@ using GlyphViewer.Views;
 using GlyphViewer.Text;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
+using GlyphViewer.Settings;
 
 sealed class DrawContext : IDisposable
 {

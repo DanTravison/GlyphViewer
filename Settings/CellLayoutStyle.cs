@@ -1,5 +1,5 @@
-﻿namespace GlyphViewer.Views.Renderers;
-
+﻿namespace GlyphViewer.Settings;
+using GlyphViewer.Views.Renderers;
 using System.Diagnostics;
 
 /// <summary>
@@ -64,7 +64,7 @@ public readonly struct CellLayoutStyle : IEquatable<CellLayoutStyle>
     /// Initializes the default instance of this class.
     /// </summary>
     public CellLayoutStyle()
-        : this(CellWidthLayout.Width, CellHeightLayout.Default)
+        : this(CellWidthLayout.Default, CellHeightLayout.Default)
     {}
 
     /// <summary>
