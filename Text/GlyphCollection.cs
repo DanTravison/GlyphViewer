@@ -10,7 +10,7 @@ using System.Globalization;
 using HarfBuzzFont = HarfBuzzSharp.Font;
 
 /// <summary>
-/// Provides a <see cref="Glyph"/> collection for the glyphs in a <see cref="SKTypeface"/>.
+/// Provides a <see cref="Glyph"/> searchable collection for the glyphs in a <see cref="SKTypeface"/>.
 /// </summary>
 [DebuggerDisplay("{FamilyName,nq}[{Count,nq}]")]
 public sealed class GlyphCollection : IReadOnlyList<Glyph>
@@ -18,6 +18,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     #region Fields
 
     readonly List<Glyph> _glyphs;
+    readonly GlyphSearchTable _searchTable;
 
     #endregion Fields
 
@@ -33,6 +34,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
         _glyphs = glyphs;
         HasGlyphNames = hasGlyphNames;
         FamilyName = typeface.FamilyName;
+        _searchTable = new(glyphs);
     }
 
     #region Properties
@@ -77,6 +79,23 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
 
     #endregion Properties
 
+    #region Search
+
+    /// <summary>
+    /// Searches the Glyphs for the specified <paramref name="searchText"/>.
+    /// </summary>
+    /// <param name="searchText">The string search text to search for.</param>
+    /// <returns>An <see cref="IReadOnlyList{Glyph}"/> containing zero or more entries.</returns>
+    /// <remarks>
+    /// This method performs a linear search of all glyphs in the collection.
+    /// </remarks>
+    public IReadOnlyList<Glyph> Search(string searchText)
+    {
+        return _searchTable.Search(searchText);
+    }
+
+    #endregion Search
+
     #region IEnumerable
 
     /// <summary>
@@ -118,6 +137,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
         bool hasGlyphNames = false;
 
         List<Glyph> glyphs = new();
+
         for (ushort unicode = 0; unicode < 0xFFFF; unicode++)
         {
             char ch = (char)unicode;
