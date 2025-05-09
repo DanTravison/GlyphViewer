@@ -113,19 +113,36 @@ public abstract class SettingPropertyCollection : ObservableObject, ISettingProp
         }
     }
 
-    static readonly PropertyChangedEventArgs HasChangesChangedeEventArgs = new(nameof(HasChanges));
-
     /// <summary>
     /// Gets the value indicating if the collection needs to be serialized.
     /// </summary>
-    public bool HasChanges
+    public virtual bool HasChanges
     {
         get => _hasChanges;
         set
         {
-            if (SetProperty(ref _hasChanges, value, HasChangesChangedeEventArgs) && _parentContainer is not null)
+            // TODO: Consider moving HasChanges ObservableObject 
+            // with an overridable OnHasChangesChanged method?
+            if (value != _hasChanges)
             {
-                _parentContainer.HasChanges = true;
+                _hasChanges = value;
+                Debug.WriteLine($"{this.GetType().Name}.HasChanges:{_hasChanges}");
+                if (!_hasChanges)
+                {
+                    // Clear child containers to ensure future changes
+                    // are propogated up.
+                    foreach (ISettingProperty property in _properties)
+                    {
+                        if (property is ISettingPropertyCollection setting)
+                        {
+                            setting.HasChanges = false;
+                        }
+                    }
+                }
+                else if (_parentContainer is not null)
+                {
+                    _parentContainer.HasChanges = true;
+                }
             }
         }
     }

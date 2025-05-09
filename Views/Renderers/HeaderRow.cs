@@ -87,6 +87,7 @@ class HeaderRow : GlyphRowBase
     public override void Draw(SKCanvas canvas, SKPaint paint)
     {
         paint.Color = DrawContext.HeaderColor;
+        paint.Style = SKPaintStyle.Fill;
         canvas.DrawText
         (
             DrawContext.HeaderFont,

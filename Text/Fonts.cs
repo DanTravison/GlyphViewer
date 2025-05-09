@@ -13,11 +13,28 @@ public static class Fonts
     /// </summary>
     /// <param name="fontFamily">The font family name to create.</param>
     /// <param name="fontSize">The font size in points.</param>
-    /// <param name="style"></param>
-    /// <returns></returns>
-    internal static SKFont CreateFont(this string fontFamily, float fontSize, SKFontStyle style = null)
+    /// <param name="attributes">The <see cref="FontAttributes"/>.
+    /// <para>
+    /// The default value is <see cref="FontAttributes.None"/>
+    /// </para></param>
+    /// <returns>A new instance of an <see cref="SKFont"/>.</returns>
+    internal static SKFont CreateFont(this string fontFamily, float fontSize, FontAttributes attributes = FontAttributes.None)
     {
-        style ??= SKFontStyle.Normal;
+        return CreateFont(fontFamily, fontSize, attributes.ToFontStyle());
+    }
+
+    /// <summary>
+    /// Creates an <see cref="SKFont"/>. 
+    /// </summary>
+    /// <param name="fontFamily">The font family name to create.</param>
+    /// <param name="fontSize">The font size in points.</param>
+    /// <param name="style">The <see cref="SKFontStyle"/>.
+    /// <para>
+    /// The default value is <see cref="SKFontStyle.Normal"/>
+    /// </para></param>
+    /// <returns>A new instance of an <see cref="SKFont"/>.</returns>
+    internal static SKFont CreateFont(this string fontFamily, float fontSize, SKFontStyle style)
+    {
         using (SKTypeface typeface = SKTypeface.FromFamilyName(fontFamily, style))
         {
             SKFont font = new(typeface, (float)fontSize)
