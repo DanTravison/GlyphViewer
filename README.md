@@ -33,7 +33,6 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Testing on iOS, MacCatalyst, and Android is planned.
 * The GlyphsView is still in progress. I'm considering the following enhancements:
   * Display the text code for each glyph in the font's glyph list.
-  * [Consider dynamic sizing for displaying glyphs in the GlyphsView](https://github.com/DanTravison/GlyphViewer/issues/40)
 * Currently tracking [issue 3239](https://github.com/mono/SkiaSharp/issues/3239) in SkiaSharp
   * There is a workaround in the [GLyphView](https://github.com/DanTravison/GlyphViewer/issues/23)
   * There is another workaround in [SkLabel](https://github.com/DanTravison/GlyphViewer/issues/25)
@@ -103,9 +102,14 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * ItemFontSetting: Provides the font settings rows in the GlyphsView
 * ItemHeaderFontSetting: Provides the font settings for header rows in the GlyphsView
 * TitleFontSetting: Provides the font settings for the main page's title view.
-* GlyphsSettings: Provides general Glyph properties and constants
+* GlyphSetting: Provides general Glyph properties and constants
   * Width - the width of the GlyphView pane. 
   * CellLayout - the CellLayoutStyle for GlyphRow cells. 
+* CellLayoutStyle: Provides the layout style for the cells in a GlyphRow.
+* CellLayoutModel: Provides a bindable object for editing CellLayoutStyle properties.
+  * WidthOptions: the list of CellLayoutOption for editing the cell width
+  * HeightOptions: The list of CellLayoutOption instances for editing the cell height.  
+  * Both are intended to support ItemsSource binding in PageSettings. 
 * SettingDataTemplateSelector - Provides the template selector for the SettingsPage.
 * Constants and Defaults
   * All constants and defaults are defined in the associated Setting class. 
@@ -127,6 +131,8 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * EnumProperty: An ISettingProperty for Enum types.
 * FontAttributesProperty: an ISettingProperty\<FontAttributes\>
 * CellLayoutProperty: An ISettingProperty\<CellLayoutStyle\>
+  * Defines CellLayoutModel.WidthOptions and CellLayoutModel.HeightOptions properties
+  * Consumed by SettingsPage for editing CellLayoutStyle properties. 
 
 ## Text
 Contains the various Glyph classes:
@@ -193,7 +199,10 @@ This is used to select a font family group in the FontFamiliesView and a unicode
   * Bookmarks uses it to manage the list of bookmarked font family names. 
   * This is a placeholder for use by Bookmarks until CollectionView issue is resolved.
   * Assuming the CollectionView issue is resolved in Maui 10, this class will be changed to ReadOnlyOrderedList and ReadOnlyCollection\<T\> will be removed. 
-
+* NamedValue\<T\>
+  * Provides a strongly typed Name/Value pair 
+  * The base class for SettingProperty\<T\> and ObservableProperty\<T\>
+  
 ## Other
 * ExtendedUnicode.txt: A text file containing links to the extended Unicode ranges on www.unicode.org
 * Images/GlyphView.png: A screen shot of the GlyphView
