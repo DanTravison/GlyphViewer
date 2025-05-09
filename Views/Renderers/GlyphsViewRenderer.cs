@@ -415,6 +415,8 @@ internal class GlyphsViewRenderer : ObservableObject
 
         float width = 0;
         float height = 0;
+        float totalWidth = 0;
+        float totalHeight = 0;
 
         if (hasContent)
         {
@@ -444,6 +446,8 @@ internal class GlyphsViewRenderer : ObservableObject
                     }
 
                     // calculate maximum size of all glyphs.
+                    totalWidth += renderer.PreferredSize.Width;
+                    totalHeight += renderer.PreferredSize.Height;
                     width = Math.Max(renderer.PreferredSize.Width, width);
                     height = Math.Max(renderer.PreferredSize.Height, height);
 
@@ -453,6 +457,7 @@ internal class GlyphsViewRenderer : ObservableObject
         }
 
         _drawContext.GlyphSize = new(width, height);
+        _drawContext.AverageGlyphSize = new(totalWidth / content.Count, totalHeight / content.Count);
         UnicodeRanges = _glyphRanges.UnicodeRanges;
 
         if (hasContent)

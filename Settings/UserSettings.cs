@@ -26,7 +26,7 @@ public sealed class UserSettings : SettingPropertyCollection, ISetting
         TitleFont = AddItem(new TitleFontSetting(this));
         Bookmarks = AddItem(new Bookmarks(this));
 
-        CellLayout = new(Glyph.CellLayout);
+        CellLayout = new(Glyph);
 
         Navigator = new PageNavigator<SettingsPage>(true, this);
 

@@ -330,6 +330,16 @@ sealed class DrawContext : IDisposable
     }
 
     /// <summary>
+    /// Defines the average width and height of all glyphs
+    /// </summary>
+    public SKSize AverageGlyphSize
+    {
+        get;
+        set;
+    }
+
+
+    /// <summary>
     /// Gets the spacing around Glyphs.
     /// </summary>
     /// <remarks>
@@ -350,6 +360,7 @@ sealed class DrawContext : IDisposable
         }
         return false;
     }
+
     public CellLayoutStyle CellLayout
     {
         get;
@@ -357,10 +368,10 @@ sealed class DrawContext : IDisposable
     }
     static bool OnCellLayoutChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        SkSpacing spacing = new(layout.View.Spacing);
-        if (spacing != context.Spacing)
+        CellLayoutStyle cellLayout = layout.View.CellLayout;
+        if (cellLayout != context.CellLayout)
         {
-            context.Spacing = spacing;
+            context.CellLayout = cellLayout;
             return true;
         }
         return false;

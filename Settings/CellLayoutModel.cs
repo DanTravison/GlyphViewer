@@ -4,7 +4,6 @@ using GlyphViewer.ObjectModel;
 using GlyphViewer.Resources;
 using GlyphViewer.Settings.Properties;
 using System.ComponentModel;
-using System.Diagnostics;
 
 /// <summary>
 /// Provides an abstract base class for a cell layout option.
@@ -16,15 +15,13 @@ public abstract class CellLayoutOption : ObservableObject
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="model">The containing <see cref="CellLayoutModel"/></param>
     /// <param name="text">The text to display for the option.</param>
     /// <param name="description">The description of the option.</param>
     /// <param name="isSelected">true if the option is selected by default; otherwise, false.</param>
-    protected CellLayoutOption(CellLayoutModel model, string text, string description, bool isSelected)
+    protected CellLayoutOption(string text, string description, bool isSelected)
     {
         Text = text;
         Description = description;
-        Model = model;
         _isSelected = isSelected;
     }
 
@@ -56,13 +53,6 @@ public abstract class CellLayoutOption : ObservableObject
     }
 
     /// <summary>
-    /// Gets the parent <see cref="CellLayoutModel"/>
-    /// </summary>
-    protected CellLayoutModel Model
-    {
-        get;
-    }
-    /// <summary>
     /// Called when IsSelected changes.
     /// </summary>
     protected abstract void OnSelectedChanged();
@@ -77,42 +67,25 @@ public sealed class CellLayoutModel
 {
     #region Private Classes
 
-    [DebuggerDisplay("{IsSelected,nq}")]
-    class CellWidthOption : CellLayoutOption
+    class CellLayoutOption<T> : CellLayoutOption
     {
-        public CellWidthOption(CellLayoutModel model, string glyph, string description, CellWidthLayout value, bool isSelected)
-            : base(model, glyph, description, isSelected)
+        public delegate void SetValueDelegate(T value);
+        readonly SetValueDelegate _setValue;
+
+        public CellLayoutOption(SetValueDelegate setValue, string glyph, string description, T value, bool isSelected)
+            : base(glyph, description, isSelected)
         {
             Value = value;
+            _setValue = setValue;
         }
 
-        public CellWidthLayout Value { get; }
+        public T Value { get; }
 
         protected override void OnSelectedChanged()
         {
             if (IsSelected)
             {
-                Model.Set(Value);
-            }
-        }
-    }
-
-    [DebuggerDisplay("{IsSelected,nq}")]
-    class CellHeightOption : CellLayoutOption
-    {
-        public CellHeightOption(CellLayoutModel model, string glyph, string description, CellHeightLayout value, bool isSelected)
-            : base(model,glyph, description, isSelected)
-        {
-            Value = value;
-        }
-
-        public CellHeightLayout Value { get; }
-
-        protected override void OnSelectedChanged()
-        {
-            if (IsSelected)
-            {
-                Model.Set(Value);
+                _setValue(Value);
             }
         }
     }
@@ -123,62 +96,71 @@ public sealed class CellLayoutModel
 
     readonly CellLayoutProperty _cellLayoutProperty;
     CellLayoutStyle _cellLayout;
+    readonly List<CellLayoutOption<CellHeightLayout>> _heightOptions;
+    readonly List<CellLayoutOption<CellWidthLayout>> _widthOptions;
 
     #endregion Fields
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="cellLayoutProperty">The <see cref="CellLayoutProperty"/> to edit.</param>
-    public CellLayoutModel(CellLayoutProperty cellLayoutProperty)
+    /// <param name="setting">The <see cref="GlyphSetting"/> containing the <see cref="CellLayoutOption"/>  to edit.</param>
+    public CellLayoutModel(GlyphSetting setting)
     {
-        _cellLayoutProperty = cellLayoutProperty;
-        _cellLayout = cellLayoutProperty.Value;
+        _cellLayoutProperty = setting.CellLayout;
 
-        // Needed for reset.
+        _cellLayout = _cellLayoutProperty.Value;
+
+        // Handle changes on the setting property.
         _cellLayoutProperty.PropertyChanged += OnCellLayoutPropertyChanged;
 
-        CellLayoutStyle cellLayout = cellLayoutProperty.Value;
-        HeightOptions =
+        HeightOptions = _heightOptions = 
         [
-            new CellHeightOption
+            new CellLayoutOption<CellHeightLayout>
             (
-                this, FluentUI.LineHorizontal3,
+                Set,
+                FluentUI.LineHorizontal3,
                 Strings.CellHeightDefaultDescription,
                 CellHeightLayout.Default,
-                cellLayout.Height == CellHeightLayout.Default
+                _cellLayout.Height == CellHeightLayout.Default
             ),
-            new CellHeightOption
+            new CellLayoutOption<CellHeightLayout>
             (
-                this, FluentUI.LineThickness,
+                Set, 
+                FluentUI.LineThickness,
                 Strings.CellHeightDynamicDescription,
                 CellHeightLayout.Dynamic,
-                cellLayout.Height == CellHeightLayout.Dynamic
+                _cellLayout.Height == CellHeightLayout.Dynamic
             )
         ];
-        WidthOptions =
+        WidthOptions = _widthOptions =
         [
-            new CellWidthOption
+            new CellLayoutOption<CellWidthLayout>
             (
-                this, FluentUI.TextColumnThree,
+                Set, 
+                FluentUI.TextColumnThree,
                 Strings.CellWidthDefaultDescription,
                 CellWidthLayout.Default,
-                cellLayout.Width == CellWidthLayout.Default
+                _cellLayout.Width == CellWidthLayout.Default
             ),
-            new CellWidthOption
+            new CellLayoutOption<CellWidthLayout>
             (
-                this, FluentUI.TextAlignLeft,
+                Set, 
+                FluentUI.TextAlignLeft,
                 Strings.CellWidthRowDescription,
                 CellWidthLayout.Width,
-                cellLayout.Width == CellWidthLayout.Width
-            ),
-            new CellWidthOption
+                _cellLayout.Width == CellWidthLayout.Width
+            )
+            /*
+            new CellLayoutOption<CellWidthLayout>
             (
-                this, FluentUI.TextColumnTwoLeft,
+                Set, 
+                FluentUI.TextColumnTwoLeft,
                 Strings.CellWidthDynamicDescription,
                 CellWidthLayout.Dynamic,
-                cellLayout.Width == CellWidthLayout.Dynamic
+                _cellLayout.Width == CellWidthLayout.Dynamic
             )
+            */
         ];
     }
 
@@ -210,6 +192,10 @@ public sealed class CellLayoutModel
         {
             _cellLayout = new(_cellLayout.Width, height);
             _cellLayoutProperty.Value = _cellLayout;
+            foreach (CellLayoutOption<CellHeightLayout> option in _heightOptions)
+            {
+                option.IsSelected = height == option.Value;
+            }
         }
     }
 
@@ -219,6 +205,10 @@ public sealed class CellLayoutModel
         {
             _cellLayout = new(width, _cellLayout.Height);
             _cellLayoutProperty.Value = _cellLayout;
+            foreach (CellLayoutOption<CellWidthLayout> option in _widthOptions)
+            {
+                option.IsSelected = width == option.Value;
+            }
         }
     }
 
@@ -226,17 +216,17 @@ public sealed class CellLayoutModel
     {
         if (ReferenceEquals(e, ObservableObject.ValueChangedEventArgs))
         {
-            CellLayoutStyle style = _cellLayoutProperty.Value;
-            if (style != _cellLayout)
+            CellLayoutStyle cellLayout = _cellLayoutProperty.Value;
+            if (cellLayout != _cellLayout)
             {
-                _cellLayout = style;
-                foreach (CellLayoutOption option in HeightOptions)
+                _cellLayout = cellLayout;
+                foreach (CellLayoutOption<CellHeightLayout> option in _heightOptions)
                 {
-                    option.IsSelected = style.Height == ((CellHeightOption)option).Value;
+                    option.IsSelected = cellLayout.Height == option.Value;
                 }
-                foreach (CellLayoutOption option in WidthOptions)
+                foreach (CellLayoutOption<CellWidthLayout> option in _widthOptions)
                 {
-                    option.IsSelected = style.Width == ((CellWidthOption)option).Value;
+                    option.IsSelected = cellLayout.Width == option.Value;
                 }
             }
         }

@@ -28,8 +28,9 @@ public sealed class CellLayoutProperty : SettingProperty<CellLayoutStyle>
     protected override CellLayoutStyle ReadValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         string value = reader.GetString();
-
-        throw new NotImplementedException();
+        // NOTE: TryParse sets cellLayout to CellLayoutStyle.Default on failure.
+        CellLayoutStyle.TryParse(value, out CellLayoutStyle cellLayout);
+        return cellLayout;
     }
 
     /// <summary>

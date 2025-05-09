@@ -194,5 +194,4 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     }
 
     #endregion HarfBuzzSharp
-
 }
