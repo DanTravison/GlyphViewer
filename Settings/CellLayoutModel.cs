@@ -104,14 +104,13 @@ public sealed class CellLayoutModel
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="setting">The <see cref="GlyphSetting"/> containing the <see cref="CellLayoutOption"/>  to edit.</param>
-    public CellLayoutModel(GlyphSetting setting)
+    /// <param name="property">The <see cref="CellLayoutProperty"/> to model.</param>
+    public CellLayoutModel(CellLayoutProperty property)
     {
-        _cellLayoutProperty = setting.CellLayout;
-
-        _cellLayout = _cellLayoutProperty.Value;
+        _cellLayoutProperty = property;
 
         // Handle changes on the setting property.
+        _cellLayout = _cellLayoutProperty.Value;
         _cellLayoutProperty.PropertyChanged += OnCellLayoutPropertyChanged;
 
         HeightOptions = _heightOptions = 
@@ -150,8 +149,7 @@ public sealed class CellLayoutModel
                 Strings.CellWidthRowDescription,
                 CellWidthLayout.Width,
                 _cellLayout.Width == CellWidthLayout.Width
-            )
-            /*
+            ),
             new CellLayoutOption<CellWidthLayout>
             (
                 Set, 
@@ -160,7 +158,6 @@ public sealed class CellLayoutModel
                 CellWidthLayout.Dynamic,
                 _cellLayout.Width == CellWidthLayout.Dynamic
             )
-            */
         ];
     }
 
@@ -190,12 +187,7 @@ public sealed class CellLayoutModel
     {
         if (height != _cellLayoutProperty.Value.Height)
         {
-            _cellLayout = new(_cellLayout.Width, height);
-            _cellLayoutProperty.Value = _cellLayout;
-            foreach (CellLayoutOption<CellHeightLayout> option in _heightOptions)
-            {
-                option.IsSelected = height == option.Value;
-            }
+            _cellLayoutProperty.Value = new(_cellLayout.Width, height);
         }
     }
 
@@ -203,13 +195,8 @@ public sealed class CellLayoutModel
     {
         if (width != _cellLayoutProperty.Value.Width)
         {
-            _cellLayout = new(width, _cellLayout.Height);
-            _cellLayoutProperty.Value = _cellLayout;
-            foreach (CellLayoutOption<CellWidthLayout> option in _widthOptions)
-            {
-                option.IsSelected = width == option.Value;
-            }
-        }
+            _cellLayoutProperty.Value = new(width, _cellLayout.Height); ;
+         }
     }
 
     private void OnCellLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)

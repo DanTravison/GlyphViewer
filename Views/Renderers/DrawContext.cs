@@ -248,6 +248,14 @@ sealed class DrawContext : IDisposable
             if (_itemFont is null)
             {
                 _itemFont = ItemFontFamily.CreateFont(ItemFontSize);
+
+                // Calculate a minimum glyph size for the font.
+                using (SKFont font = App.DefaultFontFamily.CreateFont(ItemFontSize))
+                {
+                    SKTextMetrics metrics = new("W", font);
+                    float dimension = Math.Max(metrics.TextWidth, metrics.Size.Width);
+                    MinimumGlyphSize = new SKSize(dimension, dimension);
+                }
             }
             return _itemFont;
         }
@@ -332,12 +340,11 @@ sealed class DrawContext : IDisposable
     /// <summary>
     /// Defines the average width and height of all glyphs
     /// </summary>
-    public SKSize AverageGlyphSize
+    public SKSize MinimumGlyphSize
     {
         get;
         set;
     }
-
 
     /// <summary>
     /// Gets the spacing around Glyphs.

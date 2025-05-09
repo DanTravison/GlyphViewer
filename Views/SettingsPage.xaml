@@ -234,7 +234,7 @@
                Grid.Column="0"
                />
 
-        <VerticalStackLayout BindableLayout.ItemsSource="{Binding CellLayout.WidthOptions}"
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Glyph.CellLayout.WidthOptions}"
                              Style="{StaticResource CellLayoutOptionsStyle}"
                              Grid.Row="2"
                              Grid.Column="1"
@@ -248,7 +248,7 @@
                Grid.Column="0"
                />
 
-        <VerticalStackLayout BindableLayout.ItemsSource="{Binding CellLayout.HeightOptions}"
+        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Glyph.CellLayout.HeightOptions}"
                              Style="{StaticResource CellLayoutOptionsStyle}"
                              Grid.Row="3"
                              Grid.Column="1"

@@ -9,12 +9,31 @@ using System.Text.Json;
 /// </summary>
 public sealed class CellLayoutProperty : SettingProperty<CellLayoutStyle>
 {
+    readonly CellLayoutModel _model;
+
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     public CellLayoutProperty()
         : base(nameof(GlyphSetting.CellLayout), GlyphSetting.DefaultCellLayout, Strings.CellLayoutStyleName, Strings.CellLayoutDescription)
     {
+        _model = new CellLayoutModel(this);
+    }
+
+    /// <summary>
+    /// Gets the <see cref="CellLayoutModel.HeightOptions"/>.
+    /// </summary>
+    public IReadOnlyList<CellLayoutOption> HeightOptions
+    {
+        get => _model.HeightOptions;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="CellLayoutModel.WidthOptions"/>.
+    /// </summary>
+    public IReadOnlyList<CellLayoutOption> WidthOptions
+    {
+        get => _model.WidthOptions;
     }
 
     #region Overrides

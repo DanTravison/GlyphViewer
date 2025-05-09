@@ -25,9 +25,6 @@ public sealed class UserSettings : SettingPropertyCollection, ISetting
         ItemHeaderFont = AddItem(new ItemHeaderFontSetting(this));
         TitleFont = AddItem(new TitleFontSetting(this));
         Bookmarks = AddItem(new Bookmarks(this));
-
-        CellLayout = new(Glyph);
-
         Navigator = new PageNavigator<SettingsPage>(true, this);
 
         ResetCommand = new Command(ResetEditable)
@@ -101,14 +98,6 @@ public sealed class UserSettings : SettingPropertyCollection, ISetting
     /// This property always returns a null reference.
     /// </value>
     public ISetting Parent
-    {
-        get;
-    }
-
-    /// <summary>
-    /// Gets the <see cref="CellLayoutModel"/> for editing the layout of the <see cref="GlyphsView"/>.
-    /// </summary>
-    public CellLayoutModel CellLayout
     {
         get;
     }

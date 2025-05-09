@@ -114,8 +114,8 @@ internal sealed class GlyphRowRenderer
     {
         ArgumentNullException.ThrowIfNull(renderer, nameof(renderer));
         
-        float glyphWidth = renderer.PreferredSize.Width;
-        float glyphHeight = renderer.PreferredSize.Height;
+        float glyphWidth = Math.Max(renderer.PreferredSize.Width, _drawContext.MinimumGlyphSize.Width);
+        float glyphHeight = Math.Max(renderer.PreferredSize.Height, _drawContext.MinimumGlyphSize.Height);
 
         if (_cellLayout.Width == CellWidthLayout.Width)
         {
@@ -165,7 +165,9 @@ internal sealed class GlyphRowRenderer
             _items.Add(renderer);
             _currentWidth += cellWidth;
 
+            glyphHeight = Math.Max(glyphHeight, _drawContext.MinimumGlyphSize.Height);
             GlyphHeight = Math.Max(GlyphHeight, glyphHeight);
+            glyphWidth = Math.Max(glyphWidth, _drawContext.MinimumGlyphSize.Width);
             GlyphWidth = Math.Max(GlyphWidth, glyphWidth);
             return true;
         }
@@ -183,20 +185,24 @@ internal sealed class GlyphRowRenderer
         float left = location.X;
         float top = location.Y;
 
+        float minimumHeight = _drawContext.MinimumGlyphSize.Height;
+        float minimumWidth = _drawContext.MinimumGlyphSize.Width;
+
         for (int i = 0; i < _items.Count; i++)
         {
             GlyphRenderer renderer = _items[i];
             float width = _cellSpacing.Horizontal;
-            float height = GlyphHeight + _cellSpacing.Vertical;
+            float height = _cellSpacing.Vertical + Math.Max(GlyphHeight, minimumHeight);
 
             if (_cellLayout.Width == CellWidthLayout.Dynamic)
             {
-                width += renderer.PreferredSize.Width;
+                width += Math.Max(renderer.PreferredSize.Width, minimumWidth);
             }
             else
             {
                 width += GlyphWidth;
             }
+
             renderer.Arrange(new(left, top), new(width, height));
 
             left += renderer.Bounds.Width;
@@ -236,12 +242,10 @@ internal sealed class GlyphRowRenderer
                     renderer = target;
                     return true;
                 }
-                left += target.Bounds.Width;
-                if (left > target.Bounds.Right)
+                if (left < target.Bounds.Left)
                 {
                     break;
                 }
-                
             }
         }
         else
