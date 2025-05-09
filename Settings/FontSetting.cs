@@ -72,7 +72,7 @@ public abstract class FontSetting : Setting
 
     private void OnFamilyNameChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (ReferenceEquals(e, ObservableProperty.ValueChangedEventArgs) && string.IsNullOrEmpty(_sample))
+        if (ReferenceEquals(e, ValueChangedEventArgs) && string.IsNullOrEmpty(_sample))
         {
             OnPropertyChanged(SampleChangedEventArgs);
         }

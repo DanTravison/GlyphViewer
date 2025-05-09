@@ -1,5 +1,7 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.ObjectModel;
+using GlyphViewer.Resources;
 using SkiaSharp;
 using System.Collections;
 using System.Runtime.CompilerServices;
@@ -11,6 +13,7 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
 {
     #region Fields
 
+    readonly NamedValue _glyphCount = new(Strings.GlyphCountName, 0);
     readonly List<NamedValue> _values = [];
 
     #endregion Fields
@@ -26,9 +29,10 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
 
         font.GetFontMetrics(out SKFontMetrics metrics);
         Metrics = metrics;
-        _values.Add(new(nameof(SKTypeface.FamilyName), font.Typeface.FamilyName));
-        _values.Add(new("FontSize", font.Size));
 
+        Add(_values, nameof(SKTextMetrics.FamilyName), font.Typeface.FamilyName);
+        _values.Add(_glyphCount); 
+        Add(_values, nameof(SKTextMetrics.FontSize), font.Size);
         Add(_values, nameof(SKFontMetrics.Top), metrics.Top);
         Add(_values, nameof(SKFontMetrics.Ascent), metrics.Ascent);
         Add(_values, nameof(SKFontMetrics.Descent), metrics.Descent);
@@ -42,13 +46,42 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
         Add(_values, "MaxWidth", metrics.MaxCharacterWidth);
     }
 
+    #region Add
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static void Add(List<NamedValue> values, string name, float value)
     {
-        values.Add(new(name, Math.Round(value, 2)));
+        values.Add(new NamedValue(name, Math.Round(value, 2)));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static void Add(List<NamedValue> values, string name, string value)
+    {
+        values.Add(new NamedValue(name, value));
+    }
+
+    #endregion Add
+
     #region Properties
+
+    /// <summary>
+    /// Gets or sets the number of glyphs in the font.
+    /// </summary>
+    public int GlyphCount
+    {
+        get
+        {
+            if (_glyphCount.Value is null)
+            {
+                return 0;
+            }
+            return (int)_glyphCount.Value;
+        }
+        set
+        {
+            _glyphCount.Value = value;
+        }
+    }
 
     /// <summary>
     /// Gets the number of <see cref="NamedValue"/> properties in the collection.

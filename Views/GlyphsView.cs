@@ -6,68 +6,21 @@ using GlyphViewer.Views.Renderers;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
-using System.Globalization;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using Range = Text.Unicode.Range;
+using UnicodeRange = Text.Unicode.Range;
 
 /// <summary>
 /// Provides a view of the glyphs in a <see cref="SKTypeface"/>.
 /// </summary>
 public sealed class GlyphsView : SKCanvasView
 {
-    #region Constants
-
-    /// <summary>
-    /// Defines the minimum <see cref="VerticalSpacing"/> and <see cref="HorizontalSpacing"/>.
-    /// </summary>
-    public const double MinimumSpacing = 2.0;
-
-    /// <summary>
-    /// Defines the default <see cref="VerticalSpacing"/> and <see cref="HorizontalSpacing"/>.
-    /// </summary>
-    public const double DefaultSpacing = 5.0;
-
-    #endregion Constants
-
     #region Fields
 
-    /// <summary>
-    /// The row to display at the top of the canvas.
-    /// </summary>
-    int _firstRow;
+    readonly GlyphsViewRenderer _renderer;
 
-    /// <summary>
-    /// Gets the size of the view from the last call to ArrangeOverride.
-    /// </summary>
-    Size _layoutSize = Size.Zero;
-
-    /// <summary>
-    /// Determines if layout is needed.
-    /// </summary>
-    bool _needsLayout = false;
-
-    /// <summary>
-    /// The <see cref="SKFont"/> to use to draw the glyph.
-    /// </summary>
-    SKFont _glyphFont;
-
-    /// <summary>
-    /// The <see cref="SKFont"/> to use to draw a header row.
-    /// </summary>
-    SKFont _headerFont;
-
-    /// <summary>
-    /// The currently selected glyph.
-    /// </summary>
-    GlyphMetrics _selectedItem;
-
-    readonly List<GlyphMetrics> _items = [];
-    readonly Dictionary<ushort, GlyphMetrics> _glyphs = [];
-    readonly List<IGlyphRow> _rows = [];
     readonly DrawContext _context;
-    readonly Dictionary<uint, HeaderRow> _headers = [];
-    HeaderRow _currentHeader;
 
     #endregion Fields
 
@@ -77,7 +30,29 @@ public sealed class GlyphsView : SKCanvasView
     public GlyphsView()
     {
         base.EnableTouchEvents = true;
-        _context = new DrawContext(this);
+        _renderer = new(this);
+        _context = _renderer.DrawContext;
+        _renderer.PropertyChanged += OnLayoutPropertyChanged;
+    }
+
+    private void OnLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        // NOTE: The following properties are not bound to a DrawContext property.
+        // As such they must be handled manually.
+        // The alternative would be to allow the GlyphsRenderer to update the 
+        // properties directly in the property setter.
+        if (ReferenceEquals(e, GlyphsViewRenderer.CountChangedEventArgs))
+        {
+            Rows = _renderer.Rows.Count;
+        }
+        else if (ReferenceEquals(e, GlyphsViewRenderer.FirstRowChangedEventArgs))
+        {
+            Row = _renderer.FirstRow;
+        }
+        else if (ReferenceEquals(e, GlyphsViewRenderer.UnicodeRangesChangedEventArgs))
+        {
+            UnicodeRanges = _renderer.UnicodeRanges;
+        }
     }
 
     protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -88,91 +63,153 @@ public sealed class GlyphsView : SKCanvasView
 
     #region Properties
 
-    #region HorizontalSpacing
+    #region Spacing
 
     /// <summary>
     /// Gets or sets the spacing between the glyphs in the horizontal direction.
     /// </summary>
-    public double HorizontalSpacing
+    public Thickness Spacing
     {
-        get => (double)GetValue(HorizontalSpacingProperty);
-        set => SetValue(HorizontalSpacingProperty, value);
+        get => (Thickness)GetValue(SpacingProperty);
+        set => SetValue(SpacingProperty, value);
     }
 
     /// <summary>
-    /// Provides a <see cref="BindableProperty"/> for the <see cref="HorizontalSpacing"/> property.
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="Spacing"/> property.
     /// </summary>
-    public static readonly BindableProperty HorizontalSpacingProperty = BindableProperty.Create
+    public static readonly BindableProperty SpacingProperty = BindableProperty.Create
     (
-        nameof(HorizontalSpacing),
-        typeof(double),
+        nameof(Spacing),
+        typeof(Thickness),
         typeof(GlyphsView),
-        DefaultSpacing,
+        GlyphSetting.DefaultSpacing,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
-            if (value is double spacing)
+            if (value is Thickness spacing)
             {
-                if (spacing >= MinimumSpacing)
+                Thickness minimum = GlyphSetting.MinimumSpacing;
+                double horizontal = spacing.HorizontalThickness;
+                double vertical = spacing.VerticalThickness;
+
+                if (horizontal < minimum.HorizontalThickness)
                 {
-                    return spacing;
+                    horizontal = minimum.HorizontalThickness;
                 }
+                if (vertical < minimum.VerticalThickness)
+                {
+                    vertical = minimum.VerticalThickness;
+                }
+                return new Thickness(horizontal, vertical);
             }
-            return MinimumSpacing;
-        },
+            return GlyphSetting.DefaultSpacing;
+        }
+    );
+
+    #endregion Spacing
+
+    #region CellLayout
+
+    /// <summary>
+    /// Gets or sets the glyph layout style.
+    /// </summary>
+    public CellLayoutStyle CellLayout
+    {
+        get => (CellLayoutStyle)GetValue(CellLayoutProperty);
+        set => SetValue(CellLayoutProperty, value);
+    }
+
+    /// <summary>
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="CellLayout"/> property.
+    /// </summary>
+    public static readonly BindableProperty CellLayoutProperty = BindableProperty.Create
+    (
+        nameof(CellLayout),
+        typeof(CellLayoutStyle),
+        typeof(GlyphsView),
+        GlyphSetting.DefaultCellLayout,
+        BindingMode.OneWay,
+        coerceValue: (bindable, newValue) =>
+        {
+            if (newValue is not CellLayoutStyle)
+            {
+                return GlyphSetting.DefaultCellLayout;
+            }
+            return newValue;
+        }
+    );
+
+    #endregion CellLayout
+
+    #region Item Properties
+
+    #region Items
+
+    /// <summary>
+    /// Gets or sets the <see cref="GlyphCollection"/> of items to display.
+    /// </summary>
+    public GlyphCollection Items
+    {
+        get => GetValue(ItemsProperty) as GlyphCollection;
+        set => SetValue(ItemsProperty, value);
+    }
+
+    /// <summary>
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="Items"/> property.
+    /// </summary>
+    public static readonly BindableProperty ItemsProperty = BindableProperty.Create
+    (
+        nameof(Items),
+        typeof(GlyphCollection),
+        typeof(GlyphsView),
+        null,
+        BindingMode.OneWay,
         propertyChanged: (bindable, oldValue, newValue) =>
         {
             if (bindable is GlyphsView view)
             {
-                view.InvalidateSurface();
+                view._renderer.Content = newValue as GlyphCollection;
             }
         }
     );
 
-    #endregion HorizontalSpacing
+    #endregion Items
 
-    #region VerticalSpacing
+    #region SelectedItem
 
     /// <summary>
-    /// Gets or sets the spacing between the glyphs in the vertical direction.
+    /// Gets or sets the selected <see cref="Glyph"/>.
     /// </summary>
-    public double VerticalSpacing
+    public Glyph SelectedItem
     {
-        get => (double)GetValue(VerticalSpacingProperty);
-        set => SetValue(VerticalSpacingProperty, value);
+        get => (Glyph)GetValue(SelectedItemProperty);
+        set => SetValue(SelectedItemProperty, value);
     }
 
     /// <summary>
-    /// Provides a <see cref="BindableProperty"/> for the <see cref="VerticalSpacing"/> property.
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="SelectedItem"/>  property.
     /// </summary>
-    public static readonly BindableProperty VerticalSpacingProperty = BindableProperty.Create
+    public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create
     (
-        nameof(VerticalSpacing),
-        typeof(double),
+        nameof(SelectedItem),
+        typeof(Glyph),
         typeof(GlyphsView),
-        DefaultSpacing,
-        BindingMode.OneWay,
+        Glyph.Empty,
+        BindingMode.TwoWay,
         coerceValue: (bindable, value) =>
         {
-            if (value is double spacing)
+            if (bindable is GlyphsView view && value is Glyph selectedItem)
             {
-                if (spacing >= MinimumSpacing)
+                if (view._renderer[selectedItem.CodePoint] is not null)
                 {
-                    return spacing;
+                    return selectedItem;
                 }
             }
-            return MinimumSpacing;
-        },
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.InvalidateSurface();
-            }
+            return null;
         }
     );
 
-    #endregion VerticalSpacing
+    #endregion SelectedItem
 
     #region ItemColor
 
@@ -202,13 +239,6 @@ public sealed class GlyphsView : SKCanvasView
                 return color;
             }
             return ItemFontSetting.DefaultItemColor;
-        },
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.InvalidateSurface();
-            }
         }
     );
 
@@ -242,13 +272,6 @@ public sealed class GlyphsView : SKCanvasView
                 return color;
             }
             return ItemFontSetting.DefaultSelectedItemColor;
-        },
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.InvalidateSurface();
-            }
         }
     );
 
@@ -282,17 +305,14 @@ public sealed class GlyphsView : SKCanvasView
                 return Math.Clamp(fontSize, ItemFontSetting.MinimumFontSize, ItemFontSetting.MaximumFontSize);
             }
             return ItemFontSetting.DefaultFontSize;
-        },
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.OnItemsChanged();
-            }
         }
     );
 
     #endregion ItemFontSize
+
+    #endregion Item Properties
+
+    #region Header Properties
 
     #region HeaderColor
 
@@ -322,13 +342,6 @@ public sealed class GlyphsView : SKCanvasView
                 return color;
             }
             return ItemHeaderFontSetting.DefaultTextColor;
-        },
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.InvalidateSurface();
-            }
         }
     );
 
@@ -362,13 +375,6 @@ public sealed class GlyphsView : SKCanvasView
                 return color;
             }
             return Colors.Transparent;
-        },
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.InvalidateSurface();
-            }
         }
     );
 
@@ -406,13 +412,6 @@ public sealed class GlyphsView : SKCanvasView
                 }
             }
             return ItemHeaderFontSetting.DefaultFontFamily;
-        },
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.OnHeaderFontChanged();
-            }
         }
     );
 
@@ -446,23 +445,8 @@ public sealed class GlyphsView : SKCanvasView
                 return Math.Clamp(fontSize, ItemHeaderFontSetting.MinimumFontSize, ItemHeaderFontSetting.MaximumFontSize);
             }
             return ItemHeaderFontSetting.DefaultFontSize;
-        },
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.OnHeaderFontChanged();
-            }
         }
     );
-
-    void OnHeaderFontChanged()
-    {
-        _headerFont?.Dispose();
-        _headerFont = HeaderFontFamily.CreateFont((float)HeaderFontSize);
-        _needsLayout = true;
-        InvalidateSurface();
-    }
 
     #endregion HeaderFontSize
 
@@ -516,90 +500,9 @@ public sealed class GlyphsView : SKCanvasView
 
     #endregion HeaderClickedCommand
 
-    #region Items
+    #endregion Header Properties
 
-    /// <summary>
-    /// Gets or sets the <see cref="GlyphCollection"/> of items to display.
-    /// </summary>
-    public GlyphCollection Items
-    {
-        get => GetValue(ItemsProperty) as GlyphCollection;
-        set => SetValue(ItemsProperty, value);
-    }
-
-    /// <summary>
-    /// Provides a <see cref="BindableProperty"/> for the <see cref="Items"/> property.
-    /// </summary>
-    public static readonly BindableProperty ItemsProperty = BindableProperty.Create
-    (
-        nameof(Items),
-        typeof(GlyphCollection),
-        typeof(GlyphsView),
-        null,
-        BindingMode.OneWay,
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.OnItemsChanged();
-            }
-        }
-    );
-
-    void OnItemsChanged()
-    {
-        _items.Clear();
-        _glyphs.Clear();
-        _rows.Clear();
-        List<Range> ranges = [];
-        if (Items is not null && Items.Count > 0)
-        {
-            float height = 0;
-            float width = 0;
-            Range range = Range.Empty;
-            using (SKPaint paint = new SKPaint() { IsAntialias = true })
-            {
-                foreach (Glyph glyph in Items)
-                {
-                    if (_glyphs.ContainsKey(glyph.CodePoint))
-                    {
-                        continue;
-                    }
-                    char ch = (char)glyph.CodePoint;
-                    UnicodeCategory unicodeCategory = char.GetUnicodeCategory(ch);
-                    GlyphMetrics metrics = GlyphMetrics.CreateInstance(glyph, _context.ItemFont, paint);
-                    if (metrics.Size.Height == 0)
-                    {
-                        continue;
-                    }
-                    if (metrics.Glyph.Range != range)
-                    {
-                        range = metrics.Glyph.Range;
-                        ranges.Add(range);
-                    }
-                    height = Math.Max(metrics.Size.Height, height);
-                    width = Math.Max(metrics.TextWidth, width);
-                    _items.Add(metrics);
-                    _glyphs.Add(glyph.CodePoint, metrics);
-                }
-            }
-
-            float dimension = Math.Max(width, height);
-            _context.ColumnWidth = dimension + 2 * (float)HorizontalSpacing;
-            _context.RowHeight = dimension + 2 * (float)VerticalSpacing;
-        }
-        else
-        {
-            _glyphFont?.Dispose();
-            _glyphFont = null;
-        }
-        UnicodeRanges = ranges;
-        Row = 0;
-        _needsLayout = true;
-        InvalidateSurface();
-    }
-
-    #endregion Items
+    #region Row Properties
 
     #region Row
 
@@ -626,7 +529,7 @@ public sealed class GlyphsView : SKCanvasView
         {
             if (bindable is GlyphsView view && value is int row)
             {
-                if (row >= 0 && row < view._rows.Count)
+                if (row >= 0 && row < view._renderer.Count)
                 {
                     return value;
                 }
@@ -637,19 +540,10 @@ public sealed class GlyphsView : SKCanvasView
         {
             if (bindable is GlyphsView view)
             {
-                view.OnRowChanged();
+                view._renderer.FirstRow = (int)newValue;
             }
         }
     );
-
-    void OnRowChanged()
-    {
-        if (_firstRow != Row)
-        {
-            _firstRow = Row;
-            InvalidateSurface();
-        }
-    }
 
     #endregion Row
 
@@ -678,60 +572,18 @@ public sealed class GlyphsView : SKCanvasView
 
     #endregion Rows
 
-    #region SelectedItem
+    #endregion Row Properties
 
-    /// <summary>
-    /// Gets or sets the selected <see cref="Glyph"/>.
-    /// </summary>
-    public Glyph SelectedItem
-    {
-        get => (Glyph)GetValue(SelectedItemProperty);
-        set => SetValue(SelectedItemProperty, value);
-    }
-
-    /// <summary>
-    /// Provides a <see cref="BindableProperty"/> for the <see cref="SelectedItem"/>  property.
-    /// </summary>
-    public static readonly BindableProperty SelectedItemProperty = BindableProperty.Create
-    (
-        nameof(SelectedItem),
-        typeof(Glyph),
-        typeof(GlyphsView),
-        Glyph.Empty,
-        BindingMode.TwoWay,
-        propertyChanged: (bindable, oldValue, newValue) =>
-        {
-            if (bindable is GlyphsView view)
-            {
-                view.OnSelectedItemChanged();
-            }
-        }
-    );
-
-    void OnSelectedItemChanged()
-    {
-        Glyph glyph = SelectedItem;
-        if (glyph is not null && !glyph.IsEmpty)
-        {
-            _glyphs.TryGetValue(SelectedItem.CodePoint, out _selectedItem);
-        }
-        else
-        {
-            _selectedItem = null;
-        }
-        InvalidateSurface();
-    }
-
-    #endregion SelectedItem
+    #region UnicodeRange properties
 
     #region UnicodeRanges
 
     /// <summary>
     /// Gets or sets the the number of rows
     /// </summary>
-    public IReadOnlyList<Range> UnicodeRanges
+    public IReadOnlyList<UnicodeRange> UnicodeRanges
     {
-        get => GetValue(UnicodeRangesProperty) as IReadOnlyList<Range>;
+        get => GetValue(UnicodeRangesProperty) as IReadOnlyList<UnicodeRange>;
         private set => SetValue(UnicodeRangesProperty, value);
     }
 
@@ -741,7 +593,7 @@ public sealed class GlyphsView : SKCanvasView
     public static readonly BindableProperty UnicodeRangesProperty = BindableProperty.Create
     (
         nameof(UnicodeRanges),
-        typeof(IReadOnlyList<Range>),
+        typeof(IReadOnlyList<UnicodeRange>),
         typeof(GlyphsView),
         null,
         BindingMode.OneWayToSource
@@ -754,9 +606,9 @@ public sealed class GlyphsView : SKCanvasView
     /// <summary>
     /// Gets or sets the selected unicode range.
     /// </summary>
-    public Range SelectedUnicodeRange
+    public UnicodeRange SelectedUnicodeRange
     {
-        get => GetValue(SelectedUnicodeRangeProperty) as Range;
+        get => GetValue(SelectedUnicodeRangeProperty) as UnicodeRange;
         private set => SetValue(SelectedUnicodeRangeProperty, value);
     }
 
@@ -766,17 +618,17 @@ public sealed class GlyphsView : SKCanvasView
     public static readonly BindableProperty SelectedUnicodeRangeProperty = BindableProperty.Create
     (
         nameof(SelectedUnicodeRange),
-        typeof(Range),
+        typeof(UnicodeRange),
         typeof(GlyphsView),
-        Range.Empty,
+        UnicodeRange.Empty,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
-            if (value is Range range)
+            if (value is UnicodeRange range)
             {
                 return range;
             }
-            return Range.Empty;
+            return UnicodeRange.Empty;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -789,21 +641,22 @@ public sealed class GlyphsView : SKCanvasView
 
     void OnSelectedUnicodeRangeChanged()
     {
-        Range range = SelectedUnicodeRange;
-        if (!range.IsEmpty && _headers.TryGetValue(range.Id, out HeaderRow header))
+        UnicodeRange range = SelectedUnicodeRange;
+        HeaderRow header = _renderer[range];
+        if (header is not null)
         {
             int row;
             // Since the first unicode range header is not in the _rows list,
             // go to row 0
-            if (header.Id == _items[0].Glyph.Range.Id)
+            if (header.UnicodeRange.Id == _renderer.Content[0].Range.Id)
             {
                 Row = 0;
             }
             else
             {
                 // go to the first row after the header row.
-                row = _rows.IndexOf(header);
-                if (row > 0 && row < _rows.Count - 1)
+                row = _renderer[header];
+                if (row > 0 && row < Rows - 1)
                 {
                     Row = row + 1;
                 }
@@ -813,6 +666,8 @@ public sealed class GlyphsView : SKCanvasView
 
     #endregion SelectedUnicodeRange
 
+    #endregion UnicodeRange properties
+
     #endregion Properties
 
     #region Touch Interaction
@@ -821,19 +676,15 @@ public sealed class GlyphsView : SKCanvasView
     {
         if (e.ActionType == SKTouchAction.Pressed)
         {
-            if (_items.Count > 0)
+            if (_renderer.HitTest(e.Location, out IGlyphRow row, out GlyphRenderer renderer))
             {
-                SKPoint point = e.Location;
-                if (HitTest(point.X, point.Y, out IGlyphRow row, out GlyphMetrics metrics))
+                if (row is HeaderRow)
                 {
-                    if (row is HeaderRow)
-                    {
-                        HeaderClickedCommand?.Execute(row);
-                    }
-                    else if (!metrics.IsEmpty)
-                    {
-                        SelectedItem = metrics.Glyph;
-                    }
+                    HeaderClickedCommand?.Execute(row);
+                }
+                else if (renderer is not null)
+                {
+                    SelectedItem = renderer.Metrics.Glyph;
                 }
             }
         }
@@ -848,7 +699,7 @@ public sealed class GlyphsView : SKCanvasView
             {
                 row++;
             }
-            if (row >= 0 && row < _rows.Count)
+            if (row >= 0 && row < Rows)
             {
                 Row = row;
             }
@@ -856,87 +707,7 @@ public sealed class GlyphsView : SKCanvasView
         e.Handled = true;
     }
 
-    bool HitTest(float x, float y, out IGlyphRow row, out GlyphMetrics metrics)
-    {
-        if (_currentHeader is not null && _currentHeader.HitTest(new SKPoint(x, y), out metrics))
-        {
-            row = _currentHeader;
-            metrics = null;
-            return true;
-        }
-        for (int i = _firstRow; i < _rows.Count; i++)
-        {
-            row = _rows[i];
-            if (row.HitTest(new SKPoint(x, y), out metrics))
-            {
-                return true;
-            }
-        }
-        metrics = null;
-        row = null;
-        return false;
-    }
-
     #endregion Touch Interaction
-
-    #region Layout
-
-    void LayoutItems(SKSize size)
-    {
-        _rows.Clear();
-        _headers.Clear();
-
-        if (_items.Count > 0)
-        {
-            GlyphRow row = null;
-            float columnWidth = _context.ColumnWidth;
-            Range currentRange = Range.Empty;
-            HeaderRow header = null;
-
-            for (int i = 0; i < _items.Count; i++)
-            {
-                GlyphMetrics metrics = _items[i];
-                Range range = metrics.Glyph.Range;
-                if (range != currentRange)
-                {
-                    header = new(_context, range, header);
-                    _headers.Add(header.Id, header);
-                    // NOTE: The header row for the first row is not added to the _rows list.
-                    // to avoid the header being drawn twice for the first glyph group.
-                    if (_rows.Count > 0)
-                    {
-                        _rows.Add(header);
-                    }
-                    currentRange = range;
-                    row = null;
-                }
-                else if (row.Bounds.Width + columnWidth > size.Width)
-                {
-                    row = null;
-                }
-                if (row is null)
-                {
-                    row = new GlyphRow(_context);
-                    _rows.Add(row);
-                }
-                row.Add(metrics);
-            }
-            _needsLayout = false;
-        }
-        Rows = _rows.Count;
-    }
-
-    protected override Size ArrangeOverride(Rect bounds)
-    {
-        if (bounds.Size != _layoutSize)
-        {
-            _layoutSize = bounds.Size;
-            _needsLayout = true;
-        }
-        return base.ArrangeOverride(bounds);
-    }
-
-    #endregion Layout
 
     #region Draw
 
@@ -952,79 +723,7 @@ public sealed class GlyphsView : SKCanvasView
             // clear the canvas with a transparent color
             canvas.Clear();
         }
-
-        if (_needsLayout)
-        {
-            LayoutItems(CanvasSize);
-        }
-
-        if (_items.Count > 0)
-        {
-            float width = CanvasSize.Width;
-            float height = CanvasSize.Height;
-            float x = 0;
-            float y = 0;
-
-            using (SKPaint paint = new()
-            {
-                IsAntialias = true,
-                Color = ItemColor.ToSKColor(),
-                Style = SKPaintStyle.Fill
-            })
-            {
-                _currentHeader = GetHeaderRow();
-                if (_currentHeader is not null)
-                {
-                    // Draw the header row in the header area
-                    // above the list.
-                    _currentHeader.Arrange(new SKPoint(x, y), width);
-                    _currentHeader.Draw(canvas, paint);
-                    y += _currentHeader.Bounds.Height;
-                }
-                for (int i = _firstRow; i < _rows.Count; i++)
-                {
-                    IGlyphRow row = _rows[i];
-                    row.Arrange(new SKPoint(x, y), width);
-                    row.Draw(canvas, paint);
-                    y += row.Bounds.Height;
-                    if (y > height)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    HeaderRow GetHeaderRow()
-    {
-        HeaderRow result = null;
-        do
-        {
-            if (_rows.Count == 0)
-            {
-                break;
-            }
-
-            IGlyphRow row = _rows[_firstRow];
-            if (row is GlyphRow glyphRow)
-            {
-                uint id = glyphRow[0].Glyph.Range.Id;
-                result = _headers[id];
-                break;
-            }
-
-            if (row is HeaderRow headerRow)
-            {
-                // NOTE: We don't update the header area until the first row is a GlyphRow.
-                // otherwise, the top of the list will be a  duplicate of the header area.
-                // Also, if there is no previous row, we are at the first group in the list.
-                result = headerRow.Previous ?? headerRow;
-            }
-
-        } while (false);
-
-        return result;
+        _renderer.Draw(canvas, CanvasSize);
     }
 
     #endregion Draw

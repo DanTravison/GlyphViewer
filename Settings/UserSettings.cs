@@ -25,7 +25,6 @@ public sealed class UserSettings : SettingPropertyCollection, ISetting
         ItemHeaderFont = AddItem(new ItemHeaderFontSetting(this));
         TitleFont = AddItem(new TitleFontSetting(this));
         Bookmarks = AddItem(new Bookmarks(this));
-
         Navigator = new PageNavigator<SettingsPage>(true, this);
 
         ResetCommand = new Command(ResetEditable)

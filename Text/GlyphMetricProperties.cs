@@ -1,5 +1,10 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.ObjectModel;
+
+/// <summary>
+/// Provides a collection of <see cref="GlyphMetrics"/> properties.
+/// </summary>
 public sealed class GlyphMetricProperties
 {
     public GlyphMetricProperties(GlyphMetrics metrics)

@@ -41,7 +41,6 @@
                                ItemTemplate="{StaticResource JumpListItemTemplate}"
                                OpenCommand="{Binding PickUnicodeRangeCommand}"/>
 
-            <!-- TODO: Use Binding.FontSize when Setting is updated -->
             <views:GlyphsView Grid.Column="1"
                               Items="{Binding Glyphs}"
                               ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
@@ -55,6 +54,7 @@
                               HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
                               UnicodeRanges="{Binding UnicodeRanges}"
                               SelectedUnicodeRange="{Binding SelectedUnicodeRange}"
+                              CellLayout="{Binding Settings.Glyph.CellLayout.Value}"
                               Row="{Binding Row}"
                               Rows="{Binding Rows}"
                               />
@@ -70,6 +70,7 @@
             <Grid RowDefinitions="Auto, *" 
                   Grid.Column="3"
                   RowSpacing="5"
+                  WidthRequest="{Binding Settings.Glyph.Width.Value}"
                   >
                 <views:GlyphView Grid.Row="0" 
                                  Metrics="{Binding Metrics, Mode=OneWay}"

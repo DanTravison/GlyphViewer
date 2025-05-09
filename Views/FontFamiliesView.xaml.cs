@@ -1,3 +1,4 @@
+using GlyphViewer.Text;
 using GlyphViewer.ViewModels;
 
 namespace GlyphViewer.Views;
@@ -48,4 +49,26 @@ public partial class FontFamiliesView : ContentView
     {
         GroupPicker.IsOpen = true;
     }
+#if (false)
+    private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if 
+        (
+            e.CurrentSelection.Count > 0 
+            &&
+            e.CurrentSelection[0] is string familyName
+            &&
+            familyName.Length > 0
+        )
+        {
+            FontFamilyGroup group = _model.FontFamilyGroups.FromFamilyName(familyName);
+            if (group is not null)
+            {
+                // ISSUE: This is not working.
+                // Scrolling does not occur and the item is not visibly selected.
+                Families.ScrollTo(familyName, group, ScrollToPosition.Center, false);
+            }
+        }
+    }
+#endif
 }

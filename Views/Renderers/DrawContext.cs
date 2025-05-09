@@ -1,8 +1,10 @@
 ﻿namespace GlyphViewer.Views.Renderers;
 
+using GlyphViewer.Views;
 using GlyphViewer.Text;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
+using GlyphViewer.Settings;
 
 sealed class DrawContext : IDisposable
 {
@@ -10,26 +12,38 @@ sealed class DrawContext : IDisposable
 
     SKFont _headerFont;
     SKFont _itemFont;
+    GlyphsViewRenderer _layout;
 
-    delegate void PropertyChangedHandler(GlyphsView view, DrawContext context);
+    /// <summary>
+    /// Provides a delegate for handling <see cref="GlyphsView"/> property changes.
+    /// </summary>
+    /// <param name="layout">The <see cref="GlyphsViewRenderer"/> for the <see cref="GlyphsView"/>.</param>
+    /// <param name="context">The <see cref="DrawContext"/>.</param>
+    /// <returns>true if arrange is needed; otherwise, false.</returns>
+    delegate bool PropertyChangedHandler(GlyphsViewRenderer layout, DrawContext context);
+
     static readonly Dictionary<string, PropertyChangedHandler> _handlers = new(StringComparer.Ordinal);
 
     static DrawContext()
     {
-        _handlers.Add(GlyphsView.HeaderColorProperty.PropertyName, OnHeaderColorChanged);
-        _handlers.Add(GlyphsView.HeaderBackgroundColorProperty.PropertyName, OnHeaderBackgroundColorChanged);
-        _handlers.Add(GlyphsView.HeaderFontSizeProperty.PropertyName, OnHeaderFontSizeChanged);
-        _handlers.Add(GlyphsView.HeaderFontFamilyProperty.PropertyName, OnHeaderFontFamilyChanged);
-        _handlers.Add(GlyphsView.HeaderFontAttributesProperty.PropertyName, OnHeaderFontAttributesChanged);
+        Add(GlyphsView.HeaderColorProperty, OnHeaderColorChanged);
+        Add(GlyphsView.HeaderBackgroundColorProperty, OnHeaderBackgroundColorChanged);
+        Add(GlyphsView.HeaderFontSizeProperty, OnHeaderFontSizeChanged);
+        Add(GlyphsView.HeaderFontFamilyProperty, OnHeaderFontFamilyChanged);
+        Add(GlyphsView.HeaderFontAttributesProperty, OnHeaderFontAttributesChanged);
 
-        _handlers.Add(GlyphsView.ItemsProperty.PropertyName, OnItemsChanged);
-        _handlers.Add(GlyphsView.ItemFontSizeProperty.PropertyName, OnItemFontSizeChanged);
-        _handlers.Add(GlyphsView.ItemColorProperty.PropertyName, OnItemColorChanged);
-        _handlers.Add(GlyphsView.SelectedItemColorProperty.PropertyName, OnSelectedItemColorChanged);
-        _handlers.Add(GlyphsView.SelectedItemProperty.PropertyName, OnSelectedItemChanged);
+        Add(GlyphsView.ItemsProperty, OnItemsChanged);
+        Add(GlyphsView.ItemFontSizeProperty, OnItemFontSizeChanged);
+        Add(GlyphsView.ItemColorProperty, OnItemColorChanged);
+        Add(GlyphsView.SelectedItemColorProperty, OnSelectedItemColorChanged);
+        Add(GlyphsView.SelectedItemProperty, OnSelectedItemChanged);
+        Add(GlyphsView.SpacingProperty, OnSpacingChanged);
+        Add(GlyphsView.CellLayoutProperty, OnCellLayoutChanged);
+    }
 
-        _handlers.Add(GlyphsView.HorizontalSpacingProperty.PropertyName, OnHorizontalSpacingChanged);
-        _handlers.Add(GlyphsView.VerticalSpacingProperty.PropertyName, OnVerticalSpacingChanged);
+    static void Add(BindableProperty property, PropertyChangedHandler handler)
+    {
+        _handlers.Add(property.PropertyName, handler);
     }
 
     #endregion Fields
@@ -37,16 +51,16 @@ sealed class DrawContext : IDisposable
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="view">The parent <see cref="GlyphsView"/>.</param>
-    public DrawContext(GlyphsView view)
+    /// <param name="layout">The <see cref="GlyphsViewRenderer"/>.</param>
+    public DrawContext(GlyphsViewRenderer layout)
     {
-        ArgumentNullException.ThrowIfNull(view, nameof(view));
-        View = view;
+        ArgumentNullException.ThrowIfNull(layout, nameof(layout));
+        _layout = layout;
 
         // Initialize the properties.
         foreach (PropertyChangedHandler handler in _handlers.Values)
         {
-            handler(view, this);
+            handler(layout, this);
         }
     }
 
@@ -58,22 +72,23 @@ sealed class DrawContext : IDisposable
     {
         if (_handlers.TryGetValue(propertyName, out PropertyChangedHandler handler))
         {
-            handler(View, this);
-            View.InvalidateSurface();
+            bool needsArrange = handler(_layout, this);
+            if (needsArrange)
+            {
+                _layout.InvalidateArrange();
+            }
+            else
+            {
+                _layout.InvalidateDraw();
+            }
         }
-    }
-
-    /// <summary>
-    /// Gets the containing <see cref="GlyphsView"/>
-    /// </summary>
-    public GlyphsView View
-    {
-        get;
-        private set;
     }
 
     #region Header Properties
 
+    /// <summary>
+    /// Get the font for drawing header text.
+    /// </summary>
     public SKFont HeaderFont
     {
         get
@@ -86,106 +101,146 @@ sealed class DrawContext : IDisposable
         }
     }
 
+    /// <summary>
+    /// Gets the font family name for the header rows.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.HeaderFontFamily"/>.
+    /// </remarks>
     public string HeaderFontFamily
     {
         get;
         private set;
     }
-    static void OnHeaderFontFamilyChanged(GlyphsView view, DrawContext context)
+    static bool OnHeaderFontFamilyChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.HeaderFontFamily = view.HeaderFontFamily;
+        context.HeaderFontFamily = layout.View.HeaderFontFamily;
         context._headerFont?.Dispose();
         context._headerFont = null;
+        return true;
     }
 
+    /// <summary>
+    /// Gets the font size for the header rows.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.HeaderFontSize"/>.
+    /// </remarks>
     public float HeaderFontSize
     {
         get;
         private set;
     }
-    static void OnHeaderFontSizeChanged(GlyphsView view, DrawContext context)
+    static bool OnHeaderFontSizeChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.HeaderFontSize = (float)view.HeaderFontSize;
+        context.HeaderFontSize = (float)layout.View.HeaderFontSize;
         context._headerFont?.Dispose();
         context._headerFont = null;
+        return true;
     }
 
+    /// <summary>
+    /// Gets the font style for the header rows.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.HeaderFontAttributes"/>.
+    /// </remarks>
     public SKFontStyle HeaderFontStyle
     {
         get;
         private set;
     }
-    static void OnHeaderFontAttributesChanged(GlyphsView view, DrawContext context)
+    static bool OnHeaderFontAttributesChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.HeaderFontStyle = view.HeaderFontAttributes.ToFontStyle();
+        context.HeaderFontStyle = layout.View.HeaderFontAttributes.ToFontStyle();
         context._headerFont?.Dispose();
         context._headerFont = null;
+        return true;
     }
 
+    /// <summary>
+    /// Gets the text color for header rows.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.HeaderColor"/>.
+    /// </remarks>
     public SKColor HeaderColor
     {
         get;
         private set;
     }
-    static void OnHeaderColorChanged(GlyphsView view, DrawContext context)
+    static bool OnHeaderColorChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.HeaderColor = view.HeaderColor.ToSKColor();
+        context.HeaderColor = layout.View.HeaderColor.ToSKColor();
+        return false;
     }
 
+    /// <summary>
+    /// Gets the background color for header rows.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.HeaderBackgroundColor"/>.
+    /// </remarks>
     public SKColor HeaderBackgroundColor
     {
         get;
         private set;
     }
-    static void OnHeaderBackgroundColorChanged(GlyphsView view, DrawContext context)
+    static bool OnHeaderBackgroundColorChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.HeaderBackgroundColor = view.HeaderBackgroundColor.ToSKColor();
+        context.HeaderBackgroundColor = layout.View.HeaderBackgroundColor.ToSKColor();
+        return false;
     }
 
     #endregion Header Properties
 
     #region Item Properties
 
-    public float ItemWidth
-    {
-        get;
-        set;
-    }
-
-    public int ItemHeight
-    {
-        get;
-        set;
-    }
-
+    /// <summary>
+    /// Gets the item font family name.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from the <see cref="Glyph.FontFamily"/> of the first item in <see cref="GlyphsView.Items"/>
+    /// </remarks>
     public string ItemFontFamily
     {
         get;
         private set;
     }
-    static void OnItemsChanged(GlyphsView view, DrawContext context)
+    static bool OnItemsChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        GlyphCollection items = view.Items;
+        GlyphCollection items = layout.View.Items;
         if (items is not null && items.Count > 0)
         {
             context.ItemFontFamily = items[0].FontFamily;
             context._itemFont?.Dispose();
             context._itemFont = null;
         }
+        return true;
     }
 
+    /// <summary>
+    /// Gets the item font size.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.ItemFontSize"/>.
+    /// </remarks>
     public float ItemFontSize
     {
         get;
         private set;
     }
-    static void OnItemFontSizeChanged(GlyphsView view, DrawContext context)
+    static bool OnItemFontSizeChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.ItemFontSize = (float)view.ItemFontSize;
+        context.ItemFontSize = (float)layout.View.ItemFontSize;
         context._itemFont?.Dispose();
         context._itemFont = null;
+        return true;
     }
 
+    /// <summary>
+    /// Gets the item font.
+    /// </summary>
     public SKFont ItemFont
     {
         get
@@ -193,108 +248,155 @@ sealed class DrawContext : IDisposable
             if (_itemFont is null)
             {
                 _itemFont = ItemFontFamily.CreateFont(ItemFontSize);
+
+                // Calculate a minimum glyph size for the font.
+                using (SKFont font = App.DefaultFontFamily.CreateFont(ItemFontSize))
+                {
+                    SKTextMetrics metrics = new("W", font);
+                    float dimension = Math.Max(metrics.TextWidth, metrics.Size.Width);
+                    MinimumGlyphSize = new SKSize(dimension, dimension);
+                }
             }
             return _itemFont;
         }
     }
 
+    /// <summary>
+    /// Gets the item color.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.ItemColor"/>.
+    /// </remarks>
     public SKColor ItemColor
     {
         get;
         private set;
     }
-    static void OnItemColorChanged(GlyphsView view, DrawContext context)
+    static bool OnItemColorChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.ItemColor = view.ItemColor.ToSKColor();
+        context.ItemColor = layout.View.ItemColor.ToSKColor();
+        return false;
     }
 
+    /// <summary>
+    /// Gets the currently selected glyph.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.SelectedItem"/>.
+    /// </remarks>
     public Glyph SelectedItem
     {
         get;
         private set;
     }
-    static void OnSelectedItemChanged(GlyphsView view, DrawContext context)
+    static bool OnSelectedItemChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.SelectedItem = view.SelectedItem;
+        context.SelectedItem = layout.View.SelectedItem;
+        return false;
     }
 
+    /// <summary>
+    /// Gets the color of the <see cref="SelectedItem"/>.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.SelectedItemColor"/>.
+    /// </remarks>
     public SKColor SelectedItemColor
     {
         get;
         private set;
     }
-    static void OnSelectedItemColorChanged(GlyphsView view, DrawContext context)
+    static bool OnSelectedItemColorChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.SelectedItemColor = view.SelectedItemColor.ToSKColor();
+        context.SelectedItemColor = layout.View.SelectedItemColor.ToSKColor();
+        return false;
     }
 
     #endregion Item Properties
 
-    #region Spacing Properties
+    #region Layout Properties
 
     /// <summary>
-    /// Gets the width of a Glyph column.
+    /// Gets cached <see cref="CanvasSize"/>.
     /// </summary>
     /// <remarks>
-    /// This property is set directly by the <see cref="GlyphsView"/>.
+    /// This property is only value during Arrange and Draw.
     /// </remarks>
-    public float ColumnWidth
+    public SKSize CanvasSize
     {
         get;
         set;
     }
 
     /// <summary>
-    /// Gets the height of a Glyph row.
+    /// Defines the maximum width and height of all glyphs
     /// </summary>
-    /// <remarks>
-    /// This property is set directly by the <see cref="GlyphsView"/>.
-    /// </remarks>
-    public float RowHeight
+    public SKSize GlyphSize
     {
         get;
         set;
     }
 
     /// <summary>
-    /// Gets the horizontal spacing between Glyphs.
+    /// Defines the average width and height of all glyphs
     /// </summary>
-    public float HorizontalSpacing
+    public SKSize MinimumGlyphSize
     {
         get;
-        private set;
-    }
-    static void OnHorizontalSpacingChanged(GlyphsView view, DrawContext context)
-    {
-        context.HorizontalSpacing = (float)view.HorizontalSpacing;
+        set;
     }
 
     /// <summary>
-    /// Gets the vertical spacing between Glyphs.
+    /// Gets the spacing around Glyphs.
     /// </summary>
-    public float VerticalSpacing
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.Spacing"/>.
+    /// </remarks>
+    public SkSpacing Spacing
     {
         get;
         private set;
     }
-    static void OnVerticalSpacingChanged(GlyphsView view, DrawContext context)
+    static bool OnSpacingChanged(GlyphsViewRenderer layout, DrawContext context)
     {
-        context.VerticalSpacing = (float)view.VerticalSpacing;
+        SkSpacing spacing = new(layout.View.Spacing);
+        if (spacing != context.Spacing)
+        {
+            context.Spacing = spacing;
+            return true;
+        }
+        return false;
     }
 
-    #endregion Spacing Properties
+    public CellLayoutStyle CellLayout
+    {
+        get;
+        private set;
+    }
+    static bool OnCellLayoutChanged(GlyphsViewRenderer layout, DrawContext context)
+    {
+        CellLayoutStyle cellLayout = layout.View.CellLayout;
+        if (cellLayout != context.CellLayout)
+        {
+            context.CellLayout = cellLayout;
+            return true;
+        }
+        return false;
+    }
+
+    #endregion Layout Properties
 
     /// <summary>
     /// Releases all resources and references.
     /// </summary>
     public void Dispose()
     {
-        if (View is not null)
+        if (_layout is not null)
         {
             _headerFont?.Dispose();
             _itemFont?.Dispose();
             _headerFont = _itemFont = null;
-            View = null;
+            _layout = null;
             GC.SuppressFinalize(this);
         }
     }

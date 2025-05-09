@@ -4,7 +4,6 @@ using GlyphViewer.Resources;
 using GlyphViewer.Settings.Properties;
 using GlyphViewer.Text;
 using GlyphViewer.Views;
-using System.ComponentModel;
 
 /// <summary>
 /// Provides an <see cref="ISetting"/> for the glyph properties.
@@ -48,6 +47,21 @@ public class GlyphSetting : Setting
     /// </summary>
     public static readonly Color DefaultTextColor = Colors.Black;
 
+    /// <summary>
+    /// Defines the minimum spacing around a Glyph.
+    /// </summary>
+    public static readonly Thickness MinimumSpacing = new(2);
+
+    /// <summary>
+    /// Defines the default spacing around a Glyph.
+    /// </summary>
+    public static readonly Thickness DefaultSpacing = new(5);
+
+    /// <summary>
+    /// Defines the default layout style for glyphs in the <see cref="GlyphsView"/>.
+    /// </summary>
+    public static readonly CellLayoutStyle DefaultCellLayout = CellLayoutStyle.Default;
+
     // FUTURE: Support various colors, such as Glyph Baseline/Left, and boundaries
     // in the GlyphView. These would need to be Theme aware.
 
@@ -58,9 +72,9 @@ public class GlyphSetting : Setting
     /// </summary>
     /// <param name="parent">The parent <see cref="ISetting"/>.</param>
     public GlyphSetting(ISetting parent)
-        : base(parent, nameof(UserSettings.Glyph), Strings.GlyphWidthLabel, Strings.GlyphWidthDescription)
+        : base(parent, nameof(UserSettings.Glyph), Strings.GlyphSettingLabel, Strings.GlyphSettingDescription)
     {
-        Width = new
+        Width = AddItem(new DoubleProperty
         (
             nameof(Width),
             DefaultWidth,
@@ -71,8 +85,9 @@ public class GlyphSetting : Setting
             MininumValue = MinimumWidth,
             MaximumValue = MaximumWidth,
             Increment = DefaultSizeIncrment
-        };
-        AddItem(Width);
+        });
+
+        CellLayout = AddItem(new CellLayoutProperty());
     }
 
     /// <summary>
@@ -83,12 +98,11 @@ public class GlyphSetting : Setting
         get;
     }
 
-    #region PropertyChangedEventArgs
-
     /// <summary>
-    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="Width"/> changes.
+    /// Gets the <see cref="CellLayoutProperty"/> arranging Glyphs in <see cref="GlyphsView"/>.
     /// </summary>
-    public static readonly PropertyChangedEventArgs WidthChangedEventArgs = new(nameof(Width));
-
-    #endregion PropertyChangedEventArgs
+    public CellLayoutProperty CellLayout
+    {
+        get;
+    }
 }

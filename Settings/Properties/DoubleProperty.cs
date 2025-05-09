@@ -12,14 +12,14 @@ public class DoubleProperty : SettingProperty<double>
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="name">The property <see cref="SettingProperty{Double}.Name"/>.</param>
-    /// <param name="defaultValue">The default <see cref="ObservableProperty{Double}.Value"/>.</param>
+    /// <param name="name">The property <see cref="NamedValue{Double}.Name"/>.</param>
+    /// <param name="defaultValue">The default <see cref="NamedValue{Double}.Value"/>.</param>
     /// <param name="displayName">The <see cref="SettingProperty{Double}.DisplayName"/>.</param>
     /// <param name="description">The <see cref="SettingProperty{Double}.Description"/>.</param>
     /// <param name="comparer">
-    /// The optional <see cref="IEqualityComparer{T}"/> to use to compare the <see cref="ObservableProperty{T}.Value"/>.
+    /// The optional <see cref="IEqualityComparer{Double}"/> to use to compare the <see cref="NamedValue{Double}.Value"/>.
     /// <para>
-    /// The default value is <see cref="EqualityComparer{T}.Default"/>.
+    /// The default value is <see cref="EqualityComparer{Double}.Default"/>.
     /// </para>
     /// </param>
     public DoubleProperty

@@ -313,7 +313,7 @@ internal class SkLabel : SKCanvasView
 
     SKFont GetFont()
     {
-        return FontFamily.CreateFont((float)FontSize, FontAttributes.ToFontStyle());
+        return FontFamily.CreateFont((float)FontSize, FontAttributes);
     }
 
     /// <summary>

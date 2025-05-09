@@ -4,26 +4,32 @@ using GlyphViewer.Text;
 using SkiaSharp;
 using System.Diagnostics;
 
+using UnicodeRange = Text.Unicode.Range;
+
 /// <summary>
 /// Provides a renderer for drawing a Glyph group header.
 /// </summary>
 [DebuggerDisplay("HeaderRow:{Name, nq}")]
-class HeaderRow : GlyphRowBase, IGlyphRow
+class HeaderRow : GlyphRowBase
 {
+    #region Fields
+
     SKTextMetrics _metrics = null;
     float _baseLine;
+
+    #endregion Fields
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="context">The <see cref="DrawContext"/> to use to draw the row.</param>
-    /// <param name="range">The <see cref="Text.Unicode.Range"/> of the <see cref="HeaderRow"/>.</param>
+    /// <param name="unicodeRange">The <see cref="UnicodeRange"/> of the <see cref="HeaderRow"/>.</param>
     /// <param name="previous">The previous <see cref="HeaderRow"/>.</param>
-    public HeaderRow(DrawContext context, Text.Unicode.Range range, HeaderRow previous)
+    public HeaderRow(DrawContext context, UnicodeRange unicodeRange, HeaderRow previous)
         : base(context)
     {
-        Name = range.Name;
-        Id = range.Id;
+        Name = unicodeRange.Name;
+        UnicodeRange = unicodeRange;
         Previous = previous;
     }
 
@@ -32,7 +38,7 @@ class HeaderRow : GlyphRowBase, IGlyphRow
     /// <summary>
     /// Gets the <see cref="Text.Unicode.Range.Id"/> for the associated Glyphs.
     /// </summary>
-    public uint Id
+    public UnicodeRange UnicodeRange
     {
         get;
     }
@@ -58,14 +64,19 @@ class HeaderRow : GlyphRowBase, IGlyphRow
     /// <summary>
     /// Layouts the contents of the <see cref="HeaderRow"/>.
     /// </summary>
-    /// <param name="width">The width of the drawing area.</param>
-    /// <returns>The <see cref="SKSize"/> needed to draw the <see cref="HeaderRow"/>.</returns>
-    public void Arrange(SKPoint location, float width)
+    /// <param name="location">The <see cref="SKPoint"/> identifying the upper left coordinate.</param>
+    /// <param name="size">The suggested size of the drawing area.</param>
+    /// <returns>The <see cref="SKSize"/> needed to draw the content.</returns>
+    protected override SKSize OnArrange(SKPoint location, SKSize size)
     {
-        _metrics = new SKTextMetrics(Name, Context.HeaderFont);
-        float height = _metrics.Size.Height + Context.VerticalSpacing * 2;
-        _baseLine = Context.VerticalSpacing - _metrics.Ascent;
-        Bounds = new SKRect(location.X, location.Y, location.X + width, location.Y + height);
+        float verticalSpacing = DrawContext.Spacing.Vertical;
+
+        _metrics = new SKTextMetrics(Name, DrawContext.HeaderFont);
+
+        float height = _metrics.Size.Height + verticalSpacing * 2;
+        _baseLine = verticalSpacing - _metrics.Ascent;
+
+        return new(size.Width, height);
     }
 
     /// <summary>
@@ -73,41 +84,19 @@ class HeaderRow : GlyphRowBase, IGlyphRow
     /// </summary>
     /// <param name="canvas">The <see cref="SKCanvas"/> to draw to.</param>
     /// <param name="paint">The <see cref="SKPaint"/> to use to draw.</param>
-    public void Draw(SKCanvas canvas, SKPaint paint)
+    public override void Draw(SKCanvas canvas, SKPaint paint)
     {
-        Draw(canvas, paint, Bounds.Location);
-    }
-
-    /// <summary>
-    /// Draws the <see cref="HeaderRow"/> on the specified canvas at the specified <paramref name="location"/>.
-    /// </summary>
-    /// <param name="canvas">The <see cref="SKCanvas"/> to draw to.</param>
-    /// <param name="paint">The <see cref="SKPaint"/> to use to draw.</param>
-    /// <param name="location"> The location to draw the <see cref="HeaderRow"/>.</param>
-    public void Draw(SKCanvas canvas, SKPaint paint, SKPoint location)
-    {
-        paint.Color = Context.HeaderColor;
+        paint.Color = DrawContext.HeaderColor;
+        paint.Style = SKPaintStyle.Fill;
         canvas.DrawText
         (
-            Context.HeaderFont,
+            DrawContext.HeaderFont,
             paint,
             Name,
-            location.X,
-            location.Y + _baseLine,
+            Bounds.Left,
+            Bounds.Top + _baseLine,
             SKTextAlign.Left
         );
-    }
-
-    /// <summary>
-    /// Determines if the specified point is within the bounds of the row.
-    /// </summary>
-    /// <param name="point">The <see cref="SKPoint"/> to test.</param>
-    /// <param name="metrics">The parameter is always set to a null reference.</param>
-    /// <returns>true if the specified point is within the bounds of the row; otherwise, false.</returns>
-    public bool HitTest(SKPoint point, out GlyphMetrics metrics)
-    {
-        metrics = GlyphMetrics.Empty;
-        return Bounds.Contains(point);
     }
 
     #endregion Methods

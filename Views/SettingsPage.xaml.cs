@@ -14,13 +14,4 @@ public partial class SettingsPage : ContentPage
         BindingContext = null;
         App.Navigation.PopModalAsync();
     }
-
-    public static void Show(UserSettings settings)
-    {
-        SettingsPage page = new()
-        {
-            BindingContext = settings
-        };
-        App.Navigation.PushModalAsync(page);
-    }
 }

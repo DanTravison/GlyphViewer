@@ -113,19 +113,36 @@ public abstract class SettingPropertyCollection : ObservableObject, ISettingProp
         }
     }
 
-    static readonly PropertyChangedEventArgs HasChangesChangedeEventArgs = new(nameof(HasChanges));
-
     /// <summary>
     /// Gets the value indicating if the collection needs to be serialized.
     /// </summary>
-    public bool HasChanges
+    public virtual bool HasChanges
     {
         get => _hasChanges;
         set
         {
-            if (SetProperty(ref _hasChanges, value, HasChangesChangedeEventArgs) && _parentContainer is not null)
+            // TODO: Consider moving HasChanges ObservableObject 
+            // with an overridable OnHasChangesChanged method?
+            if (value != _hasChanges)
             {
-                _parentContainer.HasChanges = true;
+                _hasChanges = value;
+                Debug.WriteLine($"{this.GetType().Name}.HasChanges:{_hasChanges}");
+                if (!_hasChanges)
+                {
+                    // Clear child containers to ensure future changes
+                    // are propogated up.
+                    foreach (ISettingProperty property in _properties)
+                    {
+                        if (property is ISettingPropertyCollection setting)
+                        {
+                            setting.HasChanges = false;
+                        }
+                    }
+                }
+                else if (_parentContainer is not null)
+                {
+                    _parentContainer.HasChanges = true;
+                }
             }
         }
     }
@@ -144,7 +161,7 @@ public abstract class SettingPropertyCollection : ObservableObject, ISettingProp
 
     #endregion Properties
 
-    #region Methods
+    #region Add
 
     /// <summary>
     /// Adds an <see cref="ISetting"/> to the editable properties.
@@ -162,7 +179,16 @@ public abstract class SettingPropertyCollection : ObservableObject, ISettingProp
             _properties.Add(property);
         }
         _all.Add(property.Name, property);
+        property.PropertyChanged += OnChildPropertyChanged;
         return property;
+    }
+
+    private void OnChildPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (sender is ISettingProperty property)
+        {
+            HasChanges = true;
+        }
     }
 
     /// <summary>
@@ -179,6 +205,10 @@ public abstract class SettingPropertyCollection : ObservableObject, ISettingProp
             AddItem(property);
         }
     }
+
+    #endregion Add
+
+    #region Reset
 
     /// <summary>
     /// Resets the all properties to the default state.
@@ -208,7 +238,7 @@ public abstract class SettingPropertyCollection : ObservableObject, ISettingProp
         }
     }
 
-    #endregion Methods
+    #endregion Reset
 
     #region IEnumerable
 

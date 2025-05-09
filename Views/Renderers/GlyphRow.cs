@@ -4,14 +4,13 @@ using GlyphViewer.Text;
 using SkiaSharp;
 using System.Diagnostics;
 
+/// <summary>
+/// Provides an <see cref="IGlyphRow"/> for a glyph row
+/// </summary>
 [DebuggerDisplay("GlyphRow [{Count, nq}]")]
-class GlyphRow : GlyphRowBase, IGlyphRow
+class GlyphRow : GlyphRowBase
 {
-    #region Fields
-
-    readonly List<GlyphMetrics> _items = [];
-
-    #endregion Fields
+    readonly GlyphRowRenderer _items;
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -20,6 +19,7 @@ class GlyphRow : GlyphRowBase, IGlyphRow
     public GlyphRow(DrawContext context)
         : base(context)
     {
+        _items = new GlyphRowRenderer(context);
     }
 
     #region Properties
@@ -33,8 +33,7 @@ class GlyphRow : GlyphRowBase, IGlyphRow
     /// or equal to <paramref name="column"/>.</exception>
     public GlyphMetrics this[int column]
     {
-        get => _items[column];
-        set => _items[column] = value;
+        get => _items[column].Metrics;
     }
 
     /// <summary>
@@ -52,104 +51,57 @@ class GlyphRow : GlyphRowBase, IGlyphRow
     /// <summary>
     /// Adds a <see cref="GlyphMetrics"/> to the row.
     /// </summary>
-    /// <param name="metrics">The <see cref="GlyphMetrics"/> to add.</param>
-    public void Add(GlyphMetrics metrics)
+    /// <param name="renderer">The <see cref="GlyphRenderer"/> to add.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="renderer"/> is a null reference.</exception>
+    public bool Add(GlyphRenderer renderer)
     {
-        _items.Add(metrics);
-        Bounds = new SKRect(Bounds.Left, Bounds.Top, Bounds.Right + Context.ColumnWidth, Bounds.Bottom);
+        ArgumentNullException.ThrowIfNull(renderer, nameof(renderer));
+        return _items.Add(renderer);
     }
+
+    #region Arrange
 
     /// <summary>
     /// Layouts the contents of the glyph group.
     /// </summary>
-    /// <param name="location">The <see cref="SKPoint"/> identifying the location to draw.</param>
-    /// <param name="width">The width of the drawing area.</param>
-    /// <returns>The <see cref="SKSize"/> needed to draw the group.</returns>
-    public void Arrange(SKPoint location, float width)
+    /// <param name="location">The <see cref="SKPoint"/> identifying the upper left coordinate.</param>
+    /// <param name="size">The suggested size of the drawing area.</param>
+    /// <returns>The <see cref="SKSize"/> needed to draw the content.</returns>
+    protected override SKSize OnArrange(SKPoint location, SKSize size)
     {
-        Bounds = new SKRect(location.X, location.Y, location.X + Context.ColumnWidth * _items.Count, location.Y + Context.RowHeight);
+        return _items.Arrange(location);
     }
 
+    #endregion Arrange
+
     /// <summary>
-    /// Determines if the specified point is within the bounds of the glyph row.
+    /// Determines if the specified point is within the bounds of the row.
     /// </summary>
     /// <param name="point">The <see cref="SKPoint"/> to test.</param>
-    /// <param name="metrics">
-    /// The <see cref="GlyphMetrics"/> that was hit;
-    /// otherwise, <see cref="GlyphMetrics.Empty"/> if no <see cref="GlyphMetrics"/> 
-    /// is present at the specified <paramref name="point"/>.
+    /// <param name="renderer">
+    /// The <see cref="GlyphRenderer"/> that was hit;
+    /// otherwise, null reference if no renderer is present at the specified <paramref name="point"/>.
     /// </param>
     /// <returns>true if the specified point is within the bounds of the glyph row; otherwise, false.</returns>
-    public bool HitTest(SKPoint point, out GlyphMetrics metrics)
+    public override bool HitTest(SKPoint point, out GlyphRenderer renderer)
     {
-        if (Bounds.Contains(point))
+        if (base.HitTest(point, out renderer))
         {
-            int column = (int)((point.X - Bounds.Left) / Context.ColumnWidth);
-            if (column >= 0 && column < _items.Count)
-            {
-                metrics = _items[column];
-                return true;
-            }
+            return _items.HitTest(point, out renderer);
         }
-        metrics = null;
         return false;
     }
 
-    #region Draw
-
     /// <summary>
-    /// Draws the glyph group on the specified canvas.
+    /// Draws the glyphs group on the specified canvas.
     /// </summary>
     /// <param name="canvas">The <see cref="SKCanvas"/> to draw to.</param>
     /// <param name="paint">The <see cref="SKPaint"/> to use to draw.</param>
-    public void Draw(SKCanvas canvas, SKPaint paint)
+    public override void Draw(SKCanvas canvas, SKPaint paint)
     {
-        float left = Bounds.Left;
-        float top = Bounds.Top;
-
-        foreach (GlyphMetrics metrics in _items)
-        {
-            DrawGlyph(metrics, canvas, paint, left, top);
-            left += Context.ColumnWidth;
-        }
+        _items.Draw(canvas, paint, DrawContext);
     }
-
-    void DrawGlyph(GlyphMetrics metrics, SKCanvas canvas, SKPaint paint, float x, float y)
-    {
-        float columnWidth = Context.ColumnWidth;
-        float rowHeight = Context.RowHeight;
-
-        bool isSelected = ReferenceEquals(metrics.Glyph, Context.SelectedItem);
-        // NOTE: Adjust x to center the glyph in the column
-        float start = x - metrics.Left + (columnWidth - metrics.Size.Width) / 2;
-        float top = y + (rowHeight - metrics.Size.Height) / 2;
-        float baseLine = top - metrics.Ascent;
-        float strokeWidth = 2;
-
-        paint.Style = SKPaintStyle.Fill;
-        paint.Color = Context.ItemColor;
-        canvas.DrawText(Context.ItemFont, paint, metrics.Glyph.Text, start, baseLine, SKTextAlign.Left);
-
-        if (isSelected)
-        {
-            float horizontalSpacing = Context.HorizontalSpacing;
-            float verticalSpacing = Context.VerticalSpacing;
-            SKRect bounds = new SKRect
-            (
-                x + strokeWidth / 2,
-                y + strokeWidth / 2,
-                x + columnWidth - strokeWidth / 2,
-                y + rowHeight - strokeWidth / 2
-            );
-            paint.Color = Context.SelectedItemColor;
-            paint.Style = SKPaintStyle.Stroke;
-            paint.StrokeWidth = 2;
-
-            canvas.DrawRect(bounds, paint);
-        }
-    }
-
-    #endregion Draw
 
     #endregion Methods
+
 }
