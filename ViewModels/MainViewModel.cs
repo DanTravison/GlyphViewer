@@ -38,6 +38,7 @@ internal sealed class MainViewModel : ObservableObject
         _metrics = new MetricsModel(Settings.ItemFont);
         _metrics.PropertyChanged += OnMetricsPropertyChanged;
         BookmarkCommand = new(Settings.Bookmarks, _metrics);
+        Search = new(_metrics);
     }
 
     #region Properties
@@ -64,6 +65,14 @@ internal sealed class MainViewModel : ObservableObject
     public MetricsModel Metrics
     {
         get => _metrics;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="SearchViewModel"/> for searching the glyphs in the current font family.
+    /// </summary>
+    public SearchViewModel Search
+    {
+        get;
     }
 
     #region Rows
@@ -148,6 +157,7 @@ internal sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _glyphs, value, ReferenceComparer, GlyphsChangedEventArgs))
             {
+                Search.Glyphs = value;
                 Metrics.FontProperties.GlyphCount = value?.Count ?? 0;
             }
         }

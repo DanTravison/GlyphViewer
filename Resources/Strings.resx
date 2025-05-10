@@ -237,4 +237,10 @@
   <data name="GlyphPreviewLayout" xml:space="preserve">
     <value>Glyph Preview</value>
   </data>
+  <data name="SearchEntryPlaceholdText" xml:space="preserve">
+    <value>Enter search text</value>
+  </data>
+  <data name="SearchEntryDescription" xml:space="preserve">
+    <value>Search for glyphs by text in the name or the code.</value>
+  </data>
 </root>

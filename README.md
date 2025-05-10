@@ -46,26 +46,37 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 # The Project Structure
 
 ## ViewModels
-* MainViewModel - the view model for the main page and various views
-* PageNavigator - provides open/close semantics for a specific ContentPage
+* MainViewModel: the view model for the main page and various views.
+* PageNavigator: provides open/close semantics for a specific ContentPage.
   * Defines an OpenCommand to open a page and a CloseCommand to navigate back.
   * Creates the ContentPage and optionally sets the BindingContext on open.
   * Pops the page from the navigation stack on close and clears the BindingContext when the page is unloaded.  
   * IsModel indicates whether the page should be modal.
-* MetricsModel - the view model for the fonts and glyph metrics
+* MetricsModel: the view model for the fonts and glyph metrics.
   * Provides the property for the current Glyph. 
   * Provides a list of glyph metrics properties for the selected glyph.
   * Provides a list of font metrics properties for the selected typeface.
+* SearchViewModel: The view model for search in the GlyphsView.
+  * Provides the property for the current search string.
+  * Provides a list of glyphs matching the search string.
+  * Provides commands to search and to show/hide search results.
+  * SelectedItem property is bound to the selected glyph SearchView.
+	* Updates MetricsModel.Glyph when the selected glyph changes.
 
 ## Views
 * MainPage: The application's main page
-  * Presents the HeaderView, FontFamiliesView, GlyphsView, GlyphView and MetricsView 
-* GlyphsView: The view of the glyphs in a typeface rendered on a SkCanvasView
-* GlyphView: The view of the current glyph rendered on a SkCanvasView
-* MetricsView: The view of the current glyph and font family properties.
+  * Presents the HeaderView, FontFamiliesView, FontGlyphsView, GlyphMetricsView .
+   * HeaderView: The header for the main page.
+* FontGlyphsView
+  * Encapsulates the GlyphsView, SearchView, slider, jumplist.
+  * GlyphsView: The view of the glyphs in a typeface rendered on a SkCanvasView.
+  * SearchView: Provides the edit field and associated search results in the FontGlyphsView.
+    * Search results expand down from the search edit field. 
+* GlyphMetricsView: Encaspulates the GlyphView and MetricsView.
+  * GlyphView: The view of the current glyph rendered on a SkCanvasView
+  * MetricsView: The view of the current glyph and font family properties.
 * FontFamiliesView: The list of available fonts (typefaces) grouped by the first letter of the typeface name..
-* FamilyGroupPicker: A jump list to select a font family group.
-* HeaderView: The header for the main page.
+  * FamilyGroupPicker: A jump list to select a font family group.
 * SettingsPage: A page for user configurable settings.
 
 ## Views/Renderers

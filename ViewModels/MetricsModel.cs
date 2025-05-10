@@ -42,7 +42,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     public MetricsModel(ItemFontSetting settings)
     {
         _fontSize = settings.FontSize;
-        _fontSize.PropertyChanged += OnFontSizePropertyChanged;
+        _fontSize.ValueChanged += OnFontSizePropertyChanged;
         _glyph = Glyph.Empty;
 
         ClipboardCommand = _clipboardCommand = new Command(OnCopyToClipboard)
@@ -211,12 +211,9 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
 
     #region Update
 
-    private void OnFontSizePropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnFontSizePropertyChanged(object sender, EventArgs e)
     {
-        if (ReferenceEquals(e, ValueChangedEventArgs))
-        {
-            Update(ChangedProperty.FontSize);
-        }
+        Update(ChangedProperty.FontSize);
     }
 
     /// <summary>

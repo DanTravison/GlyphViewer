@@ -8,7 +8,7 @@ using System.Text;
 /// Defines a font family and text for a glyph.
 /// </summary>
 [DebuggerDisplay("({CodePoint,nq}) {Text}")]
-public class Glyph : IEquatable<Glyph>
+public sealed class Glyph : IEquatable<Glyph>
 {
     #region Fields
 
@@ -87,17 +87,26 @@ public class Glyph : IEquatable<Glyph>
     /// <summary>
     /// Gets the value indicating if this <see cref="Glyph"/> is empty.
     /// </summary>
-    public readonly bool IsEmpty;
+    public bool IsEmpty
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the font family to use to draw the <see cref="Text"/>.
     /// </summary>
-    public readonly string FontFamily;
+    public string FontFamily
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the text for the glyph.
     /// </summary>
-    public readonly string Text;
+    public string Text
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the name of the glyph.
@@ -106,32 +115,50 @@ public class Glyph : IEquatable<Glyph>
     /// The name of the <see cref="Glyph"/>, if present
     /// in the font; otherwise, <see cref="string.Empty"/>.
     /// </value>
-    public readonly string Name;
+    public string Name
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the unicode character for the glyph.
     /// </summary>
-    public readonly Char Char;
+    public Char Char
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the glyph code point.
     /// </summary>
-    public readonly ushort CodePoint;
+    public ushort CodePoint
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the string hex code for the <see cref="CodePoint"/>.
     /// </summary>
-    public readonly string Code;
+    public string Code
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the <see cref="UnicodeCategory"/>.
     /// </summary>
-    public readonly UnicodeCategory Category;
+    public UnicodeCategory Category
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the unicode range for the <see cref="Char"/>.
     /// </summary>
-    public readonly Unicode.Range Range;
+    public Unicode.Range Range
+    {
+        get;
+    }
 
     #endregion Properties
 

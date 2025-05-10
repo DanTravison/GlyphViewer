@@ -79,6 +79,8 @@ internal sealed class GlyphSearchTable
     {
         List<Glyph> results = [];
 
+        // TODO: Consider tokenizing the search text and searching for any token.
+        // Currently, the search is a single token and is order dependent.
         if (!string.IsNullOrEmpty(searchText) && searchText.Length > 0)
         {
             searchText = searchText.Trim();

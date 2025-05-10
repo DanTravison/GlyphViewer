@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
+             xmlns:views="clr-namespace:GlyphViewer.Views"
+             xmlns:unicode="clr-namespace:GlyphViewer.Text.Unicode"
+             xmlns:controls="clr-namespace:GlyphViewer.Controls"
+             x:Class="GlyphViewer.Views.FontGlyphsView"
+             x:DataType="viewmodel:MainViewModel">
+
+    <ContentView.Resources>
+        <DataTemplate x:DataType="unicode:Range" x:Key="JumpListItemTemplate">
+            <Label Text="{Binding Name}"
+                   Style="{StaticResource JumpListItemStyle}"/>
+        </DataTemplate>
+    </ContentView.Resources>
+    
+    <!-- NOTE: Placing ContentView directly in a '*' row can cause
+         the content to overflow the row. As a workaround, 
+         JumpList and GlyphsView span 2 rows of Auto, *
+    -->
+    <Grid ColumnDefinitions="*, Auto"
+          RowDefinitions="Auto, Auto, *"
+          RowSpacing="5"
+          >
+        <!-- Search view displays only the Entry field when not results are available
+             and grows in height to display the results when available.
+        -->
+        <views:SearchView Grid.Row="0"
+                          Grid.Column="0"
+                          Grid.ColumnSpan="2"
+                          BindingContext="{Binding Search}"/>
+
+        <!-- NOTE: JumpList and GlyphsView populate the same column
+                   The jump list is displayed above the GlyphsView when active.
+        -->
+        <controls:JumpList Grid.Row="1"
+                           Grid.RowSpan="2"
+                           Grid.Column="0"
+                           ItemsSource="{Binding UnicodeRanges}"
+                           SelectedItem="{Binding SelectedUnicodeRange}"
+                           ItemTemplate="{StaticResource JumpListItemTemplate}"
+                           OpenCommand="{Binding PickUnicodeRangeCommand}"/>
+
+        <views:GlyphsView Grid.Row="1"
+                          Grid.RowSpan="2"
+                          Grid.Column="0"
+                          Items="{Binding Glyphs}"
+                          ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
+                          HeaderColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
+                          BackgroundColor="Transparent"
+                          ItemFontSize="{Binding Settings.ItemFont.FontSize.Value}"
+                          HeaderFontSize="{Binding Settings.ItemHeaderFont.FontSize.Value}"
+                          HeaderFontAttributes="{Binding Settings.ItemHeaderFont.FontAttributes.Value}"
+                          HeaderFontFamily="{Binding Settings.ItemHeaderFont.FontFamily.Value}"
+                          SelectedItem="{Binding Metrics.Glyph, Mode=TwoWay}"
+                          HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
+                          UnicodeRanges="{Binding UnicodeRanges}"
+                          SelectedUnicodeRange="{Binding SelectedUnicodeRange}"
+                          CellLayout="{Binding Settings.Glyph.CellLayout.Value}"
+                          Row="{Binding Row}"
+                          Rows="{Binding Rows}"
+                          />
+
+        <controls:Slider Grid.Row="1" 
+                         Grid.Column="2"
+                         Minimum="0"
+                         Maximum="{Binding MaxRow, Mode=OneWay}"
+                         Interval="1"
+                         Value="{Binding Row, Mode=TwoWay}"
+                         Orientation="Vertical"
+                         />
+    </Grid>
+
+
+</ContentView>
