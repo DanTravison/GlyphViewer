@@ -64,12 +64,11 @@ class GlyphRow : GlyphRowBase
     /// <summary>
     /// Layouts the contents of the glyph group.
     /// </summary>
-    /// <param name="location">The <see cref="SKPoint"/> identifying the upper left coordinate.</param>
-    /// <param name="size">The suggested size of the drawing area.</param>
-    /// <returns>The <see cref="SKSize"/> needed to draw the content.</returns>
-    protected override SKSize OnArrange(SKPoint location, SKSize size)
+    /// <param name="left">The X coordinate of the location to draw.</param>
+    /// <param name="top">The Y coordinate of the location to draw.</param>
+    protected override SKSize OnArrange(float left, float top)
     {
-        return _items.Arrange(location);
+        return _items.Arrange(left, top);
     }
 
     #endregion Arrange

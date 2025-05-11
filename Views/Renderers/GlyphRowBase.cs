@@ -8,6 +8,8 @@ using SkiaSharp;
 /// </summary>
 abstract class GlyphRowBase : IGlyphRow
 {
+    SKSize _size;
+
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
@@ -35,7 +37,28 @@ abstract class GlyphRowBase : IGlyphRow
     public SKRect Bounds
     {
         get;
-        protected set;
+        private set;
+    }
+
+    /// <summary>
+    /// Gets or sets the size of the row.
+    /// </summary>
+    public SKSize Size
+    {
+        get => _size;
+        protected set
+        {
+            _size = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the row index.
+    /// </summary>
+    internal int Row
+    {
+        get;
+        set;
     }
 
     #endregion Properties
@@ -45,21 +68,21 @@ abstract class GlyphRowBase : IGlyphRow
     /// <summary>
     /// Layouts the contents of the glyph row.
     /// </summary>
-    /// <param name="location">The location of the <see cref="IGlyphRow"/></param>
-    /// <param name="size">The suggested size of the drawing area.</param>
-    public void Arrange(SKPoint location, SKSize size)
+    /// <param name="left">The X coordinate of the location to draw.</param>
+    /// <param name="top">The Y coordinate of the location to draw.</param>
+    public void Arrange(float left, float top)
     {
-        size = OnArrange(location, size);
-        Bounds = new(location.X, location.Y, location.X + size.Width, location.Y + size.Height);
+        Size = OnArrange(left, top);
+        Bounds = new(left, top, left + Size.Width, top + Size.Height);
     }
 
     /// <summary>
     /// Implemented in the derived class to arrange the content.
     /// </summary>
-    /// <param name="location">The <see cref="SKPoint"/> identifying the upper left coordinate.</param>
-    /// <param name="size">The suggested size of the drawing area.</param>
-    /// <returns>The <see cref="SKSize"/> needed to draw the content..</returns>
-    protected abstract SKSize OnArrange(SKPoint location, SKSize size);
+    /// <param name="left">The X coordinate of the location to draw.</param>
+    /// <param name="top">The Y coordinate of the location to draw.</param>
+    /// <returns>The updated <see cref="Size"/> needed to draw the row.</returns>
+    protected abstract SKSize OnArrange(float left, float top);
 
     /// <summary>
     /// Implement in the derived class to draw the row.

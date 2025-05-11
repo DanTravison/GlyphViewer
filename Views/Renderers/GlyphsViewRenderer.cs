@@ -91,7 +91,6 @@ internal class GlyphsViewRenderer : ObservableObject
 
         readonly Dictionary<UnicodeRange, GlyphRenderers> _glyphRenderers = [];
         readonly List<UnicodeRange> _unicodeRanges = [];
-        readonly Dictionary<ushort, GlyphRenderer> _renderers = [];
 
         #endregion Fields
 
@@ -296,19 +295,6 @@ internal class GlyphsViewRenderer : ObservableObject
                 _view.InvalidateSurface();
             }
         }
-    }
-
-    /// <summary>
-    /// Gets the index of the specified <paramref name="row"/>.
-    /// </summary>
-    /// <param name="row">The <see cref="IGlyphRow"/> to query.</param>
-    /// <returns>
-    /// The zero-based index of the <paramref name="row"/>; otherwise, 
-    /// -1 if the row is not found.
-    /// </returns>
-    public int this[IGlyphRow row]
-    {
-        get => _rows.IndexOf(row);
     }
 
     /// <summary>
@@ -537,7 +523,9 @@ internal class GlyphsViewRenderer : ObservableObject
                 // to avoid the header being drawn twice when at the top of the list.
                 if (_rows.Count > 0)
                 {
+                    header.Row = _rows.Count;
                     _rows.Add(header);
+                    
                 }
                 previousHeader = header;
 
@@ -549,7 +537,10 @@ internal class GlyphsViewRenderer : ObservableObject
                     GlyphRenderer renderer = renderers[r];
                     if (!row.Add(renderer))
                     {
-                        row = new(_drawContext);
+                        row = new(_drawContext)
+                        {
+                            Row = _rows.Count
+                        };
                         _rows.Add(row);
                         row.Add(renderer);
                     }
@@ -615,6 +606,12 @@ internal class GlyphsViewRenderer : ObservableObject
     /// </returns>
     public bool HitTest(SKPoint point, out IGlyphRow row, out GlyphRenderer renderer)
     {
+        if (_currentHeader is not null && _currentHeader.Bounds.Contains(point))
+        { 
+            row = _currentHeader;
+            renderer = null;
+            return true;    
+        }
         for (int i = FirstRow; i < _rows.Count; i++)
         {
             row = _rows[i];
@@ -677,14 +674,14 @@ internal class GlyphsViewRenderer : ObservableObject
             {
                 // Draw the header row in the header area
                 // above the list.
-                _currentHeader.Arrange(new SKPoint(x, y), new(width, _currentHeader.Bounds.Height));
+                _currentHeader.Arrange(x, y);
                 _currentHeader.Draw(canvas, paint);
                 y += _currentHeader.Bounds.Height;
             }
             for (int i = FirstRow; i < _rows.Count; i++)
             {
                 IGlyphRow row = _rows[i];
-                row.Arrange(new SKPoint(x, y), row.Bounds.Size);
+                row.Arrange(x, y);
                 row.Draw(canvas, paint);
                 y += row.Bounds.Height;
                 if (y > height)

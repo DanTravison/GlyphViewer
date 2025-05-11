@@ -63,7 +63,8 @@
                           />
 
         <controls:Slider Grid.Row="1" 
-                         Grid.Column="2"
+                         Grid.RowSpan="2"
+                         Grid.Column="1"
                          Minimum="0"
                          Maximum="{Binding MaxRow, Mode=OneWay}"
                          Interval="1"

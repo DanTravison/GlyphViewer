@@ -19,7 +19,6 @@ public sealed class GlyphsView : SKCanvasView
     #region Fields
 
     readonly GlyphsViewRenderer _renderer;
-
     readonly DrawContext _context;
 
     #endregion Fields
@@ -206,8 +205,24 @@ public sealed class GlyphsView : SKCanvasView
                 }
             }
             return null;
+        },
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            if (bindable is GlyphsView view)
+            {
+                view.OnSelectedItemChanged();
+            }
         }
     );
+
+    void OnSelectedItemChanged()
+    {
+        Glyph glyph = SelectedItem;
+        if (glyph is not null)
+        {
+            // TODO: Ensure visible
+        }
+    }
 
     #endregion SelectedItem
 
@@ -655,7 +670,7 @@ public sealed class GlyphsView : SKCanvasView
             else
             {
                 // go to the first row after the header row.
-                row = _renderer[header];
+                row = header.Row;
                 if (row > 0 && row < Rows - 1)
                 {
                     Row = row + 1;

@@ -64,10 +64,10 @@ class HeaderRow : GlyphRowBase
     /// <summary>
     /// Layouts the contents of the <see cref="HeaderRow"/>.
     /// </summary>
-    /// <param name="location">The <see cref="SKPoint"/> identifying the upper left coordinate.</param>
-    /// <param name="size">The suggested size of the drawing area.</param>
-    /// <returns>The <see cref="SKSize"/> needed to draw the content.</returns>
-    protected override SKSize OnArrange(SKPoint location, SKSize size)
+    /// <param name="left">The X coordinate of the location to draw.</param>
+    /// <param name="top">The Y coordinate of the location to draw.</param>
+    /// <returns>The updated <see cref="Size"/> needed to draw the row.</returns>
+    protected override SKSize OnArrange(float left, float top)
     {
         float verticalSpacing = DrawContext.Spacing.Vertical;
 
@@ -76,7 +76,7 @@ class HeaderRow : GlyphRowBase
         float height = _metrics.Size.Height + verticalSpacing * 2;
         _baseLine = verticalSpacing - _metrics.Ascent;
 
-        return new(size.Width, height);
+        return new(DrawContext.CanvasSize.Width, height);
     }
 
     /// <summary>

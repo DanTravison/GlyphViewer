@@ -177,13 +177,12 @@ internal sealed class GlyphRowRenderer
     /// <summary>
     /// Arranges the <see cref="GlyphRenderer"/> elements.
     /// </summary>
-    /// <param name="location">The origin <see cref="SKPoint"/></param>
-    public SKSize Arrange(SKPoint location)
+    /// <param name="left">The X coordinate of the location to draw.</param>
+    /// <param name="top">The Y coordinate of the location to draw.</param>
+    public SKSize Arrange(float left, float top)
     {
         float totalWidth = 0;
         float totalHeight = 0;
-        float left = location.X;
-        float top = location.Y;
 
         float minimumHeight = _drawContext.MinimumGlyphSize.Height;
         float minimumWidth = _drawContext.MinimumGlyphSize.Width;
@@ -208,7 +207,6 @@ internal sealed class GlyphRowRenderer
             left += renderer.Bounds.Width;
             totalWidth += renderer.Bounds.Width;
             totalHeight = Math.Max(totalHeight, renderer.Bounds.Height);
-            
         }
         return new(totalWidth, totalHeight);
     }
