@@ -9,12 +9,16 @@ using UnicodeRange = Text.Unicode.Range;
 
 internal sealed class FontGlyphsViewModel : ObservableObject
 {
+    #region Fields
+
     ICommand _pickUnicodeRangeCommand;
     UnicodeRange _selectedRange;
     GlyphCollection _glyphs;
     int _row;
     int _rows;
     bool _IsJumpListOpen;
+
+    #endregion Fields
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -122,7 +126,13 @@ internal sealed class FontGlyphsViewModel : ObservableObject
     public bool IsJumpListOpen
     {
         get => _IsJumpListOpen;
-        set => SetProperty(ref _IsJumpListOpen, value, IsJumpListOpenChangedEventArgs);
+        set
+        {
+            if (SetProperty(ref _IsJumpListOpen, value, IsJumpListOpenChangedEventArgs))
+            {
+                Search.ShowResults = false;
+            }
+        }
     }
 
     #region Unicode Range Properties

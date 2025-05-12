@@ -37,6 +37,8 @@ internal sealed class SearchViewModel : ObservableObject
         ArgumentNullException.ThrowIfNull(metrics, nameof(metrics));
 
         _metrics = metrics;
+
+        _metrics.PropertyChanged += OnMetricsPropertyChanged;
         // NOTE: _searchCommand is always enabled because changing the IsEnabled state
         // when the search text changes can cause reentracy and cause the command
         // to be disabled when it is not supposed to be.
@@ -45,6 +47,12 @@ internal sealed class SearchViewModel : ObservableObject
         {
             IsEnabled = false
         };
+    }
+
+    private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        // If any metrics property changed, reset the search state.
+        SearchText = string.Empty;
     }
 
     #region Properties
@@ -135,7 +143,7 @@ internal sealed class SearchViewModel : ObservableObject
     public bool ShowResults
     {
         get => _showResults && _searchResults?.Count > 0;
-        private set => SetProperty(ref _showResults, value, ShowResultsChangedEventArgs);
+        set => SetProperty(ref _showResults, value, ShowResultsChangedEventArgs);
     }
 
     #endregion Properties

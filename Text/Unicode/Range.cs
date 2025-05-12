@@ -94,7 +94,7 @@ public readonly struct Range : IEquatable<Range>
         }
         First = first;
         Last = last;
-        Length = ((uint)last - (uint)first) + 1;
+        Length = last - first + 1;
         Name = name;
     }
 

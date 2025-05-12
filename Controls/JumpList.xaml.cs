@@ -90,6 +90,7 @@ public partial class JumpList : ContentView
         nameof(SelectedItem),
         typeof(object),
         typeof(JumpList),
+        null,
         BindingMode.OneWayToSource
     );
 

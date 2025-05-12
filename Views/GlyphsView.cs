@@ -581,8 +581,6 @@ public sealed class GlyphsView : SKCanvasView
 
     #endregion Row Properties
 
-    #region UnicodeRange properties
-
     #region SelectedUnicodeRange
 
     /// <summary>
@@ -647,8 +645,6 @@ public sealed class GlyphsView : SKCanvasView
     }
 
     #endregion SelectedUnicodeRange
-
-    #endregion UnicodeRange properties
 
     #endregion Properties
 
