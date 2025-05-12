@@ -1,7 +1,6 @@
 namespace GlyphViewer.Controls;
 
 using System.Collections;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 /// <summary>
@@ -91,7 +90,6 @@ public partial class JumpList : ContentView
         nameof(SelectedItem),
         typeof(object),
         typeof(JumpList),
-        null,
         BindingMode.OneWayToSource
     );
 
