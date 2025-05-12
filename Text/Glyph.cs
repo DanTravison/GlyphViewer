@@ -44,6 +44,8 @@ public sealed class Glyph : IEquatable<Glyph>
     /// <param name="category">The <see cref="UnicodeCategory"/>.</param>
     /// <param name="range">The <see cref="Unicode.Range"/> that contains the glyph.</param>
     /// <param name="name">The optional name of the glyph.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="fontFamily"/> is a null reference or empty string.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="range"/> equals <see cref="Unicode.Range.Empty"/>.</exception>
     public Glyph
     (
         string fontFamily,
@@ -54,11 +56,18 @@ public sealed class Glyph : IEquatable<Glyph>
         string name = null
     )
     {
+        if (fontFamily is not null)
+        {
+            fontFamily = fontFamily.Trim();
+        }
         if (string.IsNullOrEmpty(fontFamily))
         {
             throw new ArgumentNullException(nameof(fontFamily));
         }
-        ArgumentNullException.ThrowIfNull(range, nameof(range));
+        if (range.IsEmpty)
+        {
+            throw new ArgumentOutOfRangeException(nameof(range));
+        }
 
         FontFamily = fontFamily;
         Text = char.ConvertFromUtf32(ch);

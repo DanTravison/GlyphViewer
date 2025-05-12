@@ -21,7 +21,7 @@
         -->
         <controls:JumpList Grid.Row="0"
                            Grid.Column="0"
-                           ItemsSource="{Binding UnicodeRanges}"
+                           ItemsSource="{Binding Glyphs.UnicodeRanges}"
                            SelectedItem="{Binding SelectedUnicodeRange}"
                            ItemTemplate="{StaticResource JumpListItemTemplate}"
                            OpenCommand="{Binding PickUnicodeRangeCommand}"
@@ -54,7 +54,6 @@
                               HeaderFontFamily="{Binding Settings.ItemHeaderFont.FontFamily.Value}"
                               SelectedItem="{Binding Metrics.Glyph, Mode=TwoWay}"
                               HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
-                              UnicodeRanges="{Binding UnicodeRanges}"
                               SelectedUnicodeRange="{Binding SelectedUnicodeRange}"
                               CellLayout="{Binding Settings.Glyph.CellLayout.Value}"
                               Row="{Binding Row}"

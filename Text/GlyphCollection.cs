@@ -7,7 +7,9 @@ using SkiaSharp.HarfBuzz;
 using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
+
 using HarfBuzzFont = HarfBuzzSharp.Font;
+using UnicodeRange = GlyphViewer.Text.Unicode.Range;
 
 /// <summary>
 /// Provides a <see cref="Glyph"/> searchable collection for the glyphs in a <see cref="SKTypeface"/>.
@@ -29,11 +31,12 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     /// <param name="glyphs">The list of glyphs in the <paramref name="typeface"/>.</param>
     /// <param name="hasGlyphNames">true if some or all of the <paramref name="glyphs"/> has
     /// a <see cref="Glyph.Name"/>; otherwise, false.</param>
-    private GlyphCollection(SKTypeface typeface, List<Glyph> glyphs, bool hasGlyphNames)
+    private GlyphCollection(SKTypeface typeface, List<Glyph> glyphs, List<UnicodeRange> unicodeRanges, bool hasGlyphNames)
     {
         _glyphs = glyphs;
         HasGlyphNames = hasGlyphNames;
         FamilyName = typeface.FamilyName;
+        UnicodeRanges = unicodeRanges;
         _searchTable = new(glyphs);
     }
 
@@ -73,6 +76,14 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     /// otherwise, false.
     /// </value>
     public bool HasGlyphNames
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="UnicodeRange"/>s for the glyphs in the collection.
+    /// </summary>
+    public IReadOnlyList<UnicodeRange> UnicodeRanges
     {
         get;
     }
@@ -137,17 +148,14 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
         bool hasGlyphNames = false;
 
         List<Glyph> glyphs = new();
+        List<UnicodeRange> unicodeRanges = [];
+        UnicodeRange previousRange = UnicodeRange.Empty;
 
         for (ushort unicode = 0; unicode < 0xFFFF; unicode++)
         {
             char ch = (char)unicode;
             ushort codepoint = typeface.GetGlyph(ch);
             if (codepoint == 0)
-            {
-                continue;
-            }
-            Range range = Ranges.Find((ushort)ch);
-            if (range is null)
             {
                 continue;
             }
@@ -159,6 +167,17 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
                     continue;
                 }
             }
+            UnicodeRange unicodeRange = Ranges.Find((ushort)ch);
+            if (unicodeRange.IsEmpty)
+            {
+                continue;
+            }
+            if (unicodeRange != previousRange)
+            {
+                unicodeRanges.Add(unicodeRange);
+                previousRange = unicodeRange;
+            }
+
             string name = string.Empty;
             if (hbFont is not null)
             {
@@ -167,11 +186,11 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
                     hasGlyphNames = true;
                 }
             }
-            Glyph glyph = new(typeface.FamilyName, ch, codepoint, category, range, name);
+            Glyph glyph = new(typeface.FamilyName, ch, codepoint, category, unicodeRange, name);
             glyphs.Add(glyph);
         }
         hbFont?.Dispose();
-        return new GlyphCollection(typeface, glyphs, hasGlyphNames);
+        return new GlyphCollection(typeface, glyphs, unicodeRanges, hasGlyphNames);
     }
 
     #endregion CreateInstance

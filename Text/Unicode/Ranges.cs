@@ -20,22 +20,7 @@ internal class Ranges
 
         public int Compare(Range x, Range y)
         {
-            if (x is null && y is null)
-            {
-                return 0;
-            }
-            else if (x is null)
-            {
-                return -1;
-            }
-            else if (y is null)
-            {
-                return 1;
-            }
-            else
-            {
-                return x.First.CompareTo(y.First);
-            }
+            return x.First.CompareTo(y.First);
         }
     }
 
@@ -68,7 +53,7 @@ internal class Ranges
     /// </returns>
     public static Range Find(ushort codePoint)
     {
-        Range range = null;
+        Range range = Range.Empty;
         int index = _ranges.BinarySearch(new Range(string.Empty, codePoint, codePoint), RangeComparer.Comparer);
         do
         {

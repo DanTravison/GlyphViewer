@@ -49,24 +49,23 @@ internal class GlyphsViewRenderer : ObservableObject
         }
 
         /// <summary>
-        /// Gets the number of <see cref="GlyphRenderer"/> elements in the list.
+        /// Gets the number of <see cref="GlyphRenderer"/> in the collection.
         /// </summary>
         public int Count
         {
             get => _renderers.Count;
         }
 
+        /// <summary>
+        /// Gets the <see cref="GlyphRenderer"/> at the specified <paramref name="index"/>.
+        /// </summary>
+        /// <param name="index">The zero-based index of the <see cref="GlyphRenderer"/> to get.</param>
+        /// <returns>The <see cref="GlyphRenderer"/> at the specified <paramref name="index"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than zero
+        /// or greater than or equal to <see cref="Count"/>.</exception>
         public GlyphRenderer this[int index]
         {
             get => _renderers[index];
-        }
-
-        /// <summary>
-        /// Gets the <see cref="IReadOnlyList{GlyphRenderer>"/> for glyphs in the <see cref="UnicodeRange"/>.
-        /// </summary>
-        public IReadOnlyList<GlyphRenderer> Renderers
-        {
-            get => _renderers;
         }
 
         /// <summary>
@@ -135,15 +134,6 @@ internal class GlyphsViewRenderer : ObservableObject
             }
         }
 
-        /// <summary>
-        /// Gets the <see cref="IReadOnlyList{UnicodeRange}"/> of the <see cref="UnicodeRange"/>s in the list.
-        /// </summary>
-        /// <value>A new instance of a <see cref="IReadOnlyList{UnicodeRange}"/>.</value>
-        public IReadOnlyList<UnicodeRange> UnicodeRanges
-        {
-            get => _unicodeRanges;
-        }
-
         #endregion Properties
 
         #region Methods
@@ -165,9 +155,13 @@ internal class GlyphsViewRenderer : ObservableObject
         /// A new instance of a <see cref="GlyphRenderers"/> if <paramref name="unicodeRange"/>
         /// is not in the list; otherwise, the existing <see cref="GlyphRenderers"/>.
         /// </returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="unicodeRange"/> equals <see cref="UnicodeRange.Empty"/>.</exception>
         public GlyphRenderers Add(UnicodeRange unicodeRange)
         {
-            ArgumentNullException.ThrowIfNull(unicodeRange, nameof(unicodeRange));
+            if (unicodeRange.IsEmpty)
+            {
+                throw new ArgumentOutOfRangeException(nameof(unicodeRange));
+            }
             if (_glyphRenderers.TryGetValue(unicodeRange, out GlyphRenderers glyphRange))
             {
                 return glyphRange;
@@ -193,11 +187,6 @@ internal class GlyphsViewRenderer : ObservableObject
 
     // The UnicodeRange to GlyphRange table.
     readonly GlyphRanges _glyphRanges = new();
-
-    /// <summary>
-    /// Gets the list of <see cref="UnicodeRange"/>s in the <see cref="Content"/>.
-    /// </summary>
-    IReadOnlyList<UnicodeRange> _unicodeRanges;
 
     // The code point to GlyphRenderer table.
     readonly Dictionary<ushort, GlyphRenderer> _codepoints = [];
@@ -348,7 +337,7 @@ internal class GlyphsViewRenderer : ObservableObject
     {
         get
         {
-            if (unicodeRange is not null && _headers.TryGetValue(unicodeRange, out HeaderRow headerRow))
+            if (!unicodeRange.IsEmpty && _headers.TryGetValue(unicodeRange, out HeaderRow headerRow))
             {
                 return headerRow;
             }
@@ -356,24 +345,6 @@ internal class GlyphsViewRenderer : ObservableObject
         }
     }
 
-    /// <summary>
-    /// Gets list of <see cref="UnicodeRange"/> elements in the <see cref="Content"/>.
-    /// </summary>
-    /// <value>
-    /// An <see cref="IReadOnlyList{UnicodeRange}"/> containing zero or more elements.
-    /// </value>
-    /// <remarks>
-    /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> with <see cref="UnicodeRangesChangedEventArgs"/>.
-    /// </remarks>
-    public IReadOnlyList<UnicodeRange> UnicodeRanges
-    {
-        get => _unicodeRanges;
-        private set
-        {
-            _unicodeRanges = value;
-            OnPropertyChanged(UnicodeRangesChangedEventArgs);
-        }
-    }
 
     #endregion Properties
 
@@ -438,8 +409,6 @@ internal class GlyphsViewRenderer : ObservableObject
         }
 
         _drawContext.GlyphSize = new(width, height);
-
-        UnicodeRanges = _glyphRanges.UnicodeRanges;
 
         if (hasContent)
         {
@@ -731,11 +700,6 @@ internal class GlyphsViewRenderer : ObservableObject
     /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="Count"/> changes.
     /// </summary>
     public static readonly PropertyChangedEventArgs CountChangedEventArgs = new(nameof(Count));
-
-    /// <summary>
-    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="UnicodeRanges"/> changes.
-    /// </summary>
-    public static readonly PropertyChangedEventArgs UnicodeRangesChangedEventArgs = new(nameof(UnicodeRanges));
 
     #endregion PropertyChangedEventArgs
 }

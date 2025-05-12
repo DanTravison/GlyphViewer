@@ -10,7 +10,6 @@ using UnicodeRange = Text.Unicode.Range;
 internal sealed class FontGlyphsViewModel : ObservableObject
 {
     ICommand _pickUnicodeRangeCommand;
-    IReadOnlyList<UnicodeRange> _ranges;
     UnicodeRange _selectedRange;
     GlyphCollection _glyphs;
     int _row;
@@ -141,28 +140,18 @@ internal sealed class FontGlyphsViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Gets or sets the list of Unicode ranges for the currently selected font family.
-    /// </summary>
-    public IReadOnlyList<UnicodeRange> UnicodeRanges
-    {
-        get => _ranges;
-        set => SetProperty(ref _ranges, value, ReferenceComparer, UnicodeRangesChangedEventArgs);
-    }
-
-    /// <summary>
     /// Gets or sets the selected Unicode range.
     /// </summary>
     public UnicodeRange SelectedUnicodeRange
     {
         get => _selectedRange;
-        set => SetProperty(ref _selectedRange, value, ReferenceComparer, SelectedUnicodeRangeChangedEventArgs);
+        set => SetProperty(ref _selectedRange, value, SelectedUnicodeRangeChangedEventArgs);
     }
 
     #endregion Unicode Range Properties
 
     #region PropertyChangedEventArgs
 
-    static readonly PropertyChangedEventArgs UnicodeRangesChangedEventArgs = new(nameof(UnicodeRanges));
     static readonly PropertyChangedEventArgs SelectedUnicodeRangeChangedEventArgs = new(nameof(SelectedUnicodeRange));
     static readonly PropertyChangedEventArgs PickUnicodeRangeCommandChangedEventArgs = new(nameof(PickUnicodeRangeCommand));
     static readonly PropertyChangedEventArgs GlyphsChangedEventArgs = new(nameof(Glyphs));

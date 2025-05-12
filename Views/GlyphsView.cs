@@ -44,14 +44,6 @@ public sealed class GlyphsView : SKCanvasView
         {
             Rows = _renderer.Rows.Count;
         }
-        else if (ReferenceEquals(e, GlyphsViewRenderer.FirstRowChangedEventArgs))
-        {
-            // Row = _renderer.FirstRow;
-        }
-        else if (ReferenceEquals(e, GlyphsViewRenderer.UnicodeRangesChangedEventArgs))
-        {
-            UnicodeRanges = _renderer.UnicodeRanges;
-        }
     }
 
     protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -591,31 +583,6 @@ public sealed class GlyphsView : SKCanvasView
 
     #region UnicodeRange properties
 
-    #region UnicodeRanges
-
-    /// <summary>
-    /// Gets or sets the the number of rows
-    /// </summary>
-    public IReadOnlyList<UnicodeRange> UnicodeRanges
-    {
-        get => GetValue(UnicodeRangesProperty) as IReadOnlyList<UnicodeRange>;
-        private set => SetValue(UnicodeRangesProperty, value);
-    }
-
-    /// <summary>
-    /// Provides a <see cref="BindableProperty"/> for the <see cref="UnicodeRanges"/> property.
-    /// </summary>
-    public static readonly BindableProperty UnicodeRangesProperty = BindableProperty.Create
-    (
-        nameof(UnicodeRanges),
-        typeof(IReadOnlyList<UnicodeRange>),
-        typeof(GlyphsView),
-        null,
-        BindingMode.OneWayToSource
-    );
-
-    #endregion UnicodeRanges
-
     #region SelectedUnicodeRange
 
     /// <summary>
@@ -623,7 +590,7 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public UnicodeRange SelectedUnicodeRange
     {
-        get => GetValue(SelectedUnicodeRangeProperty) as UnicodeRange;
+        get => (UnicodeRange)GetValue(SelectedUnicodeRangeProperty);
         private set => SetValue(SelectedUnicodeRangeProperty, value);
     }
 
