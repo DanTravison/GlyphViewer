@@ -25,8 +25,9 @@ class HeaderRow : GlyphRowBase
     /// <param name="context">The <see cref="DrawContext"/> to use to draw the row.</param>
     /// <param name="unicodeRange">The <see cref="UnicodeRange"/> of the <see cref="HeaderRow"/>.</param>
     /// <param name="previous">The previous <see cref="HeaderRow"/>.</param>
-    public HeaderRow(DrawContext context, UnicodeRange unicodeRange, HeaderRow previous)
-        : base(context)
+    /// <param name="row">The zero-based index of the <see cref="HeaderRow"/> in the containing collection..</param>
+    public HeaderRow(DrawContext context, UnicodeRange unicodeRange, HeaderRow previous, int row)
+        : base(context, row)
     {
         Name = unicodeRange.Name;
         UnicodeRange = unicodeRange;

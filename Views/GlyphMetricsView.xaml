@@ -4,7 +4,7 @@
              xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
              xmlns:views="clr-namespace:GlyphViewer.Views"
              x:Class="GlyphViewer.Views.GlyphMetricsView"
-             x:DataType="viewmodel:MainViewModel">
+             x:DataType="viewmodel:MetricsViewModel">
     
     <Grid Grid.Column="2"
                    RowDefinitions="Auto, *" 
@@ -12,7 +12,7 @@
                    WidthRequest="{Binding Settings.Glyph.Width.Value}"
                    >
         <views:GlyphView Grid.Row="0" 
-                         Metrics="{Binding Metrics, Mode=OneWay}"
+                         Metrics="{Binding}"
                          TextColor="{AppThemeBinding Light=WhiteSmoke, Dark={StaticResource PrimaryDarkText}}"
                          BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                          LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"
@@ -20,9 +20,7 @@
                          GlyphWidth="{Binding Settings.Glyph.Width.Value}"
                          />
 
-        <views:MetricsView Grid.Row="1"
-                           BindingContext="{Binding Metrics}"
-                           />
+        <views:MetricsView Grid.Row="1"/>
 
     </Grid>
 </ContentView>

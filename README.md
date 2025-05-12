@@ -47,12 +47,13 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 
 ## ViewModels
 * MainViewModel: the view model for the main page and various views.
+* FontGlyphsViewModel: provides the view model for FontGlyphsView.
 * PageNavigator: provides open/close semantics for a specific ContentPage.
   * Defines an OpenCommand to open a page and a CloseCommand to navigate back.
   * Creates the ContentPage and optionally sets the BindingContext on open.
   * Pops the page from the navigation stack on close and clears the BindingContext when the page is unloaded.  
   * IsModel indicates whether the page should be modal.
-* MetricsModel: the view model for the fonts and glyph metrics.
+* MetricsViewModel: the view model for the fonts and glyph metrics.
   * Provides the property for the current Glyph. 
   * Provides a list of glyph metrics properties for the selected glyph.
   * Provides a list of font metrics properties for the selected typeface.

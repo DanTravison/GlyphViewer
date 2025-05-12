@@ -15,10 +15,11 @@ abstract class GlyphRowBase : IGlyphRow
     /// </summary>
     /// <param name="context">The <see cref="Renderers.DrawContext"/> to use to draw the row.</param>
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is a null reference.</exception>
-    protected GlyphRowBase(DrawContext context)
+    protected GlyphRowBase(DrawContext context, int row)
     {
         ArgumentNullException.ThrowIfNull(context, nameof(context));
         DrawContext = context;
+        Row = row;
     }
 
     #region Properties
@@ -58,7 +59,6 @@ abstract class GlyphRowBase : IGlyphRow
     internal int Row
     {
         get;
-        set;
     }
 
     #endregion Properties

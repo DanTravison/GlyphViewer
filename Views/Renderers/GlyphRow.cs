@@ -16,8 +16,9 @@ class GlyphRow : GlyphRowBase
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="context">The <see cref="DrawContext"/> to use to draw the row.</param>
-    public GlyphRow(DrawContext context)
-        : base(context)
+    /// <param name="row">The zero-based index of the <see cref="GlyphRow"/> in the containing collection..</param>
+    public GlyphRow(DrawContext context, int row)
+        : base(context, row)
     {
         _items = new GlyphRowRenderer(context);
     }

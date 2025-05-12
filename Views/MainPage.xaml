@@ -17,9 +17,12 @@
               ColumnSpacing="5"
               Margin="10, 5, 10, 5">
         
-            <views:FontFamiliesView Grid.Column="0"/>
-            <views:FontGlyphsView Grid.Column="1"/>
-            <views:GlyphMetricsView Grid.Column="2"/>
+            <views:FontFamiliesView Grid.Column="0"
+                                    BindingContext="{Binding FontFamilies}"/>
+            <views:FontGlyphsView Grid.Column="1"
+                                  BindingContext="{Binding FontGlyphs}"/>
+            <views:GlyphMetricsView Grid.Column="2"
+                                    BindingContext="{Binding Metrics}"/>
             
         </Grid>
     </Grid>

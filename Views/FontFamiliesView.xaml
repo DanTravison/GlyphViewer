@@ -6,7 +6,7 @@
              xmlns:text="clr-namespace:GlyphViewer.Text"
              xmlns:controls="clr-namespace:GlyphViewer.Controls"
              x:Class="GlyphViewer.Views.FontFamiliesView"
-             x:DataType="viewmodel:MainViewModel"
+             x:DataType="viewmodel:FontFamiliesViewModel"
              x:Name="this">
 
     <ContentView.Resources>
@@ -92,9 +92,6 @@
                         ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"
                         SelectedItem="{Binding Metrics.FontFamily, Mode=TwoWay}"
                         />
-                    <!-- ISSUE: CollectionView.ScrollTo is not working
-                        SelectionChanged="OnSelectionChanged"
-                    -->
     </Grid>
 
 </ContentView>

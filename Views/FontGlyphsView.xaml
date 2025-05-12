@@ -6,7 +6,7 @@
              xmlns:unicode="clr-namespace:GlyphViewer.Text.Unicode"
              xmlns:controls="clr-namespace:GlyphViewer.Controls"
              x:Class="GlyphViewer.Views.FontGlyphsView"
-             x:DataType="viewmodel:MainViewModel">
+             x:DataType="viewmodel:FontGlyphsViewModel">
 
     <ContentView.Resources>
         <DataTemplate x:DataType="unicode:Range" x:Key="JumpListItemTemplate">
@@ -15,55 +15,54 @@
         </DataTemplate>
     </ContentView.Resources>
     
-    <!-- NOTE: Placing ContentView directly in a '*' row can cause
-         the content to overflow the row. As a workaround, 
-         JumpList and GlyphsView span 2 rows of Auto, *
-    -->
-    <Grid ColumnDefinitions="*, Auto"
-          RowDefinitions="Auto, Auto, *"
-          RowSpacing="5"
-          >
-        <!-- Search view displays only the Entry field when not results are available
-             and grows in height to display the results when available.
+    <Grid ColumnDefinitions="*, Auto">
+        <!-- NOTE: JumpList and GlyphsView/SearchView populate the same row and column
+                   The jump list is displayed above when open.
         -->
-        <views:SearchView Grid.Row="0"
-                          Grid.Column="0"
-                          Grid.ColumnSpan="2"
-                          BindingContext="{Binding Search}"/>
-
-        <!-- NOTE: JumpList and GlyphsView populate the same column
-                   The jump list is displayed above the GlyphsView when active.
-        -->
-        <controls:JumpList Grid.Row="1"
-                           Grid.RowSpan="2"
+        <controls:JumpList Grid.Row="0"
                            Grid.Column="0"
                            ItemsSource="{Binding UnicodeRanges}"
                            SelectedItem="{Binding SelectedUnicodeRange}"
                            ItemTemplate="{StaticResource JumpListItemTemplate}"
-                           OpenCommand="{Binding PickUnicodeRangeCommand}"/>
+                           OpenCommand="{Binding PickUnicodeRangeCommand}"
+                           IsOpen="{Binding IsJumpListOpen}"
+                           />
 
-        <views:GlyphsView Grid.Row="1"
-                          Grid.RowSpan="2"
-                          Grid.Column="0"
-                          Items="{Binding Glyphs}"
-                          ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
-                          HeaderColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
-                          BackgroundColor="Transparent"
-                          ItemFontSize="{Binding Settings.ItemFont.FontSize.Value}"
-                          HeaderFontSize="{Binding Settings.ItemHeaderFont.FontSize.Value}"
-                          HeaderFontAttributes="{Binding Settings.ItemHeaderFont.FontAttributes.Value}"
-                          HeaderFontFamily="{Binding Settings.ItemHeaderFont.FontFamily.Value}"
-                          SelectedItem="{Binding Metrics.Glyph, Mode=TwoWay}"
-                          HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
-                          UnicodeRanges="{Binding UnicodeRanges}"
-                          SelectedUnicodeRange="{Binding SelectedUnicodeRange}"
-                          CellLayout="{Binding Settings.Glyph.CellLayout.Value}"
-                          Row="{Binding Row}"
-                          Rows="{Binding Rows}"
-                          />
+        <Grid RowDefinitions="Auto, Auto, *"
+              RowSpacing="5"
+              Grid.Row="0"
+              >
+            <!-- Search view displays only the Entry field when not results are available
+                 and grows in height to display the results when available.
+            -->
+            <views:SearchView Grid.Row="0"
+                              BindingContext="{Binding Search}"/>
 
-        <controls:Slider Grid.Row="1" 
-                         Grid.RowSpan="2"
+            <!-- NOTE: Placing ContentView directly in a '*' row can cause
+                 the content to overflow the row. As a workaround, 
+                 JumpList and GlyphsView span 2 rows of Auto, *
+            -->
+            <views:GlyphsView Grid.Row="1"
+                              Grid.RowSpan="2"
+                              Items="{Binding Glyphs}"
+                              ItemColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
+                              HeaderColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark={StaticResource White}}"
+                              BackgroundColor="Transparent"
+                              ItemFontSize="{Binding Settings.ItemFont.FontSize.Value}"
+                              HeaderFontSize="{Binding Settings.ItemHeaderFont.FontSize.Value}"
+                              HeaderFontAttributes="{Binding Settings.ItemHeaderFont.FontAttributes.Value}"
+                              HeaderFontFamily="{Binding Settings.ItemHeaderFont.FontFamily.Value}"
+                              SelectedItem="{Binding Metrics.Glyph, Mode=TwoWay}"
+                              HeaderClickedCommand="{Binding PickUnicodeRangeCommand}"
+                              UnicodeRanges="{Binding UnicodeRanges}"
+                              SelectedUnicodeRange="{Binding SelectedUnicodeRange}"
+                              CellLayout="{Binding Settings.Glyph.CellLayout.Value}"
+                              Row="{Binding Row}"
+                              Rows="{Binding Rows}"
+                              />
+        </Grid>
+
+        <controls:Slider Grid.Row="0" 
                          Grid.Column="1"
                          Minimum="0"
                          Maximum="{Binding MaxRow, Mode=OneWay}"

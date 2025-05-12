@@ -46,7 +46,7 @@ public sealed class GlyphsView : SKCanvasView
         }
         else if (ReferenceEquals(e, GlyphsViewRenderer.FirstRowChangedEventArgs))
         {
-            Row = _renderer.FirstRow;
+            // Row = _renderer.FirstRow;
         }
         else if (ReferenceEquals(e, GlyphsViewRenderer.UnicodeRangesChangedEventArgs))
         {

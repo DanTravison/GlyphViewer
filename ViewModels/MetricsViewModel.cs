@@ -12,7 +12,7 @@ using System.Windows.Input;
 /// <summary>
 /// Provides a view model for managing <see cref="Glyph"/> and font metrics.
 /// </summary>
-internal sealed class MetricsModel : ObservableObject, IDisposable
+internal sealed class MetricsViewModel : ObservableObject, IDisposable
 {
     #region Fields
 
@@ -39,9 +39,12 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     /// </para>
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="settings"/> a null reference.</exception>
-    public MetricsModel(ItemFontSetting settings)
+    public MetricsViewModel(UserSettings settings)
     {
-        _fontSize = settings.FontSize;
+        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
+
+        Settings = settings;
+        _fontSize = settings.ItemFont.FontSize;
         _fontSize.ValueChanged += OnFontSizePropertyChanged;
         _glyph = Glyph.Empty;
 
@@ -52,6 +55,14 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     }
 
     #endregion Constructors
+
+    /// <summary>
+    /// Gets the <see cref="UserSettings"/>.
+    /// </summary>
+    public UserSettings Settings
+    {
+        get;
+    }
 
     #region Font Properties
 
@@ -232,7 +243,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
         FontProperties = FontFamily | FontSize,
     }
 
-    class PropertyChanges(MetricsModel.ChangedProperty changed)
+    class PropertyChanges(MetricsViewModel.ChangedProperty changed)
     {
         public ChangedProperty Changed { get; } = changed;
 
@@ -386,7 +397,7 @@ internal sealed class MetricsModel : ObservableObject, IDisposable
     #region IDisposable
 
     /// <summary>
-    /// Releases the resources used by the <see cref="MetricsModel"/> class.
+    /// Releases the resources used by the <see cref="MetricsViewModel"/> class.
     /// </summary>
     public void Dispose()
     {

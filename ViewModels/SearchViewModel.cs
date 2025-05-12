@@ -8,7 +8,7 @@ using System.Windows.Input;
 /// <summary>
 /// Provides a search view model for the glyphs in a <see cref="GlyphCollection"/>.
 /// </summary>
-public sealed class SearchViewModel : ObservableObject
+internal sealed class SearchViewModel : ObservableObject
 {
     #region Fields
 
@@ -21,7 +21,7 @@ public sealed class SearchViewModel : ObservableObject
     IReadOnlyList<Glyph> _searchResults;
     bool _showResults;
 
-    readonly MetricsModel _metrics;
+    readonly MetricsViewModel _metrics;
 
     #endregion Fields
 
@@ -29,11 +29,13 @@ public sealed class SearchViewModel : ObservableObject
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="metrics">
-    /// The <see cref="MetricsModel"/> to update when a glyph is selected
+    /// The <see cref="MetricsViewModel"/> to update when a glyph is selected
     /// from the results.
     /// </param>
-    internal SearchViewModel(MetricsModel metrics)
+    internal SearchViewModel(MetricsViewModel metrics)
     {
+        ArgumentNullException.ThrowIfNull(metrics, nameof(metrics));
+
         _metrics = metrics;
         // NOTE: _searchCommand is always enabled because changing the IsEnabled state
         // when the search text changes can cause reentracy and cause the command
@@ -58,6 +60,7 @@ public sealed class SearchViewModel : ObservableObject
             _glyphs = value;
             Results = null;
             SelectedItem = null;
+            _metrics.FontProperties.GlyphCount = value?.Count ?? 0;
             OnPropertyChanged(CanEditChangedEventArgs);
         }
     }

@@ -1,6 +1,7 @@
 namespace GlyphViewer.Controls;
 
 using System.Collections;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 /// <summary>

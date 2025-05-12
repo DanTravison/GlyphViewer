@@ -292,7 +292,7 @@ internal class GlyphsViewRenderer : ObservableObject
             value = Math.Clamp(value, 0, _rows.Count);
             if (SetProperty(ref _firstRow, value, FirstRowChangedEventArgs))
             {
-                _view.InvalidateSurface();
+                InvalidateDraw();
             }
         }
     }
@@ -516,20 +516,18 @@ internal class GlyphsViewRenderer : ObservableObject
                 // get the glyph range for the UnicodeRange.
                 GlyphRenderers renderers = _glyphRanges[unicodeRange];
 
-                HeaderRow header = new(_drawContext, unicodeRange, previousHeader);
+                HeaderRow header = new(_drawContext, unicodeRange, previousHeader, _rows.Count);
                 _headers.Add(unicodeRange, header);
 
                 // NOTE: The header row for the first row is not added to the _rows list
                 // to avoid the header being drawn twice when at the top of the list.
                 if (_rows.Count > 0)
                 {
-                    header.Row = _rows.Count;
                     _rows.Add(header);
-                    
                 }
                 previousHeader = header;
 
-                GlyphRow row = new(_drawContext);
+                GlyphRow row = new(_drawContext, _rows.Count);
                 _rows.Add(row);
 
                 for (int r = 0; r < renderers.Count; r++)
@@ -537,10 +535,7 @@ internal class GlyphsViewRenderer : ObservableObject
                     GlyphRenderer renderer = renderers[r];
                     if (!row.Add(renderer))
                     {
-                        row = new(_drawContext)
-                        {
-                            Row = _rows.Count
-                        };
+                        row = new(_drawContext, _rows.Count);
                         _rows.Add(row);
                         row.Add(renderer);
                     }

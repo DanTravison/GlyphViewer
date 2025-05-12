@@ -14,7 +14,7 @@ internal sealed class BookmarkCommand : Command
     #region Fields
 
     readonly Bookmarks _bookmarks;
-    readonly MetricsModel _metrics;
+    readonly MetricsViewModel _metrics;
     bool _isBookmarked;
 
     #endregion Fields
@@ -23,7 +23,7 @@ internal sealed class BookmarkCommand : Command
     /// Initializes a new instance of this command.
     /// </summary>
     /// <param name="bookmarks">The <see cref="Bookmarks"/> to update.</param>
-    public BookmarkCommand(Bookmarks bookmarks, MetricsModel metrics)
+    public BookmarkCommand(Bookmarks bookmarks, MetricsViewModel metrics)
         : base(NopAction)
     {
         _bookmarks = bookmarks;
@@ -70,7 +70,7 @@ internal sealed class BookmarkCommand : Command
 
     private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (ReferenceEquals(e, MetricsModel.FontFamilyChangedEventArgs))
+        if (ReferenceEquals(e, MetricsViewModel.FontFamilyChangedEventArgs))
         {
             OnFamilyNameChanged();
         }
