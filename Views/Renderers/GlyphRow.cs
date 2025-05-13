@@ -45,6 +45,27 @@ class GlyphRow : GlyphRowBase
         get => _items.Count;
     }
 
+    /// <summary>
+    /// Determines if the row contains a specific <see cref="Glyph"/>.
+    /// </summary>
+    /// <param name="glyph">The <see cref="Glyph"/> to query.</param>
+    /// <returns>true if the row contains the specified <paramref name="glyph"/>; otherwise, false.</returns>
+    public bool Contains(Glyph glyph)
+    {
+        if (glyph is null || glyph.IsEmpty || _items.Count == 0)
+        {
+            return false;
+        }
+        for (int i = 0; i < _items.Count; i++)
+        {
+            if (_items[i].Metrics.Glyph == glyph)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     #endregion Properties
 
     #region Methods
@@ -61,6 +82,14 @@ class GlyphRow : GlyphRowBase
     }
 
     #region Arrange
+
+    /// <summary>
+    /// Sets the final size for the items in the row.
+    /// </summary>
+    public void SizeItems()
+    {
+        base.Size = _items.SizeItems();    
+    }
 
     /// <summary>
     /// Layouts the contents of the glyph group.

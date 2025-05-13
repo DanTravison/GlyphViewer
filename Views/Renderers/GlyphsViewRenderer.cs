@@ -287,6 +287,19 @@ internal class GlyphsViewRenderer : ObservableObject
     }
 
     /// <summary>
+    /// Gets the last visible row.
+    /// </summary>
+    /// <value>
+    /// The zero-based index of the last row to display; otherwise, 0 if the <see cref="Content"/> is not set
+    /// and arranged.
+    /// </value>
+    public int LastRow
+    {
+        get;
+        private set;
+    }
+
+    /// <summary>
     /// Gets or sets the <see cref="IReadOnlyList{Glyph}"/> to render.
     /// </summary>
     /// <value>
@@ -301,6 +314,7 @@ internal class GlyphsViewRenderer : ObservableObject
             if (!ReferenceEquals(value, _content))
             {
                 _content = value;
+                LastRow = 0;
                 OnContentChanged(_content);
             }
         }
@@ -440,8 +454,9 @@ internal class GlyphsViewRenderer : ObservableObject
     /// Populates _rows, _headers and FirstRow.
     /// </summary>
     /// <param name="size">The size of the drawing area.</param>
-    void Arrange(SKSize size)
+    void PopulateRows(SKSize size)
     {
+        // TODO: Consider renaming this to something like PopulateRows.
         if (!_needsArrange && size == DrawContext.CanvasSize)
         {
             return;
@@ -504,11 +519,13 @@ internal class GlyphsViewRenderer : ObservableObject
                     GlyphRenderer renderer = renderers[r];
                     if (!row.Add(renderer))
                     {
+                        row.SizeItems();
                         row = new(_drawContext, _rows.Count);
                         _rows.Add(row);
                         row.Add(renderer);
                     }
                 }
+                row.SizeItems();
             }
 
 #if (false)
@@ -591,6 +608,66 @@ internal class GlyphsViewRenderer : ObservableObject
 
     #endregion HitTest
 
+    /// <summary>
+    /// Gets the row containing the specified <see cref="Glyph"/>.
+    /// </summary>
+    /// <param name="glyph">The <see cref="Glyph"/> to query.</param>
+    /// <returns>The zero-based index of the row containing the <paramref name="glyph"/>; 
+    /// otherwise, -1 if the glyph is not present.
+    /// </returns>
+    public int GetRow(Glyph glyph)
+    {
+        if (glyph is not null && !glyph.IsEmpty)
+        {
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                if (_rows[i] is GlyphRow glyphRow && glyphRow.Contains(glyph))
+                {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// Determines if the specified <see cref="Glyph"/> is visible in the list.
+    /// </summary>
+    /// <param name="glyph">The <see cref="Glyph"/> to query.</param>
+    /// <param name="row">
+    /// The zero-based row to set to ensure the <paramref name="glyph"/> is visible; 
+    /// otherwise, -1 if the <paramref name="glyph"/> is not present.
+    /// </param>
+    /// <returns>
+    /// true if the glyph is visible; otherwise, false.
+    /// </returns>
+    /// <remarks>
+    /// When false is returned and the returned <paramref name="row"/> is greater than or equal to zero,
+    /// setting <see cref="FirstRow"/> to the <paramref name="row"/> will ensure the <paramref name="glyph"/> 
+    /// is visible.
+    /// </remarks>
+    public bool IsVisible(Glyph glyph, out int row)
+    {
+        int glyphRow = GetRow(glyph);
+        if (glyphRow >= 0)
+        {
+            if (glyphRow < FirstRow)
+            {
+                row = glyphRow;
+                return false;
+            }
+            if (glyphRow <= LastRow)
+            {
+                row = glyphRow;
+                return true;
+            }
+            row = glyphRow;
+            return false;
+        }
+        row = -1;
+        return false;
+    }
+
     #region Draw
 
     /// <summary>
@@ -613,7 +690,7 @@ internal class GlyphsViewRenderer : ObservableObject
     public void Draw(SKCanvas canvas, SKSize canvasSize)
     {
         // NOTE: Calling arrange unconditionally
-        Arrange(canvasSize);
+        PopulateRows(canvasSize);
         _needsDraw = false;
 
         if (_rows.Count == 0)
@@ -642,17 +719,20 @@ internal class GlyphsViewRenderer : ObservableObject
                 _currentHeader.Draw(canvas, paint);
                 y += _currentHeader.Bounds.Height;
             }
+            int lastRow = FirstRow;
             for (int i = FirstRow; i < _rows.Count; i++)
             {
                 IGlyphRow row = _rows[i];
-                row.Arrange(x, y);
-                row.Draw(canvas, paint);
-                y += row.Bounds.Height;
-                if (y > height)
+                if (y + row.Size.Height > height)
                 {
                     break;
                 }
+                lastRow = i;
+                row.Arrange(x, y);
+                row.Draw(canvas, paint);
+                y += row.Bounds.Height;
             }
+            LastRow = lastRow;
         }
     }
 

@@ -175,11 +175,10 @@ internal sealed class GlyphRowRenderer
     }
 
     /// <summary>
-    /// Arranges the <see cref="GlyphRenderer"/> elements.
+    /// Sets the sizes of the individual glyphs.
     /// </summary>
-    /// <param name="left">The X coordinate of the location to draw.</param>
-    /// <param name="top">The Y coordinate of the location to draw.</param>
-    public SKSize Arrange(float left, float top)
+    /// <returns>The size required for the renderer.</returns>
+    public SKSize SizeItems()
     {
         float totalWidth = 0;
         float totalHeight = 0;
@@ -202,7 +201,31 @@ internal sealed class GlyphRowRenderer
                 width += GlyphWidth;
             }
 
-            renderer.Arrange(new(left, top), new(width, height));
+            renderer.Size = new(width, height);
+
+            totalWidth += renderer.Bounds.Width;
+            totalHeight = Math.Max(totalHeight, renderer.Bounds.Height);
+        }
+        return new(totalWidth, totalHeight);
+    }
+
+    /// <summary>
+    /// Arranges the <see cref="GlyphRenderer"/> elements.
+    /// </summary>
+    /// <param name="left">The X coordinate of the location to draw.</param>
+    /// <param name="top">The Y coordinate of the location to draw.</param>
+    public SKSize Arrange(float left, float top)
+    {
+        float totalWidth = 0;
+        float totalHeight = 0;
+
+        float minimumHeight = _drawContext.MinimumGlyphSize.Height;
+        float minimumWidth = _drawContext.MinimumGlyphSize.Width;
+
+        for (int i = 0; i < _items.Count; i++)
+        {
+            GlyphRenderer renderer = _items[i];
+            renderer.Arrange(left, top);
 
             left += renderer.Bounds.Width;
             totalWidth += renderer.Bounds.Width;

@@ -34,6 +34,8 @@ public sealed class GlyphsView : SKCanvasView
         _renderer.PropertyChanged += OnLayoutPropertyChanged;
     }
 
+    #region Event Handlers
+
     private void OnLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         // NOTE: The following properties are not bound to a DrawContext property.
@@ -51,6 +53,8 @@ public sealed class GlyphsView : SKCanvasView
         // NOTE: OnPropertyChanged can be called before constructor completes.
         _context?.OnViewPropertyChanged(propertyName);
     }
+
+    #endregion Event Handlers
 
     #region Properties
 
@@ -210,10 +214,29 @@ public sealed class GlyphsView : SKCanvasView
     void OnSelectedItemChanged()
     {
         Glyph glyph = SelectedItem;
-        if (glyph is not null)
+        EnsureVisible(glyph);
+    }
+
+    /// <summary>
+    /// Ensures that the specified <see cref="Glyph"/> is visible in the view.
+    /// </summary>
+    /// <param name="glyph">The <see cref="Glyph"/> to ensure visibility.</param>
+    /// <returns>
+    /// true if the <see cref="Glyph"/> is visible; otherwise, 
+    /// false if the <see cref="Glyph"/> is a null reference or not present.
+    /// </returns>
+    public bool EnsureVisible(Glyph glyph)
+    {
+        bool result = _renderer.IsVisible(glyph, out int row);
+        if (result == false)
         {
-            // TODO: Ensure visible
+            if (row >= 0)
+            {
+                Row = row;
+                result = true;
+            }
         }
+        return result;
     }
 
     #endregion SelectedItem

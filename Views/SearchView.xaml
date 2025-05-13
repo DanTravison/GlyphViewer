@@ -59,8 +59,9 @@
 
     </ContentView.Resources>
 
-    <Grid RowDefinitions="Auto, Auto, *"
-          ColumnDefinitions="*, Auto, Auto">
+    <Grid RowDefinitions="Auto, *"
+          ColumnDefinitions="*, Auto, Auto"
+          RowSpacing="5">
 
         <Entry ReturnType="Search"
                ReturnCommand="{Binding SearchCommand}"
@@ -94,7 +95,6 @@
                         SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                         SelectionMode="Single"
                         Grid.Row="1"
-                        Grid.RowSpan="2"
                         Grid.Column="0"
                         Grid.ColumnSpan="3"
                         />

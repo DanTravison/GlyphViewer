@@ -27,6 +27,8 @@ internal class GlyphRenderer
         PreferredSize = new (Metrics.TextWidth, height);
     }
 
+    #region Properties
+
     /// <summary>
     /// Gets the <see cref="GlyphMetrics"/> to render.
     /// </summary>
@@ -47,21 +49,33 @@ internal class GlyphRenderer
     /// <remarks>
     /// This property is set by <see cref="Arrange"/>.
     /// </remarks>
-    /// 
     public SKRect Bounds
     {
         get;
         private set;
     }
+        
+    /// <summary>
+    /// Gets or sets the size of the renderer.
+    /// </summary>
+    public SKSize Size
+    {
+        get;
+        set;
+    }
+
+    #endregion Properties
+
+    #region Methods
 
     /// <summary>
     /// Called by <see cref="GlyphRow"/> to set the final bounds.
     /// </summary>
-    /// <param name="location">The <see cref="SKPoint"/> identifying the upper left coordinate.</param>
-    /// <param name="size">The <see cref="SKSize"/> identifying the area available to render the glyph</param>
-    public void Arrange(SKPoint location, SKSize size)
+    /// <param name="left">The X coordinate.</param>
+    /// <param name="top">The Y coordinate.</param>
+    public void Arrange(float left, float top)
     {
-        Bounds = new(location.X, location.Y, location.X + size.Width, location.Y + size.Height);
+        Bounds = new(left, top, left + Size.Width, top + Size.Height);
     }
 
     /// <summary>
@@ -78,15 +92,7 @@ internal class GlyphRenderer
         float y = Bounds.Top;
 
         bool isSelected = ReferenceEquals(Metrics.Glyph, drawContext.SelectedItem);
-
-        float start = x - Metrics.Left + (width - Metrics.Size.Width) / 2;
-        float top = y + (height - Metrics.Size.Height) / 2;
-        float baseLine = top - Metrics.Ascent;
         float strokeWidth = 2;
-
-        paint.Style = SKPaintStyle.Fill;
-        paint.Color = drawContext.ItemColor;
-        canvas.DrawText(drawContext.ItemFont, paint, Metrics.Glyph.Text, start, baseLine, SKTextAlign.Left);
 
         if (isSelected)
         {
@@ -97,11 +103,27 @@ internal class GlyphRenderer
                 x + width - strokeWidth / 2,
                 y + height - strokeWidth / 2
             );
+
+            SKColor fillColor = drawContext.SelectedItemColor.WithAlpha(0x80);
+            paint.Color = fillColor;
+            paint.Style = SKPaintStyle.Fill;
+            canvas.DrawRect(bounds, paint);
+
             paint.Color = drawContext.SelectedItemColor;
             paint.Style = SKPaintStyle.Stroke;
             paint.StrokeWidth = 2;
 
             canvas.DrawRect(bounds, paint);
         }
+
+        float start = x - Metrics.Left + (width - Metrics.Size.Width) / 2;
+        float top = y + (height - Metrics.Size.Height) / 2;
+        float baseLine = top - Metrics.Ascent;
+
+        paint.Style = SKPaintStyle.Fill;
+        paint.Color = drawContext.ItemColor;
+        canvas.DrawText(drawContext.ItemFont, paint, Metrics.Glyph.Text, start, baseLine, SKTextAlign.Left);
     }
+
+    #endregion Methods
 }

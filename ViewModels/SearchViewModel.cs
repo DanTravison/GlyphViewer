@@ -51,8 +51,10 @@ internal sealed class SearchViewModel : ObservableObject
 
     private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        // If any metrics property changed, reset the search state.
-        SearchText = string.Empty;
+        if (ReferenceEquals(e, MetricsViewModel.FontFamilyChangedEventArgs))
+        {
+            SearchText = string.Empty;
+        }
     }
 
     #region Properties
@@ -122,9 +124,12 @@ internal sealed class SearchViewModel : ObservableObject
         {
             if (SetProperty(ref _searchResults, value, ResultsChangedEventArgs))
             {
-                _selectedItem = null;
                 _showResultsCommand.IsEnabled = value?.Count > 0;
-                ShowResults = value?.Count > 0;
+                App.Current.Dispatcher.DispatchAsync(() =>
+                {
+                    _selectedItem = null;
+                    ShowResults = value?.Count > 0;
+                });
             }
         }
     }
