@@ -104,7 +104,7 @@ internal class GlyphRenderer
                 y + height - strokeWidth / 2
             );
 
-            SKColor fillColor = drawContext.SelectedItemColor.WithAlpha(0x80);
+            SKColor fillColor = drawContext.SelectedItemColor.WithAlpha(0x40);
             paint.Color = fillColor;
             paint.Style = SKPaintStyle.Fill;
             canvas.DrawRect(bounds, paint);

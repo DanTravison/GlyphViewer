@@ -422,7 +422,7 @@ internal class GlyphsViewRenderer : ObservableObject
             }
         }
 
-        _drawContext.GlyphSize = new(width, height);
+        _drawContext.MaximumGlyphSize = new(width, height);
 
         if (hasContent)
         {
@@ -635,11 +635,11 @@ internal class GlyphsViewRenderer : ObservableObject
     /// </summary>
     /// <param name="glyph">The <see cref="Glyph"/> to query.</param>
     /// <param name="row">
-    /// The zero-based row to set to ensure the <paramref name="glyph"/> is visible; 
+    /// The zero-based row containing the <paramref name="glyph"/>; 
     /// otherwise, -1 if the <paramref name="glyph"/> is not present.
     /// </param>
     /// <returns>
-    /// true if the glyph is visible; otherwise, false.
+    /// true if the glyph is visible; otherwise, false if the glyph is not visible or is not present.
     /// </returns>
     /// <remarks>
     /// When false is returned and the returned <paramref name="row"/> is greater than or equal to zero,
@@ -649,23 +649,10 @@ internal class GlyphsViewRenderer : ObservableObject
     public bool IsVisible(Glyph glyph, out int row)
     {
         int glyphRow = GetRow(glyph);
-        if (glyphRow >= 0)
-        {
-            if (glyphRow < FirstRow)
-            {
-                row = glyphRow;
-                return false;
-            }
-            if (glyphRow <= LastRow)
-            {
-                row = glyphRow;
-                return true;
-            }
-            row = glyphRow;
-            return false;
-        }
-        row = -1;
-        return false;
+        bool result = glyphRow >= FirstRow && glyphRow <= LastRow;
+
+        row = glyphRow;
+        return result;
     }
 
     #region Draw

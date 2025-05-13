@@ -331,7 +331,7 @@ sealed class DrawContext : IDisposable
     /// <summary>
     /// Defines the maximum width and height of all glyphs
     /// </summary>
-    public SKSize GlyphSize
+    public SKSize MaximumGlyphSize
     {
         get;
         set;
