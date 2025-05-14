@@ -21,7 +21,7 @@
                                     BindingContext="{Binding FontFamilies}"/>
             <views:FontGlyphsView Grid.Column="1"
                                   BindingContext="{Binding FontGlyphs}"
-                                  BackgroundColor="{AppThemeBinding Light=WhiteSmoke, Dark={StaticResource Gray950}}"/>
+                                  BackgroundColor="{AppThemeBinding Light=WhiteSmoke, Dark={StaticResource Gray900}}"/>
             <views:GlyphMetricsView Grid.Column="2"
                                     BindingContext="{Binding Metrics}"/>
             

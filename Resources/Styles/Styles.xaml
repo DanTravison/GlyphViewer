@@ -166,7 +166,7 @@
                     </VisualState>
                     <VisualState x:Name="PointerOver">
                         <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="DarkTurquoise"/>
+                            <Setter Property="BackgroundColor" Value="{StaticResource SelectedItemBackgroundColor}" />
                             <Setter Property="BorderWidth" Value="0"/>
                         </VisualState.Setters>
                     </VisualState>

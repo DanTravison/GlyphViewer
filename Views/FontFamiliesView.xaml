@@ -86,6 +86,36 @@
             <Setter Property="ItemTemplate" Value="{StaticResource GroupItemTemplate}"/>
         </Style>
 
+        <Style TargetType="Label" x:Key="BookmarkItemStyle"
+               BasedOn="{StaticResource GroupItemStyle}">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                        Value="{StaticResource SelectedItemBackgroundColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:DataType="x:String" x:Key="BookmarkItemTemplate">
+            <Label Text="{Binding}"
+                   Style="{StaticResource BookmarkItemStyle}"
+                   />
+        </DataTemplate>
+
+        <Style TargetType="CollectionView" x:Key="BookmarkGroupStyle">
+            <Setter Property="IsGrouped" Value="True"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="GroupHeaderTemplate" Value="{StaticResource GroupHeaderTemplate}"/>
+            <Setter Property="ItemTemplate" Value="{StaticResource BookmarkItemTemplate}"/>
+        </Style>
+
     </ContentView.Resources>
 
     <!-- NOTE: Placing ContentView directly in a '*' row can cause
@@ -94,7 +124,7 @@
     <Grid RowDefinitions="Auto, Auto, *">
 
         <CollectionView Grid.Row="0"
-                        Style="{StaticResource FontFamilyGroupStyle}"
+                        Style="{StaticResource BookmarkGroupStyle}"
                         ItemsSource="{Binding FontFamilyGroups.Bookmarks, Mode=OneWay}"
                         SelectedItem="{Binding SelectedBookmark, Mode=TwoWay}"
                         Margin="0"
