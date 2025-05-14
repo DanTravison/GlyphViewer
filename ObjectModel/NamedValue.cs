@@ -39,7 +39,9 @@ public class NamedValue<T> : ObservableObject
     /// Gets or sets the value.
     /// </summary>
     /// <remarks>
-    /// Raises <see cref="ObservableObject.PropertyChanged"/> with <see cref="ObservableObject.ValueChangedEventArgs"/>
+    /// Raises <see cref="ValueChanged"/>
+    /// -and-
+    /// <see cref="ObservableObject.PropertyChanged"/> with <see cref="ObservableObject.ValueChangedEventArgs"/>
     /// when the value changes.
     /// </remarks>
     public T Value
@@ -49,10 +51,16 @@ public class NamedValue<T> : ObservableObject
         {
             if (SetProperty(ref _value, value, Comparer, ValueChangedEventArgs))
             {
+                ValueChanged?.Invoke(this, EventArgs.Empty);
                 OnValueChanged();
             }
         }
     }
+
+    /// <summary>
+    /// Occurs when the <see cref="Value"/> changes.
+    /// </summary>
+    public event EventHandler ValueChanged;
 
     /// <summary>
     /// Gets the default <see cref="NamedValue{T}.Value"/> for the property.

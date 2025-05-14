@@ -21,11 +21,19 @@ interface IGlyphRow
     }
 
     /// <summary>
+    /// Gets the <see cref="SKSize"/> identying the size of the row.
+    /// </summary>
+    SKSize Size
+    {
+        get;
+    }
+
+    /// <summary>
     /// Arranges <see cref="IGlyphRow"/>.
     /// </summary>
-    /// <param name="location">The <see cref="SKPoint"/> identifying the upper left coordinate.</param>
-    /// <param name="size">The recommended size.</param>
-    void Arrange(SKPoint location, SKSize size);
+    /// <param name="left">The X coordinate of the location to draw.</param>
+    /// <param name="top">The Y coordinate of the location to draw.</param>
+    void Arrange(float left, float top);
 
     /// <summary>
     /// Draws the renderer on the <paramref name="canvas"/>.

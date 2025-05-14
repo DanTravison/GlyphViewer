@@ -63,16 +63,16 @@ public abstract class FontSetting : Setting
 
         // Consider making this a StringProperty
         Sample = sample;
-        FontFamily.PropertyChanged += OnFamilyNameChanged;
+        FontFamily.ValueChanged += OnFamilyNameChanged;
     }
 
     #endregion Constructors
 
     #region Event Handlers
 
-    private void OnFamilyNameChanged(object sender, PropertyChangedEventArgs e)
+    private void OnFamilyNameChanged(object sender, EventArgs e)
     {
-        if (ReferenceEquals(e, ValueChangedEventArgs) && string.IsNullOrEmpty(_sample))
+        if (string.IsNullOrEmpty(_sample))
         {
             OnPropertyChanged(SampleChangedEventArgs);
         }

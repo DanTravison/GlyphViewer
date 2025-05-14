@@ -6,7 +6,7 @@ using System.Diagnostics;
 /// Defines a Unicode range.
 /// </summary>
 [DebuggerDisplay("{Name, nq}[{Length,nq}]")]
-public sealed class Range : IEquatable<Range>
+public readonly struct Range : IEquatable<Range>
 {
     #region Fields
 
@@ -61,7 +61,7 @@ public sealed class Range : IEquatable<Range>
     /// <summary>
     /// Initializes an <see cref="Empty"/> instance of this class.
     /// </summary>
-    private Range()
+    public Range()
     {
         First = Last = 0;
         Length = 0;
@@ -94,7 +94,7 @@ public sealed class Range : IEquatable<Range>
         }
         First = first;
         Last = last;
-        Length = ((uint)last - (uint)first) + 1;
+        Length = last - first + 1;
         Name = name;
     }
 

@@ -99,7 +99,7 @@ public class GlyphView : SKCanvasView
         {
             if (b is GlyphView view)
             {
-                view.OnMetricsPropertyChanged(view, MetricsModel.FontChangedEventArgs);
+                view.OnMetricsPropertyChanged(view, MetricsViewModel.FontChangedEventArgs);
             }
         }
     );
@@ -111,9 +111,9 @@ public class GlyphView : SKCanvasView
     /// <summary>
     /// Gets or sets the Metrics to draw.
     /// </summary>
-    internal MetricsModel Metrics
+    internal MetricsViewModel Metrics
     {
-        get => GetValue(MetricsProperty) as MetricsModel;
+        get => GetValue(MetricsProperty) as MetricsViewModel;
         set => SetValue(MetricsProperty, value);
     }
 
@@ -123,7 +123,7 @@ public class GlyphView : SKCanvasView
     public static readonly BindableProperty MetricsProperty = BindableProperty.Create
     (
         nameof(Metrics),
-        typeof(MetricsModel),
+        typeof(MetricsViewModel),
         typeof(MetricsView),
         null,
         BindingMode.OneWay,
@@ -131,7 +131,7 @@ public class GlyphView : SKCanvasView
         {
             if (bindable is GlyphView view)
             {
-                view.OnMetricsChanged(oldValue as MetricsModel, newValue as MetricsModel);
+                view.OnMetricsChanged(oldValue as MetricsViewModel, newValue as MetricsViewModel);
             }
         }
     );
@@ -139,9 +139,9 @@ public class GlyphView : SKCanvasView
     /// <summary>
     /// Handles changes to the <see cref="Metrics"/> property.
     /// </summary>
-    /// <param name="previous">The previous <see cref="MetricsModel"/>.</param>
-    /// <param name="metrics">The new <see cref="MetricsModel"/>.</param>
-    void OnMetricsChanged(MetricsModel previous, MetricsModel metrics)
+    /// <param name="previous">The previous <see cref="MetricsViewModel"/>.</param>
+    /// <param name="metrics">The new <see cref="MetricsViewModel"/>.</param>
+    void OnMetricsChanged(MetricsViewModel previous, MetricsViewModel metrics)
     {
         if (previous is not null)
         {
@@ -156,7 +156,7 @@ public class GlyphView : SKCanvasView
     }
 
     /// <summary>
-    /// Handles PropertyChanged notifications from the <see cref="MetricsModel"/> instance.
+    /// Handles PropertyChanged notifications from the <see cref="MetricsViewModel"/> instance.
     /// </summary>
     /// <param name="sender">The object that raised the event (not used).</param>
     /// <param name="e">The <see cref="PropertyChangedEventArgs"/> identifying the property that changed.</param>
@@ -165,9 +165,9 @@ public class GlyphView : SKCanvasView
         if
         (
             // indicates either this.FontSize or this.Metrics.Font changed
-            ReferenceEquals(e, MetricsModel.FontChangedEventArgs)
+            ReferenceEquals(e, MetricsViewModel.FontChangedEventArgs)
             ||
-            ReferenceEquals(e, MetricsModel.GlyphChangedEventArgs)
+            ReferenceEquals(e, MetricsViewModel.GlyphChangedEventArgs)
         )
         {
             OnGlyphChanged();

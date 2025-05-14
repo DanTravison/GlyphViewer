@@ -111,7 +111,7 @@ public sealed class CellLayoutModel
 
         // Handle changes on the setting property.
         _cellLayout = _cellLayoutProperty.Value;
-        _cellLayoutProperty.PropertyChanged += OnCellLayoutPropertyChanged;
+        _cellLayoutProperty.ValueChanged += OnCellLayoutPropertyChanged;
 
         HeightOptions = _heightOptions = 
         [
@@ -199,22 +199,19 @@ public sealed class CellLayoutModel
          }
     }
 
-    private void OnCellLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnCellLayoutPropertyChanged(object sender, EventArgs e)
     {
-        if (ReferenceEquals(e, ObservableObject.ValueChangedEventArgs))
+        CellLayoutStyle cellLayout = _cellLayoutProperty.Value;
+        if (cellLayout != _cellLayout)
         {
-            CellLayoutStyle cellLayout = _cellLayoutProperty.Value;
-            if (cellLayout != _cellLayout)
+            _cellLayout = cellLayout;
+            foreach (CellLayoutOption<CellHeightLayout> option in _heightOptions)
             {
-                _cellLayout = cellLayout;
-                foreach (CellLayoutOption<CellHeightLayout> option in _heightOptions)
-                {
-                    option.IsSelected = cellLayout.Height == option.Value;
-                }
-                foreach (CellLayoutOption<CellWidthLayout> option in _widthOptions)
-                {
-                    option.IsSelected = cellLayout.Width == option.Value;
-                }
+                option.IsSelected = cellLayout.Height == option.Value;
+            }
+            foreach (CellLayoutOption<CellWidthLayout> option in _widthOptions)
+            {
+                option.IsSelected = cellLayout.Width == option.Value;
             }
         }
     }

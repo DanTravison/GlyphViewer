@@ -33,9 +33,16 @@
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="PointerOver">
                         <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="DarkTurquoise" />
+                            <Setter Property="BackgroundColor" Value="{StaticResource SelectedItemBackgroundColor}" />
                         </VisualState.Setters>
                     </VisualState>
+                    <!-- Issue 29484: https://github.com/dotnet/maui/issues/29484
+                    <VisualState x:Name="Selected">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource SelectedItemBackgroundColor}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    -->
                 </VisualStateGroup>
             </VisualStateGroupList>
         </Setter>
@@ -159,7 +166,7 @@
                     </VisualState>
                     <VisualState x:Name="PointerOver">
                         <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="DarkTurquoise"/>
+                            <Setter Property="BackgroundColor" Value="{StaticResource SelectedItemBackgroundColor}" />
                             <Setter Property="BorderWidth" Value="0"/>
                         </VisualState.Setters>
                     </VisualState>

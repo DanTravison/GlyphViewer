@@ -376,6 +376,24 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search for glyphs by text in the name or the code..
+        /// </summary>
+        internal static string SearchEntryDescription {
+            get {
+                return ResourceManager.GetString("SearchEntryDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search names or codes..
+        /// </summary>
+        internal static string SearchEntryPlaceholdText {
+            get {
+                return ResourceManager.GetString("SearchEntryPlaceholdText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
         internal static string SettingsTitle {

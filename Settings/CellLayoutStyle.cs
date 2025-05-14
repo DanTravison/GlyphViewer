@@ -189,7 +189,7 @@ public readonly struct CellLayoutStyle : IEquatable<CellLayoutStyle>
                 break;
             }
 
-            if (!Enum.TryParse(parts[0], out CellHeightLayout height))
+            if (!Enum.TryParse(parts[1], out CellHeightLayout height))
             {
                 break;
             }

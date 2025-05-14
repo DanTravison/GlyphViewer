@@ -16,8 +16,9 @@ class GlyphRow : GlyphRowBase
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="context">The <see cref="DrawContext"/> to use to draw the row.</param>
-    public GlyphRow(DrawContext context)
-        : base(context)
+    /// <param name="row">The zero-based index of the <see cref="GlyphRow"/> in the containing collection..</param>
+    public GlyphRow(DrawContext context, int row)
+        : base(context, row)
     {
         _items = new GlyphRowRenderer(context);
     }
@@ -44,6 +45,27 @@ class GlyphRow : GlyphRowBase
         get => _items.Count;
     }
 
+    /// <summary>
+    /// Determines if the row contains a specific <see cref="Glyph"/>.
+    /// </summary>
+    /// <param name="glyph">The <see cref="Glyph"/> to query.</param>
+    /// <returns>true if the row contains the specified <paramref name="glyph"/>; otherwise, false.</returns>
+    public bool Contains(Glyph glyph)
+    {
+        if (glyph is null || glyph.IsEmpty || _items.Count == 0)
+        {
+            return false;
+        }
+        for (int i = 0; i < _items.Count; i++)
+        {
+            if (_items[i].Metrics.Glyph == glyph)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     #endregion Properties
 
     #region Methods
@@ -62,14 +84,21 @@ class GlyphRow : GlyphRowBase
     #region Arrange
 
     /// <summary>
+    /// Sets the final size for the items in the row.
+    /// </summary>
+    public void SizeItems()
+    {
+        base.Size = _items.SizeItems();    
+    }
+
+    /// <summary>
     /// Layouts the contents of the glyph group.
     /// </summary>
-    /// <param name="location">The <see cref="SKPoint"/> identifying the upper left coordinate.</param>
-    /// <param name="size">The suggested size of the drawing area.</param>
-    /// <returns>The <see cref="SKSize"/> needed to draw the content.</returns>
-    protected override SKSize OnArrange(SKPoint location, SKSize size)
+    /// <param name="left">The X coordinate of the location to draw.</param>
+    /// <param name="top">The Y coordinate of the location to draw.</param>
+    protected override SKSize OnArrange(float left, float top)
     {
-        return _items.Arrange(location);
+        return _items.Arrange(left, top);
     }
 
     #endregion Arrange

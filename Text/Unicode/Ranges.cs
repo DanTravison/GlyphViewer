@@ -8,7 +8,8 @@ namespace GlyphViewer.Text.Unicode;
 internal class Ranges
 {
     static readonly List<Range> _ranges = [];
-    static readonly Dictionary<uint, Range> _table = [];
+    static readonly Dictionary<uint, Range> _codeTable = [];
+    static readonly Dictionary<string, Range> _nameTable = [];
 
     class RangeComparer : IComparer<Range>
     {
@@ -20,22 +21,7 @@ internal class Ranges
 
         public int Compare(Range x, Range y)
         {
-            if (x is null && y is null)
-            {
-                return 0;
-            }
-            else if (x is null)
-            {
-                return -1;
-            }
-            else if (y is null)
-            {
-                return 1;
-            }
-            else
-            {
-                return x.First.CompareTo(y.First);
-            }
+            return x.First.CompareTo(y.First);
         }
     }
 
@@ -47,7 +33,8 @@ internal class Ranges
             {
                 Range range = (Range)field.GetValue(null);
                 _ranges.Add(range);
-                _table.Add(range.Id, range);
+                _codeTable.Add(range.Id, range);
+                _nameTable.Add(range.Name, range);
             }
         }
         _ranges.Sort(RangeComparer.Comparer);
@@ -63,12 +50,12 @@ internal class Ranges
     /// </summary>
     /// <param name="codePoint">The code point to query.</param>
     /// <returns>
-    /// The <see cref="Range"/> contianing the specified <paramref name="codePoint"/>;
-    /// otherwise, a null reference.
+    /// The <see cref="Range"/> containing the specified <paramref name="codePoint"/>;
+    /// otherwise, <see cref="Range.Empty"/>.
     /// </returns>
     public static Range Find(ushort codePoint)
     {
-        Range range = null;
+        Range range = Range.Empty;
         int index = _ranges.BinarySearch(new Range(string.Empty, codePoint, codePoint), RangeComparer.Comparer);
         do
         {
@@ -85,6 +72,27 @@ internal class Ranges
             range = _ranges[index - 1];
         } while (false);
 
+        return range;
+    }
+
+    /// <summary>
+    /// Finds the <see cref="Range"/> with the specified <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name">The name of the <see cref="Range"/> to find.</param>
+    /// <returns>The <see cref="Range"/> with the specified <paramref name="name"/>; otherwise, 
+    /// <see cref="Range.Empty"/>.
+    /// </returns>
+    public static Range Find(string name)
+    {
+        if (name is null)
+        {
+            return Range.Empty;
+        }
+        name = name.Trim();
+        if (!_nameTable.TryGetValue(name, out Range range))
+        {
+            range = Range.Empty;
+        }
         return range;
     }
 

@@ -19,7 +19,6 @@ public sealed class GlyphsView : SKCanvasView
     #region Fields
 
     readonly GlyphsViewRenderer _renderer;
-
     readonly DrawContext _context;
 
     #endregion Fields
@@ -35,6 +34,8 @@ public sealed class GlyphsView : SKCanvasView
         _renderer.PropertyChanged += OnLayoutPropertyChanged;
     }
 
+    #region Event Handlers
+
     private void OnLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         // NOTE: The following properties are not bound to a DrawContext property.
@@ -45,14 +46,6 @@ public sealed class GlyphsView : SKCanvasView
         {
             Rows = _renderer.Rows.Count;
         }
-        else if (ReferenceEquals(e, GlyphsViewRenderer.FirstRowChangedEventArgs))
-        {
-            Row = _renderer.FirstRow;
-        }
-        else if (ReferenceEquals(e, GlyphsViewRenderer.UnicodeRangesChangedEventArgs))
-        {
-            UnicodeRanges = _renderer.UnicodeRanges;
-        }
     }
 
     protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
@@ -60,6 +53,8 @@ public sealed class GlyphsView : SKCanvasView
         // NOTE: OnPropertyChanged can be called before constructor completes.
         _context?.OnViewPropertyChanged(propertyName);
     }
+
+    #endregion Event Handlers
 
     #region Properties
 
@@ -206,8 +201,43 @@ public sealed class GlyphsView : SKCanvasView
                 }
             }
             return null;
+        },
+        propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            if (bindable is GlyphsView view)
+            {
+                view.OnSelectedItemChanged();
+            }
         }
     );
+
+    void OnSelectedItemChanged()
+    {
+        Glyph glyph = SelectedItem;
+        EnsureVisible(glyph);
+    }
+
+    /// <summary>
+    /// Ensures that the specified <see cref="Glyph"/> is visible in the view.
+    /// </summary>
+    /// <param name="glyph">The <see cref="Glyph"/> to ensure visibility.</param>
+    /// <returns>
+    /// true if the <see cref="Glyph"/> is visible; otherwise, 
+    /// false if the <see cref="Glyph"/> is a null reference or not present.
+    /// </returns>
+    public bool EnsureVisible(Glyph glyph)
+    {
+        bool result = _renderer.IsVisible(glyph, out int row);
+        if (result == false)
+        {
+            if (row >= 0)
+            {
+                Row = row;
+                result = true;
+            }
+        }
+        return result;
+    }
 
     #endregion SelectedItem
 
@@ -276,6 +306,39 @@ public sealed class GlyphsView : SKCanvasView
     );
 
     #endregion SelectedItemColor
+
+    #region SelectedItemBackgroundColor
+
+    /// <summary>
+    /// Gets or sets the color to use to draw the selected glyph.
+    /// </summary>
+    public Color SelectedItemBackgroundColor
+    {
+        get => GetValue(SelectedItemBackgroundColorProperty) as Color;
+        set => SetValue(SelectedItemBackgroundColorProperty, value);
+    }
+
+    /// <summary>
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="SelectedItemBackgroundColor"/> property.
+    /// </summary>
+    public static readonly BindableProperty SelectedItemBackgroundColorProperty = BindableProperty.Create
+    (
+        nameof(SelectedItemBackgroundColor),
+        typeof(Color),
+        typeof(GlyphsView),
+        ItemFontSetting.DefaultSelectedItemBackgroundColor,
+        BindingMode.OneWay,
+        coerceValue: (bindable, value) =>
+        {
+            if (value is Color color)
+            {
+                return color;
+            }
+            return ItemFontSetting.DefaultSelectedItemBackgroundColor;
+        }
+    );
+
+    #endregion SelectedItemBackgroundColor
 
     #region ItemFontSize
 
@@ -574,33 +637,6 @@ public sealed class GlyphsView : SKCanvasView
 
     #endregion Row Properties
 
-    #region UnicodeRange properties
-
-    #region UnicodeRanges
-
-    /// <summary>
-    /// Gets or sets the the number of rows
-    /// </summary>
-    public IReadOnlyList<UnicodeRange> UnicodeRanges
-    {
-        get => GetValue(UnicodeRangesProperty) as IReadOnlyList<UnicodeRange>;
-        private set => SetValue(UnicodeRangesProperty, value);
-    }
-
-    /// <summary>
-    /// Provides a <see cref="BindableProperty"/> for the <see cref="UnicodeRanges"/> property.
-    /// </summary>
-    public static readonly BindableProperty UnicodeRangesProperty = BindableProperty.Create
-    (
-        nameof(UnicodeRanges),
-        typeof(IReadOnlyList<UnicodeRange>),
-        typeof(GlyphsView),
-        null,
-        BindingMode.OneWayToSource
-    );
-
-    #endregion UnicodeRanges
-
     #region SelectedUnicodeRange
 
     /// <summary>
@@ -608,7 +644,7 @@ public sealed class GlyphsView : SKCanvasView
     /// </summary>
     public UnicodeRange SelectedUnicodeRange
     {
-        get => GetValue(SelectedUnicodeRangeProperty) as UnicodeRange;
+        get => (UnicodeRange)GetValue(SelectedUnicodeRangeProperty);
         private set => SetValue(SelectedUnicodeRangeProperty, value);
     }
 
@@ -655,7 +691,7 @@ public sealed class GlyphsView : SKCanvasView
             else
             {
                 // go to the first row after the header row.
-                row = _renderer[header];
+                row = header.Row;
                 if (row > 0 && row < Rows - 1)
                 {
                     Row = row + 1;
@@ -665,8 +701,6 @@ public sealed class GlyphsView : SKCanvasView
     }
 
     #endregion SelectedUnicodeRange
-
-    #endregion UnicodeRange properties
 
     #endregion Properties
 

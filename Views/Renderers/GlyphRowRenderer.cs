@@ -2,6 +2,7 @@
 
 using GlyphViewer.Settings;
 using SkiaSharp;
+using System.Diagnostics;
 
 /// <summary>
 /// Provides a layout and rendering class for a <see cref="GlyphRow"/>
@@ -11,19 +12,10 @@ internal sealed class GlyphRowRenderer
     #region Fields
 
     readonly List<GlyphRenderer> _items = [];
-
-    readonly CellLayoutStyle _cellLayout;
-
-    // The width of the canvas.
-    readonly float _canvasWidth;
-
-    // The width of all items including cell spacing. 
-    float _currentWidth;
-
-    // The cell spacing.
-    readonly SkSpacing _cellSpacing;
-
     readonly DrawContext _drawContext;
+
+    // The current width of all items including cell spacing. 
+    float _currentWidth;
 
     #endregion Fields
 
@@ -33,9 +25,6 @@ internal sealed class GlyphRowRenderer
     /// <param name="drawContext">The <see cref="DrawContext"/> to use to arrange and draw cells.</param>
     public GlyphRowRenderer(DrawContext drawContext)
     {
-        _cellLayout = drawContext.CellLayout;
-        _canvasWidth = drawContext.CanvasSize.Width;
-        _cellSpacing = drawContext.Spacing;
         _drawContext = drawContext;
     }
 
@@ -113,61 +102,71 @@ internal sealed class GlyphRowRenderer
     public bool Add(GlyphRenderer renderer)
     {
         ArgumentNullException.ThrowIfNull(renderer, nameof(renderer));
-        
+
+        CellLayoutStyle cellLayout = _drawContext.CellLayout;
+        SkSpacing spacing = _drawContext.Spacing;
+        float canvasWidth = _drawContext.CanvasSize.Width;
         float glyphWidth = Math.Max(renderer.PreferredSize.Width, _drawContext.MinimumGlyphSize.Width);
         float glyphHeight = Math.Max(renderer.PreferredSize.Height, _drawContext.MinimumGlyphSize.Height);
+        float cellWidth;
 
-        if (_cellLayout.Width == CellWidthLayout.Width)
+        if (cellLayout.Width == CellWidthLayout.Width)
         {
-            float currentWidth = _currentWidth;
-            // if the current glyph width would cause the cell width to increase...
+            // if the current glyph width cause the cell width to increase,
+            // adjust the _currentWidth to the new cell width.
             if (glyphWidth > GlyphWidth)
             {
-                // Adjust the current width based on the increased glyph width.
-                currentWidth = _items.Count * (glyphWidth + _cellSpacing.Horizontal);
-                if (currentWidth > _canvasWidth)
+                float currentWidth = _currentWidth;
+                cellWidth = glyphWidth + spacing.Horizontal;
+
+                // Adjust the current width based on the increased cell width.
+                currentWidth = _items.Count * cellWidth;
+                if (currentWidth > canvasWidth)
                 {
-                    // The adjusted width is wider than the canvas.
+                    // The adjusted current width would be wider than the canvas.
                     return false;
                 }
-                if (currentWidth + glyphWidth + _cellSpacing.Horizontal > _canvasWidth)
+                if (currentWidth + cellWidth > canvasWidth)
                 {
-                    // The new width is wider than the canvas.
+                    // The new width would be wider than the canvas.
                     return false;
                 }
                 // Save the adjusted current width.
                 _currentWidth = currentWidth;
             }
+            else
+            {
+                // Size the current glyph width to the current max glyph width.
+                glyphWidth = GlyphWidth;
+            }
         }
-        else if (_cellLayout.Width == CellWidthLayout.Dynamic)
+        else if (cellLayout.Width == CellWidthLayout.Dynamic)
         {
             // size cell width to the glyph width.
         }
         else
         {
             // use the global width.
-            glyphWidth = _drawContext.GlyphSize.Width;
+            glyphWidth = Math.Max(_drawContext.MaximumGlyphSize.Width, _drawContext.MinimumGlyphSize.Width);
         }
 
-        if (_cellLayout.Height == CellHeightLayout.Dynamic)
+        if (cellLayout.Height == CellHeightLayout.Dynamic)
         {
             glyphHeight = Math.Max(glyphHeight, GlyphHeight);
         }
         else
         {
             // use the global height
-            glyphHeight = _drawContext.GlyphSize.Height;
+            glyphHeight = _drawContext.MaximumGlyphSize.Height;
         }
 
-        float cellWidth = glyphWidth + _cellSpacing.Horizontal;
-        if (_currentWidth + cellWidth <= _canvasWidth)
+        cellWidth = glyphWidth + spacing.Horizontal;
+        if (_currentWidth + cellWidth <= canvasWidth)
         {
             _items.Add(renderer);
             _currentWidth += cellWidth;
 
-            glyphHeight = Math.Max(glyphHeight, _drawContext.MinimumGlyphSize.Height);
-            GlyphHeight = Math.Max(GlyphHeight, glyphHeight);
-            glyphWidth = Math.Max(glyphWidth, _drawContext.MinimumGlyphSize.Width);
+            GlyphHeight = glyphHeight;
             GlyphWidth = Math.Max(GlyphWidth, glyphWidth);
             return true;
         }
@@ -175,15 +174,15 @@ internal sealed class GlyphRowRenderer
     }
 
     /// <summary>
-    /// Arranges the <see cref="GlyphRenderer"/> elements.
+    /// Sets the sizes of the individual glyphs.
     /// </summary>
-    /// <param name="location">The origin <see cref="SKPoint"/></param>
-    public SKSize Arrange(SKPoint location)
+    /// <returns>The size required for the renderer.</returns>
+    public SKSize SizeItems()
     {
         float totalWidth = 0;
         float totalHeight = 0;
-        float left = location.X;
-        float top = location.Y;
+        CellLayoutStyle cellLayout = _drawContext.CellLayout;
+        SkSpacing spacing = _drawContext.Spacing;
 
         float minimumHeight = _drawContext.MinimumGlyphSize.Height;
         float minimumWidth = _drawContext.MinimumGlyphSize.Width;
@@ -191,24 +190,48 @@ internal sealed class GlyphRowRenderer
         for (int i = 0; i < _items.Count; i++)
         {
             GlyphRenderer renderer = _items[i];
-            float width = _cellSpacing.Horizontal;
-            float height = _cellSpacing.Vertical + Math.Max(GlyphHeight, minimumHeight);
+            float cellWidth = spacing.Horizontal;
+            float cellHeight = spacing.Vertical + Math.Max(GlyphHeight, minimumHeight);
 
-            if (_cellLayout.Width == CellWidthLayout.Dynamic)
+            if (cellLayout.Width == CellWidthLayout.Dynamic)
             {
-                width += Math.Max(renderer.PreferredSize.Width, minimumWidth);
+                cellWidth += Math.Max(renderer.PreferredSize.Width, minimumWidth);
             }
             else
             {
-                width += GlyphWidth;
+                cellWidth += GlyphWidth;
             }
 
-            renderer.Arrange(new(left, top), new(width, height));
+            renderer.Size = new(cellWidth, cellHeight);
 
-            left += renderer.Bounds.Width;
-            totalWidth += renderer.Bounds.Width;
-            totalHeight = Math.Max(totalHeight, renderer.Bounds.Height);
-            
+            totalWidth += cellWidth;
+            totalHeight = Math.Max(totalHeight, cellHeight);
+        }
+        if (totalWidth > _drawContext.CanvasSize.Width)
+        {
+            Trace.WriteLine($"GlyphRowRenderer.Error: Row width {totalWidth} > Canvas width {_drawContext.CanvasSize.Width}.");
+        }
+        return new(totalWidth, totalHeight);
+    }
+
+    /// <summary>
+    /// Arranges the <see cref="GlyphRenderer"/> elements.
+    /// </summary>
+    /// <param name="left">The X coordinate of the location to draw.</param>
+    /// <param name="top">The Y coordinate of the location to draw.</param>
+    public SKSize Arrange(float left, float top)
+    {
+        float totalWidth = 0;
+        float totalHeight = 0;
+
+        for (int i = 0; i < _items.Count; i++)
+        {
+            GlyphRenderer renderer = _items[i];
+            renderer.Arrange(left, top);
+
+            left += renderer.Size.Width;
+            totalWidth += renderer.Size.Width;
+            totalHeight = Math.Max(totalHeight, renderer.Size.Height);
         }
         return new(totalWidth, totalHeight);
     }
@@ -231,7 +254,7 @@ internal sealed class GlyphRowRenderer
         {
             // no match.
         }
-        else if (_cellLayout.Width == CellWidthLayout.Dynamic)
+        else if (_drawContext.CellLayout.Width == CellWidthLayout.Dynamic)
         {
             // variable cell widths
             for (int x = 0; x < _items.Count; x++)
@@ -251,10 +274,10 @@ internal sealed class GlyphRowRenderer
         else
         {
             // fixed cell widths
-            float cellWidth = GlyphWidth + _cellSpacing.Horizontal;
+            float cellWidth = GlyphWidth + _drawContext.Spacing.Horizontal;
             
             int column = (int) (left / cellWidth);
-            if (column <  _items.Count)
+            if (column < _items.Count)
             {
                 renderer = _items[column];
                 return true;

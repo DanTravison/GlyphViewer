@@ -12,7 +12,7 @@ using System.Text.Json;
 /// <summary>
 /// Provides a model for managing user settings.
 /// </summary>
-public sealed class UserSettings : SettingPropertyCollection, ISetting
+internal sealed class UserSettings : SettingPropertyCollection, ISetting
 {
     /// <summary>
     /// Initializes a new instance of this class.

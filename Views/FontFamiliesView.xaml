@@ -6,12 +6,20 @@
              xmlns:text="clr-namespace:GlyphViewer.Text"
              xmlns:controls="clr-namespace:GlyphViewer.Controls"
              x:Class="GlyphViewer.Views.FontFamiliesView"
-             x:DataType="viewmodel:MainViewModel"
+             x:DataType="viewmodel:FontFamiliesViewModel"
              x:Name="this">
 
     <ContentView.Resources>
 
-        <Style TargetType="HorizontalStackLayout" x:Key="GroupHeaderStyle">
+        <DataTemplate x:DataType="text:IFontFamilyGroup" x:Key="JumpListItemTemplate">
+            <Label Text="{Binding Name}"
+                   Style="{StaticResource JumpListItemStyle}"/>
+        </DataTemplate>
+
+        <Style TargetType="Label" x:Key="GroupHeaderLabelStyle">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
             <Setter Property="VisualStateManager.VisualStateGroups">
                 <VisualStateGroupList>
                     <VisualStateGroup x:Name="CommonStates">
@@ -19,7 +27,7 @@
                         <VisualState x:Name="PointerOver">
                             <VisualState.Setters>
                                 <Setter Property="BackgroundColor"
-                                        Value="SkyBlue" />
+                                    Value="{StaticResource SelectedItemBackgroundColor}" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -27,30 +35,48 @@
             </Setter>
         </Style>
 
-        <DataTemplate x:DataType="text:IFontFamilyGroup" x:Key="JumpListItemTemplate">
-            <Label Text="{Binding Name}"
-                   Style="{StaticResource JumpListItemStyle}"/>
-        </DataTemplate>
-
         <DataTemplate x:DataType="text:IFontFamilyGroup" x:Key="GroupHeaderTemplate">
-            <HorizontalStackLayout Style="{StaticResource GroupHeaderStyle}">
-                <Label Text="{Binding Name}"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           Margin="0"
-                           TextColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
-                           />
-                <HorizontalStackLayout.GestureRecognizers>
+            <Label Text="{Binding Name}" 
+                   Style="{StaticResource GroupHeaderLabelStyle}"
+                   >
+                <Label.GestureRecognizers>
                     <!-- TODO: convert this to a command -->
                     <TapGestureRecognizer Tapped="OnPickGroup"/>
-                </HorizontalStackLayout.GestureRecognizers>
-            </HorizontalStackLayout>
+                </Label.GestureRecognizers>
+            </Label>
         </DataTemplate>
+
+        <Style TargetType="Label" x:Key="GroupItemStyle">
+            <Setter Property="FontSize" Value="{StaticResource DefaultFontSize}"/>
+            <Setter Property="Margin" Value="5, 0, 5, 5"/>
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="Selected">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                        Value="{StaticResource SelectedItemBackgroundColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <!-- Issue 29484: https://github.com/dotnet/maui/issues/29484
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                    Value="{StaticResource SelectedItemBackgroundColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        -->
+                   </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
 
         <DataTemplate x:DataType="x:String" x:Key="GroupItemTemplate">
             <Label Text="{Binding}"
-                           Style="{StaticResource NameStyle}"
-                           />
+                   Style="{StaticResource GroupItemStyle}"
+                   />
         </DataTemplate>
 
         <Style TargetType="CollectionView" x:Key="FontFamilyGroupStyle">
@@ -58,6 +84,36 @@
             <Setter Property="SelectionMode" Value="Single"/>
             <Setter Property="GroupHeaderTemplate" Value="{StaticResource GroupHeaderTemplate}"/>
             <Setter Property="ItemTemplate" Value="{StaticResource GroupItemTemplate}"/>
+        </Style>
+
+        <Style TargetType="Label" x:Key="BookmarkItemStyle"
+               BasedOn="{StaticResource GroupItemStyle}">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                        Value="{StaticResource SelectedItemBackgroundColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+        </Style>
+
+        <DataTemplate x:DataType="x:String" x:Key="BookmarkItemTemplate">
+            <Label Text="{Binding}"
+                   Style="{StaticResource BookmarkItemStyle}"
+                   />
+        </DataTemplate>
+
+        <Style TargetType="CollectionView" x:Key="BookmarkGroupStyle">
+            <Setter Property="IsGrouped" Value="True"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="GroupHeaderTemplate" Value="{StaticResource GroupHeaderTemplate}"/>
+            <Setter Property="ItemTemplate" Value="{StaticResource BookmarkItemTemplate}"/>
         </Style>
 
     </ContentView.Resources>
@@ -68,7 +124,7 @@
     <Grid RowDefinitions="Auto, Auto, *">
 
         <CollectionView Grid.Row="0"
-                        Style="{StaticResource FontFamilyGroupStyle}"
+                        Style="{StaticResource BookmarkGroupStyle}"
                         ItemsSource="{Binding FontFamilyGroups.Bookmarks, Mode=OneWay}"
                         SelectedItem="{Binding SelectedBookmark, Mode=TwoWay}"
                         Margin="0"
@@ -92,9 +148,6 @@
                         ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"
                         SelectedItem="{Binding Metrics.FontFamily, Mode=TwoWay}"
                         />
-                    <!-- ISSUE: CollectionView.ScrollTo is not working
-                        SelectionChanged="OnSelectionChanged"
-                    -->
     </Grid>
 
 </ContentView>

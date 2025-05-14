@@ -3,25 +3,16 @@
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Settings;
 using GlyphViewer.Text;
+using GlyphViewer.Views;
 using SkiaSharp;
 using System.ComponentModel;
-using System.Windows.Input;
 
 internal sealed class MainViewModel : ObservableObject
 {
     #region Fields
 
-    FontFamilyGroupCollection _fontFamiliesGroups;
-    FontFamilyGroup _selectedGroup;
-    Text.Unicode.Range _selectedRange;
-    IReadOnlyList<Text.Unicode.Range> _ranges;
-    GlyphCollection _glyphs;
     readonly IDispatcher _dispatcher;
-    int _row;
-    int _rows;
-    ICommand _pickUnicodeRangeCommand;
-    readonly MetricsModel _metrics;
-    string _selectedBookmark;
+    readonly MetricsViewModel _metrics;
 
     #endregion Fields
 
@@ -35,9 +26,11 @@ internal sealed class MainViewModel : ObservableObject
         _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
         Settings = UserSettings.Load();
 
-        _metrics = new MetricsModel(Settings.ItemFont);
+        _metrics = new MetricsViewModel(Settings);
         _metrics.PropertyChanged += OnMetricsPropertyChanged;
         BookmarkCommand = new(Settings.Bookmarks, _metrics);
+        FontGlyphs = new(Settings, _metrics);
+        FontFamilies = new(_metrics);
     }
 
     #region Properties
@@ -51,6 +44,14 @@ internal sealed class MainViewModel : ObservableObject
     }
 
     /// <summary>
+    /// Gets the <see cref="MetricsViewModel"/>.
+    /// </summary>
+    public MetricsViewModel Metrics
+    {
+        get => _metrics;
+    }
+
+    /// <summary>
     /// Gets the command for updating the currenty selected font family in bookmarks.
     /// </summary>
     public BookmarkCommand BookmarkCommand
@@ -59,188 +60,20 @@ internal sealed class MainViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Gets the <see cref="MetricsModel"/> for the selected <see cref="Glyph"/> and font family.
+    /// Gets the <see cref="FontGlyphsViewModel"/> for the <see cref="FontGlyphsView"/> and font family.
     /// </summary>
-    public MetricsModel Metrics
-    {
-        get => _metrics;
-    }
-
-    #region Rows
-
-    /// <summary>
-    /// Gets or sets the current row.
-    /// </summary>
-    /// <remarks>
-    /// This property is updated by GlyphsView and the GlyphsView slider.
-    /// </remarks>
-    public int Row
-    {
-        get => _row;
-        set => SetProperty(ref _row, value, RowChangedEventArgs);
-    }
-
-    /// <summary>
-    /// Gets or sets the number of rows.
-    /// </summary>
-    /// <remarks>
-    /// This property is updated by the GlyphsView.
-    /// </remarks>
-    public int Rows
-    {
-        get => _rows;
-        set
-        {
-            if (SetProperty(ref _rows, value, RowsChangedEventArgs))
-            {
-                OnPropertyChanged(MaxRowChangedEventArgs);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Gets or sets the maximum row number.
-    /// </summary>
-    /// <remarks>
-    /// This property is consumed by the GlyphsView slider.
-    /// </remarks>
-    public int MaxRow
-    {
-        get => _rows > 0 ? _rows - 1 : 0;
-    }
-
-    #endregion Rows
-
-    #region Font Families
-
-    /// <summary>
-    /// Gets the <see cref="FontFamilyGroupCollection"/> for the font families in the system.
-    /// </summary>
-    /// <remarks>
-    /// This property is updated by LoadFonts and consumed by FontFamiliesView.
-    /// </remarks>
-    public FontFamilyGroupCollection FontFamilyGroups
-    {
-        get => _fontFamiliesGroups;
-        private set
-        {
-            if (SetProperty(ref _fontFamiliesGroups, value, FontFamiliesChangedEventArgs))
-            {
-                _metrics.FontFamily = null;
-            }
-        }
-    }
-
-    #endregion Font Families
-
-    #region Glyphs
-
-    /// <summary>
-    /// Gets the <see cref="GlyphCollection"/> for the selected font family.
-    /// </summary>
-    /// <remarks>
-    /// This property is updated by LoadGlyphs and consumed by GlyphsView.
-    /// </remarks>
-    public GlyphCollection Glyphs
-    {
-        get => _glyphs;
-        private set
-        {
-            if (SetProperty(ref _glyphs, value, ReferenceComparer, GlyphsChangedEventArgs))
-            {
-                Metrics.FontProperties.GlyphCount = value?.Count ?? 0;
-            }
-        }
-    }
-
-    #endregion Glyphs
-
-    #region Family Group
-
-    /// <summary>
-    /// Gets or sets the command for the jump list to pick a font family group.
-    /// </summary>
-    /// <remarks>
-    /// Not currently used pending figuring out the correct XAML binding.
-    /// Currently, invoking the FamilyGroup picker is implemented in Fontfamiliesview.OnPickGroup
-    /// </remarks>
-    public ICommand PickFamilyGroupCommand
+    public FontGlyphsViewModel FontGlyphs
     {
         get;
-        set;
     }
 
     /// <summary>
-    /// Gets or sets the selected font family.
+    /// Gets the <see cref="FontFamiliesViewModel"/>
     /// </summary>
-    /// <remarks>This property is bound to the FontFamiliesView</remarks>
-    public FontFamilyGroup SelectedFamilyGroup
+    public FontFamiliesViewModel FontFamilies
     {
-        get => _selectedGroup;
-        set
-        {
-            if (!ReferenceEquals(_selectedGroup, value))
-            {
-                _selectedGroup = value;
-                OnPropertyChanged(SelectedFamilyGroupChangedEventArgs);
-            }
-        }
+        get;
     }
-
-    #endregion Family Group
-
-    public string SelectedBookmark
-    {
-        get => _selectedBookmark;
-        set
-        {
-            if (!string.IsNullOrWhiteSpace(value))
-            {
-                Metrics.FontFamily = value;
-            }
-            else
-            {
-                // This path occurs after Glyphs are updated
-                // to clear the selected bookmark in FontFamiliesView.
-                _selectedBookmark = null;
-                OnPropertyChanged(SelectedBookmarkChangedEventArgs);
-            }
-        }
-    }
-
-    #region Unicode Range Properties
-
-    /// <summary>
-    /// Gets or sets the command to display the JumpList for picking a Unicode range.
-    /// </summary>
-    /// <remarks>
-    /// This property is populated by the GlyphsView jump list and consumed by GlyphsView.HeaderPickCommand
-    /// </remarks>
-    public ICommand PickUnicodeRangeCommand
-    {
-        get => _pickUnicodeRangeCommand;
-        set => SetProperty(ref _pickUnicodeRangeCommand, value, ReferenceComparer, PickUnicodeRangeCommandChangedEventArgs);
-    }
-
-    /// <summary>
-    /// Gets or sets the list of Unicode ranges for the currently selected font family.
-    /// </summary>
-    public IReadOnlyList<Text.Unicode.Range> UnicodeRanges
-    {
-        get => _ranges;
-        set => SetProperty(ref _ranges, value, ReferenceComparer, UnicodeRangesChangedEventArgs);
-    }
-
-    /// <summary>
-    /// Gets or sets the selected Unicode range.
-    /// </summary>
-    public Text.Unicode.Range SelectedUnicodeRange
-    {
-        get => _selectedRange;
-        set => SetProperty(ref _selectedRange, value, ReferenceComparer, SelectedUnicodeRangeChangedEventArgs);
-    }
-
-    #endregion Unicode Range Properties
 
     #endregion Properties
 
@@ -251,7 +84,7 @@ internal sealed class MainViewModel : ObservableObject
         FontFamilyGroupCollection families = FontFamilyGroupCollection.CreateInstance(Settings.Bookmarks);
         _ = dispatcher.DispatchAsync(() =>
         {
-            FontFamilyGroups = families;
+            FontFamilies.FontFamilyGroups = families;
         });
     }
 
@@ -273,12 +106,12 @@ internal sealed class MainViewModel : ObservableObject
         }
         _ = dispatcher.DispatchAsync(() =>
         {
-            Glyphs = glyphs;
+            FontGlyphs.Glyphs = glyphs;
             // Intent: Clear the selected bookmark after selection to 
             // ensure there are not two selections active in FontFamiliesView.
             // We're doing it here to avoid reentrancy when a bookmark is selected
             // in the FontFamiliesView.
-            SelectedBookmark = null;
+            FontFamilies.SelectedBookmark = null;
         });
     }
 
@@ -288,30 +121,11 @@ internal sealed class MainViewModel : ObservableObject
 
     private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (ReferenceEquals(e, MetricsModel.FontFamilyChangedEventArgs))
+        if (ReferenceEquals(e, MetricsViewModel.FontFamilyChangedEventArgs))
         {
             Task.Run(() => { LoadGlyphs(_dispatcher); });
         }
     }
 
     #endregion Event Handlers
-
-    #region PropertyChangedEventArgs
-
-    static readonly PropertyChangedEventArgs FontFamiliesChangedEventArgs = new(nameof(FontFamilyGroups));
-    static readonly PropertyChangedEventArgs GlyphsChangedEventArgs = new(nameof(Glyphs));
-
-    public static readonly PropertyChangedEventArgs SelectedFamilyGroupChangedEventArgs = new(nameof(SelectedFamilyGroup));
-
-    static readonly PropertyChangedEventArgs UnicodeRangesChangedEventArgs = new(nameof(UnicodeRanges));
-    static readonly PropertyChangedEventArgs SelectedUnicodeRangeChangedEventArgs = new(nameof(SelectedUnicodeRange));
-    static readonly PropertyChangedEventArgs PickUnicodeRangeCommandChangedEventArgs = new(nameof(PickUnicodeRangeCommand));
-
-    static readonly PropertyChangedEventArgs SelectedBookmarkChangedEventArgs = new(nameof(SelectedBookmark));
-
-    static readonly PropertyChangedEventArgs RowChangedEventArgs = new(nameof(Row));
-    static readonly PropertyChangedEventArgs RowsChangedEventArgs = new(nameof(Rows));
-    static readonly PropertyChangedEventArgs MaxRowChangedEventArgs = new(nameof(MaxRow));
-
-    #endregion PropertyChangedEventArgs
 }
