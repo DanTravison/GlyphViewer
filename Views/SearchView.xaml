@@ -16,8 +16,25 @@
             <Setter Property="VerticalTextAlignment" Value="Start"/>
         </Style>
 
+        <Style TargetType="Grid" x:Key="SearchItemStyle">
+            <Setter Property="VisualStateManager.VisualStateGroups">
+                <VisualStateGroupList>
+                    <VisualStateGroup x:Name="CommonStates">
+                        <VisualState x:Name="Normal" />
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor" Value="{StaticResource SelectedItemBackgroundColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+                </VisualStateGroupList>
+            </Setter>
+
+        </Style>
+
         <DataTemplate x:Key="GlyphItemTemplate" x:DataType="text:Glyph">
-            <Grid ColumnDefinitions="Auto, Auto, *">
+            <Grid ColumnDefinitions="Auto, Auto, *"
+                  Style="{StaticResource SearchItemStyle}">
                 <controls:SkLabel Text="{Binding Text}"
                           FontFamily="{Binding FontFamily}"
                           FontSize="25"
@@ -89,7 +106,7 @@
                 />
 
         <CollectionView IsVisible="{Binding ShowResults}"
-                        MaximumHeightRequest=" 300"
+                        MaximumHeightRequest="300"
                         ItemsSource="{Binding Results}"
                         ItemTemplate="{StaticResource GlyphItemTemplate}"
                         SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
