@@ -39,8 +39,12 @@ public sealed class ItemFontSetting : FontSetting
     /// <summary>
     /// Defines the default color for the seleted glyph.
     /// </summary>
-    public static readonly Color DefaultSelectedItemColor = Colors.Plum;
+    public static readonly Color DefaultSelectedItemColor = Colors.DarkTurquoise;
 
+    /// <summary>
+    /// Defines the default color for the selected item background color.
+    /// </summary>
+    public static readonly Color DefaultSelectedItemBackgroundColor = DefaultSelectedItemColor.WithAlpha(.4f);
 
     #endregion Constants
 

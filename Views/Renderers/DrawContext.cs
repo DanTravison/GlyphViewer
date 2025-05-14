@@ -36,6 +36,7 @@ sealed class DrawContext : IDisposable
         Add(GlyphsView.ItemFontSizeProperty, OnItemFontSizeChanged);
         Add(GlyphsView.ItemColorProperty, OnItemColorChanged);
         Add(GlyphsView.SelectedItemColorProperty, OnSelectedItemColorChanged);
+        Add(GlyphsView.SelectedItemBackgroundColorProperty, OnSelectedItemBackgroundColorChanged);
         Add(GlyphsView.SelectedItemProperty, OnSelectedItemChanged);
         Add(GlyphsView.SpacingProperty, OnSpacingChanged);
         Add(GlyphsView.CellLayoutProperty, OnCellLayoutChanged);
@@ -311,6 +312,25 @@ sealed class DrawContext : IDisposable
         context.SelectedItemColor = layout.View.SelectedItemColor.ToSKColor();
         return false;
     }
+
+    /// <summary>
+    /// Gets the background color of the <see cref="SelectedItem"/>.
+    /// </summary>
+    /// <remarks>
+    /// This property is set from <see cref="GlyphsView.SelectedItemBackgroundColor"/>.
+    /// </remarks>
+    public SKColor SelectedItemBackgroundColor
+    {
+        get;
+        private set;
+    }
+    static bool OnSelectedItemBackgroundColorChanged(GlyphsViewRenderer layout, DrawContext context)
+    {
+        context.SelectedItemBackgroundColor = layout.View.SelectedItemBackgroundColor.ToSKColor();
+        return false;
+    }
+
+
 
     #endregion Item Properties
 

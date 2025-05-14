@@ -307,6 +307,39 @@ public sealed class GlyphsView : SKCanvasView
 
     #endregion SelectedItemColor
 
+    #region SelectedItemBackgroundColor
+
+    /// <summary>
+    /// Gets or sets the color to use to draw the selected glyph.
+    /// </summary>
+    public Color SelectedItemBackgroundColor
+    {
+        get => GetValue(SelectedItemBackgroundColorProperty) as Color;
+        set => SetValue(SelectedItemBackgroundColorProperty, value);
+    }
+
+    /// <summary>
+    /// Provides a <see cref="BindableProperty"/> for the <see cref="SelectedItemBackgroundColor"/> property.
+    /// </summary>
+    public static readonly BindableProperty SelectedItemBackgroundColorProperty = BindableProperty.Create
+    (
+        nameof(SelectedItemBackgroundColor),
+        typeof(Color),
+        typeof(GlyphsView),
+        ItemFontSetting.DefaultSelectedItemBackgroundColor,
+        BindingMode.OneWay,
+        coerceValue: (bindable, value) =>
+        {
+            if (value is Color color)
+            {
+                return color;
+            }
+            return ItemFontSetting.DefaultSelectedItemBackgroundColor;
+        }
+    );
+
+    #endregion SelectedItemBackgroundColor
+
     #region ItemFontSize
 
     /// <summary>
