@@ -169,6 +169,15 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Copy all glyphs in the font to the clipboard.
+        /// </summary>
+        internal static string CopyFontDescription {
+            get {
+                return ResourceManager.GetString("CopyFontDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Copy Glyph metrics to the clipboard.
         /// </summary>
         internal static string CopyGlyphMetricsDescription {
@@ -385,7 +394,7 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Search names or codes..
+        ///   Looks up a localized string similar to Enter search text.
         /// </summary>
         internal static string SearchEntryPlaceholdText {
             get {
@@ -435,6 +444,15 @@ namespace GlyphViewer.Resources {
         internal static string UserSettingsLabel {
             get {
                 return ResourceManager.GetString("UserSettingsLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Write all glyphs in the font to a file.
+        /// </summary>
+        internal static string WriteFontDescription {
+            get {
+                return ResourceManager.GetString("WriteFontDescription", resourceCulture);
             }
         }
     }

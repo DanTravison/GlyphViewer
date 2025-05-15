@@ -205,16 +205,13 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     {
         StringBuilder sb = new();
 
-        sb.AppendLine("Glyph Metrics");
+        sb.AppendLine(nameof(Glyph));
         Append(sb, _glyphProperties.Properties);
         Append(sb, _glyphProperties.ExtendedProperties);
 
         sb.AppendLine();
-        sb.AppendLine("Font Metrics");
-        foreach (NamedValue property in _fontProperties)
-        {
-            sb.AppendLine($"\t{property.Name}: {property.Value}");
-        }
+        sb.AppendLine(nameof(Font));
+        Append(sb, _fontProperties);
         return sb.ToString();
     }
 
