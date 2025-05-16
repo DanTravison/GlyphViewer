@@ -243,4 +243,10 @@
   <data name="SearchEntryDescription" xml:space="preserve">
     <value>Search for glyphs by text in the name or the code.</value>
   </data>
+  <data name="CopyFontDescription" xml:space="preserve">
+    <value>Copy all glyphs in the font to the clipboard</value>
+  </data>
+  <data name="WriteFontDescription" xml:space="preserve">
+    <value>Write all glyphs in the font to a file</value>
+  </data>
 </root>

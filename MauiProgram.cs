@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer;
 
+using CommunityToolkit.Maui;
 using GlyphViewer.Resources;
 using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Maui.Controls.Hosting;
@@ -12,6 +13,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseSkiaSharp()
+            .UseMauiCommunityToolkit()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", App.DefaultFontFamily);

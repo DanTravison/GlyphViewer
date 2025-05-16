@@ -64,20 +64,30 @@
                     />
         </HorizontalStackLayout>
 
-        <Grid ColumnDefinitions="Auto, Auto"
-              ColumnSpacing="5"
-              HorizontalOptions="End"
-              Grid.Row="0"
-              Grid.Column="2"
-              >
-            
-            <Button x:Name="ClipboardButton" 
-                    Text="{x:Static res:FluentUI.Clipboard}"
+        <HorizontalStackLayout Spacing="5" 
+                               HorizontalOptions="End"
+                               Grid.Row="0"
+                               Grid.Column="2"
+                               >
+            <Button Text="{x:Static res:FluentUI.ClipboardLetter}"
                     Style="{StaticResource GlyphButtonStyle}"
                     Command="{Binding Metrics.ClipboardCommand}"
                     ToolTipProperties.Text="{x:Static res:Strings.CopyGlyphMetricsDescription}"
                     HorizontalOptions="Center"
-                    Grid.Column="0"
+                    />
+
+            <Button Text="{x:Static res:FluentUI.Clipboard}"
+                    Style="{StaticResource GlyphButtonStyle}"
+                    Command="{Binding FontGlyphs.WriteClipboardCommand}"
+                    ToolTipProperties.Text="{x:Static res:Strings.CopyFontDescription}"
+                    HorizontalOptions="Center"
+                    />
+
+            <Button Text="{x:Static res:FluentUI.Document}"
+                    Style="{StaticResource GlyphButtonStyle}"
+                    Command="{Binding FontGlyphs.WriteFileCommand}"
+                    ToolTipProperties.Text="{x:Static res:Strings.WriteFontDescription}"
+                    HorizontalOptions="Center"
                     />
 
             <Button Text="{x:Static res:FluentUI.Settings}"
@@ -85,10 +95,9 @@
                     Command="{Binding Settings.Navigator.OpenCommand}"
                     ToolTipProperties.Text="{x:Static res:Strings.OpenSettingsDescription}"
                     HorizontalOptions="Center"
-                    Grid.Column="1"
                     />
-        </Grid>
-        
+        </HorizontalStackLayout>
+
         <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
                  HeightRequest="2"
                  Margin="0,0,0,5"
