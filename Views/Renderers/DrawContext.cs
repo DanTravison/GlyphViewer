@@ -5,6 +5,7 @@ using GlyphViewer.Text;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
 using GlyphViewer.Settings;
+using System.ComponentModel;
 
 sealed class DrawContext : IDisposable
 {
@@ -12,15 +13,15 @@ sealed class DrawContext : IDisposable
 
     SKFont _headerFont;
     SKFont _itemFont;
-    GlyphsViewRenderer _layout;
+    GlyphsViewRenderer _renderer;
 
     /// <summary>
     /// Provides a delegate for handling <see cref="GlyphsView"/> property changes.
     /// </summary>
-    /// <param name="layout">The <see cref="GlyphsViewRenderer"/> for the <see cref="GlyphsView"/>.</param>
+    /// <param name="renderer">The <see cref="GlyphsViewRenderer"/> for the <see cref="GlyphsView"/>.</param>
     /// <param name="context">The <see cref="DrawContext"/>.</param>
     /// <returns>true if arrange is needed; otherwise, false.</returns>
-    delegate bool PropertyChangedHandler(GlyphsViewRenderer layout, DrawContext context);
+    delegate RenderState PropertyChangedHandler(GlyphsViewRenderer renderer, DrawContext context);
 
     static readonly Dictionary<string, PropertyChangedHandler> _handlers = new(StringComparer.Ordinal);
 
@@ -52,16 +53,16 @@ sealed class DrawContext : IDisposable
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="layout">The <see cref="GlyphsViewRenderer"/>.</param>
-    public DrawContext(GlyphsViewRenderer layout)
+    /// <param name="renderer">The <see cref="GlyphsViewRenderer"/>.</param>
+    public DrawContext(GlyphsViewRenderer renderer)
     {
-        ArgumentNullException.ThrowIfNull(layout, nameof(layout));
-        _layout = layout;
+        ArgumentNullException.ThrowIfNull(renderer, nameof(renderer));
+        _renderer = renderer;
 
         // Initialize the properties.
         foreach (PropertyChangedHandler handler in _handlers.Values)
         {
-            handler(layout, this);
+            handler(renderer, this);
         }
     }
 
@@ -73,15 +74,8 @@ sealed class DrawContext : IDisposable
     {
         if (_handlers.TryGetValue(propertyName, out PropertyChangedHandler handler))
         {
-            bool needsArrange = handler(_layout, this);
-            if (needsArrange)
-            {
-                _layout.InvalidateArrange();
-            }
-            else
-            {
-                _layout.InvalidateDraw();
-            }
+            RenderState change = handler(_renderer, this);
+            _renderer.Invalidate(change);
         }
     }
 
@@ -113,12 +107,12 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderFontFamilyChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnHeaderFontFamilyChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.HeaderFontFamily = layout.View.HeaderFontFamily;
+        context.HeaderFontFamily = renderer.View.HeaderFontFamily;
         context._headerFont?.Dispose();
         context._headerFont = null;
-        return true;
+        return RenderState.Measure;
     }
 
     /// <summary>
@@ -132,12 +126,12 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderFontSizeChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnHeaderFontSizeChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.HeaderFontSize = (float)layout.View.HeaderFontSize;
+        context.HeaderFontSize = (float)renderer.View.HeaderFontSize;
         context._headerFont?.Dispose();
         context._headerFont = null;
-        return true;
+        return RenderState.Measure;
     }
 
     /// <summary>
@@ -151,12 +145,12 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderFontAttributesChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnHeaderFontAttributesChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.HeaderFontStyle = layout.View.HeaderFontAttributes.ToFontStyle();
+        context.HeaderFontStyle = renderer.View.HeaderFontAttributes.ToFontStyle();
         context._headerFont?.Dispose();
         context._headerFont = null;
-        return true;
+        return RenderState.Draw;
     }
 
     /// <summary>
@@ -170,10 +164,10 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderColorChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnHeaderColorChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.HeaderColor = layout.View.HeaderColor.ToSKColor();
-        return false;
+        context.HeaderColor = renderer.View.HeaderColor.ToSKColor();
+        return RenderState.Draw;
     }
 
     /// <summary>
@@ -187,10 +181,10 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnHeaderBackgroundColorChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnHeaderBackgroundColorChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.HeaderBackgroundColor = layout.View.HeaderBackgroundColor.ToSKColor();
-        return false;
+        context.HeaderBackgroundColor = renderer.View.HeaderBackgroundColor.ToSKColor();
+        return RenderState.Draw;
     }
 
     #endregion Header Properties
@@ -208,16 +202,16 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnItemsChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnItemsChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        GlyphCollection items = layout.View.Items;
+        GlyphCollection items = renderer.View.Items;
         if (items is not null && items.Count > 0)
         {
-            context.ItemFontFamily = items[0].FontFamily;
+            context.ItemFontFamily = items.FamilyName;
             context._itemFont?.Dispose();
             context._itemFont = null;
         }
-        return true;
+        return RenderState.Measure;
     }
 
     /// <summary>
@@ -231,12 +225,12 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnItemFontSizeChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnItemFontSizeChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.ItemFontSize = (float)layout.View.ItemFontSize;
+        context.ItemFontSize = (float)renderer.View.ItemFontSize;
         context._itemFont?.Dispose();
         context._itemFont = null;
-        return true;
+        return RenderState.Measure;
     }
 
     /// <summary>
@@ -273,10 +267,10 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnItemColorChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnItemColorChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.ItemColor = layout.View.ItemColor.ToSKColor();
-        return false;
+        context.ItemColor = renderer.View.ItemColor.ToSKColor();
+        return RenderState.Draw;
     }
 
     /// <summary>
@@ -290,10 +284,10 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnSelectedItemChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnSelectedItemChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.SelectedItem = layout.View.SelectedItem;
-        return false;
+        context.SelectedItem = renderer.View.SelectedItem;
+        return RenderState.Draw;
     }
 
     /// <summary>
@@ -307,10 +301,10 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnSelectedItemColorChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnSelectedItemColorChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.SelectedItemColor = layout.View.SelectedItemColor.ToSKColor();
-        return false;
+        context.SelectedItemColor = renderer.View.SelectedItemColor.ToSKColor();
+        return RenderState.Draw;
     }
 
     /// <summary>
@@ -324,13 +318,11 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnSelectedItemBackgroundColorChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnSelectedItemBackgroundColorChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.SelectedItemBackgroundColor = layout.View.SelectedItemBackgroundColor.ToSKColor();
-        return false;
+        context.SelectedItemBackgroundColor = renderer.View.SelectedItemBackgroundColor.ToSKColor();
+        return RenderState.Draw;
     }
-
-
 
     #endregion Item Properties
 
@@ -377,15 +369,15 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnSpacingChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnSpacingChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        SkSpacing spacing = new(layout.View.Spacing);
+        SkSpacing spacing = new(renderer.View.Spacing);
         if (spacing != context.Spacing)
         {
             context.Spacing = spacing;
-            return true;
+            return RenderState.Layout;
         }
-        return false;
+        return RenderState.None;
     }
 
     public CellLayoutStyle CellLayout
@@ -393,15 +385,15 @@ sealed class DrawContext : IDisposable
         get;
         private set;
     }
-    static bool OnCellLayoutChanged(GlyphsViewRenderer layout, DrawContext context)
+    static RenderState OnCellLayoutChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        CellLayoutStyle cellLayout = layout.View.CellLayout;
+        CellLayoutStyle cellLayout = renderer.View.CellLayout;
         if (cellLayout != context.CellLayout)
         {
             context.CellLayout = cellLayout;
-            return true;
+            return RenderState.Layout;
         }
-        return false;
+        return RenderState.None;
     }
 
     #endregion Layout Properties
@@ -411,12 +403,12 @@ sealed class DrawContext : IDisposable
     /// </summary>
     public void Dispose()
     {
-        if (_layout is not null)
+        if (_renderer is not null)
         {
             _headerFont?.Dispose();
             _itemFont?.Dispose();
             _headerFont = _itemFont = null;
-            _layout = null;
+            _renderer = null;
             GC.SuppressFinalize(this);
         }
     }

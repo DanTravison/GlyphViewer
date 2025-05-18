@@ -1,12 +1,13 @@
 ﻿namespace GlyphViewer.Settings;
 
 using GlyphViewer.Converter;
+using GlyphViewer.Diagnostics;
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Resources;
 using GlyphViewer.Settings.Properties;
 using GlyphViewer.ViewModels;
 using GlyphViewer.Views;
-using System.Diagnostics;
+
 using System.Text.Json;
 
 /// <summary>
@@ -167,8 +168,8 @@ internal sealed class UserSettings : SettingPropertyCollection, ISetting
             }
             catch (IOException ex)
             {
-                string message = $"Unable to read settings file {fileInfo.FullName}.\n{ex.Message}";
-                Trace.WriteLine(message);
+                string message = $"Unable to read settings file {fileInfo.FullName}";
+                Trace.Exception(nameof(UserSettings), nameof(Load), ex, message);
                 break;
             }
 
@@ -183,8 +184,8 @@ internal sealed class UserSettings : SettingPropertyCollection, ISetting
             }
             catch (JsonException ex)
             {
-                string message = $"Unable to parse settings file {fileInfo.FullName}.\n{ex.Message}";
-                Trace.WriteLine(message);
+                string message = $"Unable to parse settings file {fileInfo.FullName}";
+                Trace.Exception(nameof(UserSettings), nameof(Load), ex, message);
             }
 
         } while (false);
@@ -209,8 +210,8 @@ internal sealed class UserSettings : SettingPropertyCollection, ISetting
             }
             catch (IOException ex)
             {
-                string message = $"Unable to save settings to {fileInfo.FullName}.\n{ex.Message}";
-                Trace.WriteLine(message);
+                string message = $"Unable to save settings to {fileInfo.FullName}";
+                Trace.Exception(nameof(UserSettings), nameof(Save), ex, message);
             }
             HasChanges = false;
         }

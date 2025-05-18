@@ -1,8 +1,8 @@
 ﻿namespace GlyphViewer.Views.Renderers;
 
 using GlyphViewer.Settings;
+using GlyphViewer.Diagnostics;
 using SkiaSharp;
-using System.Diagnostics;
 
 /// <summary>
 /// Provides a layout and rendering class for a <see cref="GlyphRow"/>
@@ -209,7 +209,12 @@ internal sealed class GlyphRowRenderer
         }
         if (totalWidth > _drawContext.CanvasSize.Width)
         {
-            Trace.WriteLine($"GlyphRowRenderer.Error: Row width {totalWidth} > Canvas width {_drawContext.CanvasSize.Width}.");
+            Trace.Error
+            (
+                TraceFlag.Drawing, this, nameof(SizeItems), 
+                $"Row width {0} > Canvas width {1}.",
+                totalWidth, _drawContext.CanvasSize.Width
+            );
         }
         return new(totalWidth, totalHeight);
     }

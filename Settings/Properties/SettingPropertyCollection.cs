@@ -1,11 +1,14 @@
-﻿using GlyphViewer.Converter;
+﻿namespace GlyphViewer.Settings.Properties;
+
+using GlyphViewer.Converter;
+using GlyphViewer.Diagnostics;
 using GlyphViewer.ObjectModel;
 using System.Collections;
 using System.ComponentModel;
-using System.Diagnostics;
+
 using System.Text.Json;
 
-namespace GlyphViewer.Settings.Properties;
+using Diag = System.Diagnostics;
 
 /// <summary>
 /// Provides an abstract base class for an see cref="ISetting"/> collection.
@@ -126,7 +129,7 @@ public abstract class SettingPropertyCollection : ObservableObject, ISettingProp
             if (value != _hasChanges)
             {
                 _hasChanges = value;
-                Debug.WriteLine($"{this.GetType().Name}.HasChanges:{_hasChanges}");
+                Trace.Value(TraceFlag.Settings, this, nameof(HasChanges), _hasChanges);
                 if (!_hasChanges)
                 {
                     // Clear child containers to ensure future changes
@@ -290,7 +293,7 @@ public abstract class SettingPropertyCollection : ObservableObject, ISettingProp
             else
             {
                 // NOTE: Unknown property, skip it.
-                Trace.WriteLine($"Skipping unknown property '{propertyName}'");
+                Trace.Warning(TraceFlag.Storage, this, nameof(Read), $"Skipping unknown property '{propertyName}'");
                 reader.Skip();
             }
         }

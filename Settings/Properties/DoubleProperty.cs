@@ -1,7 +1,7 @@
 ﻿namespace GlyphViewer.Settings.Properties;
 
 using GlyphViewer.ObjectModel;
-using System.Diagnostics;
+using GlyphViewer.Diagnostics;
 using System.Text.Json;
 
 /// <summary>
@@ -94,7 +94,7 @@ public class DoubleProperty : SettingProperty<double>
         }
         catch (JsonException ex)
         {
-            Trace.WriteLine($"Invalid value for double", ex.Message);
+            Trace.Exception(this, nameof(ReadValue), ex, "Invalid value for double");
             value = DefaultValue;
         }
         return value;

@@ -2,6 +2,7 @@
 
 using CommunityToolkit.Maui;
 using GlyphViewer.Resources;
+using GlyphViewer.Diagnostics;
 using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 
@@ -9,6 +10,8 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        // Trace.TraceFlags = TraceFlag.Application | TraceFlag.Navigation | TraceFlag.Layout;
+
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()

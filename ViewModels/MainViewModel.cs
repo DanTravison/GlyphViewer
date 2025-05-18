@@ -90,7 +90,7 @@ internal sealed class MainViewModel : ObservableObject
         });
     }
 
-    public void LoadGlyphs(IDispatcher dispatcher)
+    void LoadGlyphs(IDispatcher dispatcher)
     {
         GlyphCollection glyphs = null;
         if (!string.IsNullOrWhiteSpace(_metrics.FontFamily))

@@ -7,7 +7,6 @@ using SkiaSharp;
 using SkiaSharp.Views.Maui;
 using SkiaSharp.Views.Maui.Controls;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using UnicodeRange = Text.Unicode.Range;
 
@@ -31,12 +30,12 @@ public sealed class GlyphsView : SKCanvasView
         base.EnableTouchEvents = true;
         _renderer = new(this);
         _context = _renderer.DrawContext;
-        _renderer.PropertyChanged += OnLayoutPropertyChanged;
+        _renderer.PropertyChanged += OnRendererPropertyChanged;
     }
 
     #region Event Handlers
 
-    private void OnLayoutPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private void OnRendererPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         // NOTE: The following properties are not bound to a DrawContext property.
         // As such they must be handled manually.
@@ -48,7 +47,7 @@ public sealed class GlyphsView : SKCanvasView
         }
     }
 
-    protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    protected override void OnPropertyChanged(string propertyName = null)
     {
         // NOTE: OnPropertyChanged can be called before constructor completes.
         _context?.OnViewPropertyChanged(propertyName);

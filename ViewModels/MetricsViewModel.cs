@@ -93,8 +93,11 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
         get => _fontFamily;
         set
         {
-            _fontFamily = value;
-            Update(ChangedProperty.FontFamily);
+            if (StringComparer.Ordinal.Compare(_fontFamily, value) != 0)
+            {
+                _fontFamily = value;
+                Update(ChangedProperty.FontFamily);
+            }
         }
     }
 
