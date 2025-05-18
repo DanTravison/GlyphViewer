@@ -13,12 +13,12 @@ public sealed class ItemFontSetting : FontSetting
     /// <summary>
     /// Defines the minimum <see cref="FontSetting.FontSize"/>.
     /// </summary>
-    public const double MinimumFontSize = 12;
+    public const double MinimumFontSize = 8;
 
     /// <summary>
     /// Defines the maximum <see cref="FontSetting.FontSize"/>.
     /// </summary>
-    public const double MaximumFontSize = 40;
+    public const double MaximumFontSize = 72;
 
     /// <summary>
     /// Defines the default <see cref="FontSetting.FontSize"/>.
