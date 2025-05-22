@@ -1,11 +1,10 @@
 ﻿namespace GlyphViewer.Views.Renderers;
 
-using GlyphViewer.Views;
+using GlyphViewer.Settings;
 using GlyphViewer.Text;
+using GlyphViewer.Views;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
-using GlyphViewer.Settings;
-using System.ComponentModel;
 
 sealed class DrawContext : IDisposable
 {

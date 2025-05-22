@@ -194,7 +194,7 @@ public sealed class GlyphsView : SKCanvasView
         {
             if (bindable is GlyphsView view && value is Glyph selectedItem)
             {
-                if (view._renderer[selectedItem.CodePoint] is not null)
+                if (view._renderer.Contains(selectedItem))
                 {
                     return selectedItem;
                 }

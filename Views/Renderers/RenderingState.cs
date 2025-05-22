@@ -78,7 +78,7 @@ class RenderingState
     #endregion Properties
 
     #region Methods
-    
+
     bool Clear(RenderState type, [CallerMemberName] string name = nameof(Clear))
     {
         bool result = _state.HasFlag(type);

@@ -83,7 +83,7 @@ internal sealed class SearchViewModel : ObservableObject
         get => _selectedItem;
         set
         {
-            if 
+            if
             (
                 SetProperty(ref _selectedItem, value, SelectedItemChangedEventArgs)
                 &&

@@ -6,7 +6,7 @@ namespace GlyphViewer.Settings.Properties;
 /// Provide an <see cref="ISettingProperty"/> for an enum value.
 /// </summary>
 /// <typeparam name="T">The type of enum.</typeparam>
-public abstract class EnumProperty<T> : SettingProperty<T> 
+public abstract class EnumProperty<T> : SettingProperty<T>
     where T : struct, Enum
 {
     /// <summary>
@@ -16,7 +16,7 @@ public abstract class EnumProperty<T> : SettingProperty<T>
     /// <param name="displayName">The <see cref="ISettingProperty.DisplayName"/> to display in the UI.</param>
     /// <param name="description">The <see cref="ISettingProperty.Description"/> of the setting.</param>
     protected EnumProperty(string name, T defaultValue, string displayName, string description)
-        : base(name,  defaultValue, displayName, description)
+        : base(name, defaultValue, displayName, description)
     {
     }
 

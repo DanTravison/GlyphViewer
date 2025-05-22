@@ -31,7 +31,7 @@ public sealed class FontMetricsProperties : IReadOnlyCollection<NamedValue>
         Metrics = metrics;
 
         Add(_values, nameof(SKTextMetrics.FamilyName), font.Typeface.FamilyName);
-        _values.Add(_glyphCount); 
+        _values.Add(_glyphCount);
         Add(_values, nameof(SKTextMetrics.FontSize), font.Size);
         Add(_values, nameof(SKFontMetrics.Top), metrics.Top);
         Add(_values, nameof(SKFontMetrics.Ascent), metrics.Ascent);

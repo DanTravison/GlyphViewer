@@ -109,7 +109,7 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     /// </value>
     public double FontSize
     {
-        get =>_fontSize.Value;
+        get => _fontSize.Value;
     }
 
     /// <summary>

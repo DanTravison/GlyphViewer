@@ -2,7 +2,6 @@
 
 using CommunityToolkit.Maui;
 using GlyphViewer.Resources;
-using GlyphViewer.Diagnostics;
 using Microsoft.Extensions.Logging;
 using SkiaSharp.Views.Maui.Controls.Hosting;
 

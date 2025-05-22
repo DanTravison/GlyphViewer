@@ -1,7 +1,7 @@
 ﻿namespace GlyphViewer.Views.Renderers;
 
-using GlyphViewer.Settings;
 using GlyphViewer.Diagnostics;
+using GlyphViewer.Settings;
 using SkiaSharp;
 
 /// <summary>
@@ -211,7 +211,7 @@ internal sealed class GlyphRowRenderer
         {
             Trace.Error
             (
-                TraceFlag.Drawing, this, nameof(SizeItems), 
+                TraceFlag.Drawing, this, nameof(SizeItems),
                 $"Row width {0} > Canvas width {1}.",
                 totalWidth, _drawContext.CanvasSize.Width
             );
@@ -280,8 +280,8 @@ internal sealed class GlyphRowRenderer
         {
             // fixed cell widths
             float cellWidth = GlyphWidth + _drawContext.Spacing.Horizontal;
-            
-            int column = (int) (left / cellWidth);
+
+            int column = (int)(left / cellWidth);
             if (column < _items.Count)
             {
                 renderer = _items[column];

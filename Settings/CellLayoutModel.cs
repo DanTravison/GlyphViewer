@@ -113,7 +113,7 @@ public sealed class CellLayoutModel
         _cellLayout = _cellLayoutProperty.Value;
         _cellLayoutProperty.ValueChanged += OnCellLayoutPropertyChanged;
 
-        HeightOptions = _heightOptions = 
+        HeightOptions = _heightOptions =
         [
             new CellLayoutOption<CellHeightLayout>
             (
@@ -125,7 +125,7 @@ public sealed class CellLayoutModel
             ),
             new CellLayoutOption<CellHeightLayout>
             (
-                Set, 
+                Set,
                 FluentUI.LineThickness,
                 Strings.CellHeightDynamicDescription,
                 CellHeightLayout.Dynamic,
@@ -136,7 +136,7 @@ public sealed class CellLayoutModel
         [
             new CellLayoutOption<CellWidthLayout>
             (
-                Set, 
+                Set,
                 FluentUI.TextColumnThree,
                 Strings.CellWidthDefaultDescription,
                 CellWidthLayout.Default,
@@ -144,7 +144,7 @@ public sealed class CellLayoutModel
             ),
             new CellLayoutOption<CellWidthLayout>
             (
-                Set, 
+                Set,
                 FluentUI.TextAlignLeft,
                 Strings.CellWidthRowDescription,
                 CellWidthLayout.Width,
@@ -152,7 +152,7 @@ public sealed class CellLayoutModel
             ),
             new CellLayoutOption<CellWidthLayout>
             (
-                Set, 
+                Set,
                 FluentUI.TextColumnTwoLeft,
                 Strings.CellWidthDynamicDescription,
                 CellWidthLayout.Dynamic,
@@ -196,7 +196,7 @@ public sealed class CellLayoutModel
         if (width != _cellLayoutProperty.Value.Width)
         {
             _cellLayoutProperty.Value = new(width, _cellLayout.Height); ;
-         }
+        }
     }
 
     private void OnCellLayoutPropertyChanged(object sender, EventArgs e)

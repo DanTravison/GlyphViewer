@@ -8,8 +8,6 @@ using System.ComponentModel;
 
 using System.Text.Json;
 
-using Diag = System.Diagnostics;
-
 /// <summary>
 /// Provides an abstract base class for an see cref="ISetting"/> collection.
 /// </summary>

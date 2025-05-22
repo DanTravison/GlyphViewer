@@ -279,6 +279,7 @@ internal sealed class FontGlyphsViewModel : ObservableObject
             {
                 writer.WriteStartObject();
                 Write(writer, property.Properties);
+                Write(writer, property.ExtendedProperties);
                 writer.WriteEndObject();
             }
             writer.WriteEndArray();

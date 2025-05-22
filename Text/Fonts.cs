@@ -173,6 +173,10 @@ public static class Fonts
         SKTextAlign align = SKTextAlign.Left
     )
     {
+        ArgumentNullException.ThrowIfNull(font, nameof(font));
+        ArgumentNullException.ThrowIfNull(canvas, nameof(canvas));
+        ArgumentNullException.ThrowIfNull(paint, nameof(paint));
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
         float size = font.Size;
         font.Size = font.Size.ScalePoints();
         canvas.DrawText(text, left, baseline, align, font, paint);

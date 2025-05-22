@@ -1,15 +1,11 @@
 ﻿namespace GlyphViewer.Views.Renderers;
 
-using GlyphViewer.Diagnostics;
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Text;
 using SkiaSharp;
-using SkiaSharp.Views.Maui.Controls;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
-using UnicodeRange = GlyphViewer.Text.Unicode.Range;
 using Diag = System.Diagnostics;
+using UnicodeRange = GlyphViewer.Text.Unicode.Range;
 
 /// <summary>
 /// Provides a layout and rendering class for a <see cref="GlyphsView"/>.
@@ -27,8 +23,10 @@ internal class GlyphsViewRenderer : ObservableObject
     // The UnicodeRange to GlyphRange table.
     readonly GlyphRanges _glyphRanges = new();
 
-    // The code point to GlyphRenderer table.
-    readonly Dictionary<ushort, GlyphRenderer> _codepoints = [];
+    /// <summary>
+    /// The Glyph to GlyphRenderer table.
+    /// </summary>
+    readonly Dictionary<Glyph, GlyphRenderer> _glyphs = [];
 
     // The glyphs for the currently selected font family.
     IReadOnlyList<Glyph> _content;
@@ -160,22 +158,13 @@ internal class GlyphsViewRenderer : ObservableObject
     }
 
     /// <summary>
-    /// Gets the <see cref="Glyph"/> in the <see cref="Content"/> with the specified <paramref name="codePoint"/>.
+    /// Gets teh value indicating if the <see cref="Glyph"/> is in the <see cref="Content"/>.
     /// </summary>
-    /// <param name="codePoint">The <see cref="Glyph.CodePoint"/> to get.</param>
-    /// <returns>The <see cref="Glyph"/> with the specified <paramref name="codePoint"/>; otherwise, 
-    /// a null reference if the <see cref="Content"/> does not contain the <see cref="Glyph"/>.
-    /// </returns>
-    public Glyph this[ushort codePoint]
+    /// <param name="glyph">The <see cref="Glyph"/> to query.</param>
+    /// <returns>true if the <paramref name="glyph"/> is in the content; otherwise, false.</returns>
+    public bool Contains(Glyph glyph)
     {
-        get
-        {
-            if (_codepoints.TryGetValue(codePoint, out GlyphRenderer renderer))
-            {
-                return renderer.Metrics.Glyph;
-            }
-            return null;
-        }
+        return glyph is not null && _glyphs.ContainsKey(glyph);
     }
 
     /// <summary>
@@ -220,7 +209,7 @@ internal class GlyphsViewRenderer : ObservableObject
     {
         _rows.Clear();
         _headers.Clear();
-        _codepoints.Clear();
+        _glyphs.Clear();
         _glyphRanges.Clear();
     }
 
@@ -252,7 +241,7 @@ internal class GlyphsViewRenderer : ObservableObject
                 for (int i = 0; i < _content.Count; i++)
                 {
                     Glyph glyph = _content[i];
-                    if (_codepoints.ContainsKey(glyph.CodePoint))
+                    if (_glyphs.ContainsKey(glyph))
                     {
                         continue;
                     }
@@ -261,7 +250,7 @@ internal class GlyphsViewRenderer : ObservableObject
                     {
                         continue;
                     }
-                    _codepoints.Add(glyph.CodePoint, renderer);
+                    _glyphs.Add(glyph, renderer);
 
                     if (glyph.Range != unicodeRange)
                     {
@@ -420,10 +409,10 @@ internal class GlyphsViewRenderer : ObservableObject
     public bool HitTest(SKPoint point, out IGlyphRow row, out GlyphRenderer renderer)
     {
         if (_currentHeader is not null && _currentHeader.Bounds.Contains(point))
-        { 
+        {
             row = _currentHeader;
             renderer = null;
-            return true;    
+            return true;
         }
         for (int i = FirstRow; i < _rows.Count; i++)
         {
@@ -556,9 +545,9 @@ internal class GlyphsViewRenderer : ObservableObject
                     break;
                 }
                 lastRow = i;
-                if (needsArrange) 
-                { 
-                    row.Arrange(x, y); 
+                if (needsArrange)
+                {
+                    row.Arrange(x, y);
                 }
                 row.Draw(canvas, paint);
                 y += row.Bounds.Height;

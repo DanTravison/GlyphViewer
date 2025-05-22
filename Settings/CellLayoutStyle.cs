@@ -65,7 +65,7 @@ public readonly struct CellLayoutStyle : IEquatable<CellLayoutStyle>
     /// </summary>
     public CellLayoutStyle()
         : this(CellWidthLayout.Default, CellHeightLayout.Default)
-    {}
+    { }
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -170,11 +170,11 @@ public readonly struct CellLayoutStyle : IEquatable<CellLayoutStyle>
             {
                 value = value.Trim();
             }
-            if (string.IsNullOrEmpty(value)) 
+            if (string.IsNullOrEmpty(value))
             {
                 // An empty string equates to the default value.
                 result = true;
-                break; 
+                break;
             }
 
             // tokenize on comma or white space
@@ -198,7 +198,7 @@ public readonly struct CellLayoutStyle : IEquatable<CellLayoutStyle>
             result = true;
 
         } while (false);
-        
+
         return result;
     }
 

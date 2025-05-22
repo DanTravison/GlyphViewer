@@ -1,5 +1,3 @@
-using GlyphViewer.Settings;
-
 namespace GlyphViewer.Views;
 
 public partial class SettingsPage : ContentPage

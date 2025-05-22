@@ -7,7 +7,7 @@ using System.Text;
 /// <summary>
 /// Defines a font family and text for a glyph.
 /// </summary>
-[DebuggerDisplay("({CodePoint,nq}) {Text}")]
+[DebuggerDisplay("({Code,nq}) {Text}")]
 public sealed class Glyph : IEquatable<Glyph>
 {
     #region Fields
@@ -31,7 +31,6 @@ public sealed class Glyph : IEquatable<Glyph>
         Code = string.Empty;
         Char = '\0';
         IsEmpty = true;
-        CodePoint = 0;
         Range = Unicode.Range.Empty;
     }
 
@@ -40,7 +39,6 @@ public sealed class Glyph : IEquatable<Glyph>
     /// </summary>
     /// <param name="fontFamily">The containing <see cref="FontFamily"/>.</param>
     /// <param name="ch">The <see cref="Char"/></param>
-    /// <param name="codepoint">The code point.</param>
     /// <param name="category">The <see cref="UnicodeCategory"/>.</param>
     /// <param name="range">The <see cref="Unicode.Range"/> that contains the glyph.</param>
     /// <param name="name">The optional name of the glyph.</param>
@@ -50,7 +48,6 @@ public sealed class Glyph : IEquatable<Glyph>
     (
         string fontFamily,
         char ch,
-        ushort codepoint,
         UnicodeCategory category,
         Unicode.Range range,
         string name = null
@@ -71,7 +68,6 @@ public sealed class Glyph : IEquatable<Glyph>
 
         FontFamily = fontFamily;
         Text = char.ConvertFromUtf32(ch);
-        CodePoint = codepoint;
         Char = ch;
         Category = category;
         IsEmpty = false;
@@ -138,15 +134,7 @@ public sealed class Glyph : IEquatable<Glyph>
     }
 
     /// <summary>
-    /// Gets the glyph code point.
-    /// </summary>
-    public ushort CodePoint
-    {
-        get;
-    }
-
-    /// <summary>
-    /// Gets the string hex code for the <see cref="CodePoint"/>.
+    /// Gets the string hex code for the glyph.
     /// </summary>
     public string Code
     {
@@ -191,19 +179,19 @@ public sealed class Glyph : IEquatable<Glyph>
     }
 
     /// <summary>
-    ///  Determines whether the specified <paramref name="other"/> is equal to the current instance.
+    ///  Determines whether the specified <paramref name="glyph"/> is equal to the current instance.
     /// </summary>
-    /// <param name="other">The <see cref="Glyph"/> to compare with the current instance.</param>
-    /// <returns>true if the specified <paramref name="other"/> is equal to the current instance; otherwise, false.</returns>
-    public bool Equals(Glyph other)
+    /// <param name="glyph">The <see cref="Glyph"/> to compare with the current instance.</param>
+    /// <returns>true if the specified <paramref name="glyph"/> is equal to the current instance; otherwise, false.</returns>
+    public bool Equals(Glyph glyph)
     {
         return
         (
-            other is not null
+            glyph is not null
             &&
-            CodePoint == other.CodePoint
+            Code == glyph.Code
             &&
-            FontFamily == other.FontFamily
+            FontFamily == glyph.FontFamily
         );
     }
 
@@ -213,7 +201,7 @@ public sealed class Glyph : IEquatable<Glyph>
     /// <returns>A hash code for this instance.</returns>
     public override int GetHashCode()
     {
-        return HashCode.Combine(Text, FontFamily);
+        return HashCode.Combine(Code, FontFamily);
     }
 
     #endregion Equality

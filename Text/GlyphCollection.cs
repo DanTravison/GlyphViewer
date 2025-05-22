@@ -186,7 +186,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
                     hasGlyphNames = true;
                 }
             }
-            Glyph glyph = new(typeface.FamilyName, ch, codepoint, category, unicodeRange, name);
+            Glyph glyph = new(typeface.FamilyName, ch, category, unicodeRange, name);
             glyphs.Add(glyph);
         }
         hbFont?.Dispose();

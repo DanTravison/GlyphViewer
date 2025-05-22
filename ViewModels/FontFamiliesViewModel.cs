@@ -3,7 +3,6 @@
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Text;
 using System.ComponentModel;
-using System.Windows.Input;
 
 /// <summary>
 /// Privides a view model for the FontFamiliesView.
@@ -58,7 +57,7 @@ internal class FontFamiliesViewModel : ObservableObject
 
     #endregion Font Families
 
-#region Family Group
+    #region Family Group
 
 #if (false)
     /// <summary>

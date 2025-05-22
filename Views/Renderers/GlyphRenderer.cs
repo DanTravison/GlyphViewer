@@ -24,7 +24,7 @@ internal class GlyphRenderer
             // if so, use the text width.
             height = Metrics.TextWidth;
         }
-        PreferredSize = new (Metrics.TextWidth, height);
+        PreferredSize = new(Metrics.TextWidth, height);
     }
 
     #region Properties
@@ -54,7 +54,7 @@ internal class GlyphRenderer
         get;
         private set;
     }
-        
+
     /// <summary>
     /// Gets or sets the size of the renderer.
     /// </summary>

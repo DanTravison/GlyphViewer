@@ -88,7 +88,7 @@ class GlyphRow : GlyphRowBase
     /// </summary>
     public void SizeItems()
     {
-        base.Size = _items.SizeItems();    
+        base.Size = _items.SizeItems();
     }
 
     /// <summary>
