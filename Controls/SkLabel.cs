@@ -334,13 +334,9 @@ internal class SkLabel : SKCanvasView
             {
                 using (SKFont font = GetFont())
                 {
-                    SKPaint paint = new SKPaint()
-                    {
-                        IsAntialias = true
-                    };
                     if (!string.IsNullOrEmpty(Text))
                     {
-                        _metrics = new SKTextMetrics(Text, font, paint);
+                        _metrics = new SKTextMetrics(Text, font);
                     }
                 }
             }
@@ -397,7 +393,7 @@ internal class SkLabel : SKCanvasView
             {
                 if (_metrics is null)
                 {
-                    _metrics = new SKTextMetrics(Text, font, paint);
+                    _metrics = new SKTextMetrics(Text, font);
                 }
                 switch (VerticalTextAlignment)
                 {

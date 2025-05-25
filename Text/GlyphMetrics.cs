@@ -28,11 +28,10 @@ public class GlyphMetrics : SKTextMetrics, IEquatable<GlyphMetrics>
     /// </summary>
     /// <param name="glyph">The measured <see cref="Glyph"/>.</param>
     /// <param name="font">The <see cref="SKFont"/> containing the <paramref name="glyph"/>.</param>
-    /// <param name="paint">The optional <see cref="SKPaint"/> used to measure the <paramref name="glyph"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="font"/> is a null reference.</exception>
     /// <exception cref="ArgumentException"><paramref name="glyph"/> is a null reference or<see cref="Glyph.Empty"/> instance.</exception>
-    GlyphMetrics(Glyph glyph, SKFont font, SKPaint paint)
-        : base(glyph.Text, font, paint)
+    GlyphMetrics(Glyph glyph, SKFont font)
+        : base(glyph.Text, font)
     {
         Glyph = glyph;
     }
@@ -87,17 +86,16 @@ public class GlyphMetrics : SKTextMetrics, IEquatable<GlyphMetrics>
     /// </summary>
     /// <param name="glyph">The associated <see cref="Glyph"/> to measure.</param>
     /// <param name="font">The <see cref="SKFont"/> to use to measure the <paramref name="glyph"/>.</param>
-    /// <param name="paint">The optional <see cref="SKPaint"/> to use to measure the <paramref name="glyph"/>.</param>
     /// <returns>The new instance of a <see cref="GlyphMetrics"/> for the <paramref name="glyph"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="font"/> is a null reference.</exception>
     /// <exception cref="ArgumentException"><paramref name="glyph"/> is a null reference or<see cref="Glyph.Empty"/> instance.</exception>
-    public static GlyphMetrics CreateInstance(Glyph glyph, SKFont font, SKPaint paint = null)
+    public static GlyphMetrics CreateInstance(Glyph glyph, SKFont font)
     {
         if (glyph is null || glyph.IsEmpty)
         {
             throw new ArgumentException(nameof(glyph));
         }
-        return new GlyphMetrics(glyph, font, paint);
+        return new GlyphMetrics(glyph, font);
     }
 
     #endregion Public Methods

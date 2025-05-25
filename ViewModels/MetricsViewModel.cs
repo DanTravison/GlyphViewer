@@ -384,11 +384,8 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
         }
         else
         {
-            using (SKPaint paint = new() { IsAntialias = true })
-            {
-                GlyphMetrics metrics = GlyphMetrics.CreateInstance(_glyph, _font, null);
-                _glyphProperties = new GlyphMetricProperties(metrics);
-            }
+            GlyphMetrics metrics = GlyphMetrics.CreateInstance(_glyph, _font);
+            _glyphProperties = new GlyphMetricProperties(metrics);
         }
     }
 

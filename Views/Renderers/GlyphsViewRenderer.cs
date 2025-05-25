@@ -236,33 +236,30 @@ internal class GlyphsViewRenderer : ObservableObject
             UnicodeRange unicodeRange = UnicodeRange.Empty;
             GlyphRenderers renderers = null;
 
-            using (SKPaint paint = new SKPaint() { IsAntialias = true })
+            for (int i = 0; i < _content.Count; i++)
             {
-                for (int i = 0; i < _content.Count; i++)
+                Glyph glyph = _content[i];
+                if (_glyphs.ContainsKey(glyph))
                 {
-                    Glyph glyph = _content[i];
-                    if (_glyphs.ContainsKey(glyph))
-                    {
-                        continue;
-                    }
-                    GlyphRenderer renderer = new(glyph, _drawContext, paint);
-                    if (renderer.PreferredSize == SKSize.Empty)
-                    {
-                        continue;
-                    }
-                    _glyphs.Add(glyph, renderer);
-
-                    if (glyph.Range != unicodeRange)
-                    {
-                        renderers = _glyphRanges.Add(glyph.Range);
-                        unicodeRange = glyph.Range;
-                    }
-
-                    width = Math.Max(renderer.PreferredSize.Width, width);
-                    height = Math.Max(renderer.PreferredSize.Height, height);
-
-                    renderers.Add(renderer);
+                    continue;
                 }
+                GlyphRenderer renderer = new(glyph, _drawContext);
+                if (renderer.PreferredSize == SKSize.Empty)
+                {
+                    continue;
+                }
+                _glyphs.Add(glyph, renderer);
+
+                if (glyph.Range != unicodeRange)
+                {
+                    renderers = _glyphRanges.Add(glyph.Range);
+                    unicodeRange = glyph.Range;
+                }
+
+                width = Math.Max(renderer.PreferredSize.Width, width);
+                height = Math.Max(renderer.PreferredSize.Height, height);
+
+                renderers.Add(renderer);
             }
             Invalidate(RenderState.Layout);
         }
