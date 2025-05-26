@@ -27,15 +27,15 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     /// <summary>
     /// Initializes a new instance of this class
     /// </summary>
-    /// <param name="typeface">The <see cref="SKTypeface"/> defining the glyph.</param>
-    /// <param name="glyphs">The list of glyphs in the <paramref name="typeface"/>.</param>
+    /// <param name="fontFamily">The <see cref="Text.FontFamily"/> defining the glyph.</param>
+    /// <param name="glyphs">The list of glyphs in the <paramref name="fontFamily"/>.</param>
     /// <param name="hasGlyphNames">true if some or all of the <paramref name="glyphs"/> has
     /// a <see cref="Glyph.Name"/>; otherwise, false.</param>
-    private GlyphCollection(SKTypeface typeface, List<Glyph> glyphs, List<UnicodeRange> unicodeRanges, bool hasGlyphNames)
+    private GlyphCollection(FontFamily fontFamily, List<Glyph> glyphs, List<UnicodeRange> unicodeRanges, bool hasGlyphNames)
     {
         _glyphs = glyphs;
         HasGlyphNames = hasGlyphNames;
-        FamilyName = typeface.FamilyName;
+        FontFamily = fontFamily;
         UnicodeRanges = unicodeRanges;
         _searchTable = new(glyphs);
     }
@@ -45,7 +45,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     /// <summary>
     /// Gets the font family name.
     /// </summary>
-    public string FamilyName
+    public FontFamily FontFamily
     {
         get;
     }
@@ -134,15 +134,16 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     /// <summary>
     /// Creates a new instance of a <see cref="GlyphCollection"/>.
     /// </summary>
-    /// <param name="typeface">The <see cref="SKTypeface"/> to use to populate the collection.</param>
+    /// <param name="fontFamily">The <see cref="FontFamily"/> to use to populate the collection.</param>
     /// <param name="filter">The optional <see cref="UnicodeCategory"/> values to exclude from the results.</param>
     /// <returns>A new instance of a <see cref="GlyphCollection"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeface"/> is a null reference.</exception>
-    public static GlyphCollection CreateInstance(SKTypeface typeface, params UnicodeCategory[] filter)
+    /// <exception cref="ArgumentNullException"><paramref name="fontFamily"/> is a null reference.</exception>
+    public static GlyphCollection CreateInstance(FontFamily fontFamily, params UnicodeCategory[] filter)
     {
+        SKTypeface typeface = fontFamily.GetTypeface(SKFontStyle.Normal);
         if (typeface is null)
         {
-            throw new ArgumentNullException(nameof(typeface));
+            return null;
         }
         HarfBuzzFont hbFont = OpenFont(typeface);
         bool hasGlyphNames = false;
@@ -186,11 +187,11 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
                     hasGlyphNames = true;
                 }
             }
-            Glyph glyph = new(typeface.FamilyName, ch, category, unicodeRange, name);
+            Glyph glyph = new(fontFamily, ch, category, unicodeRange, name);
             glyphs.Add(glyph);
         }
         hbFont?.Dispose();
-        return new GlyphCollection(typeface, glyphs, unicodeRanges, hasGlyphNames);
+        return new GlyphCollection(fontFamily, glyphs, unicodeRanges, hasGlyphNames);
     }
 
     #endregion CreateInstance

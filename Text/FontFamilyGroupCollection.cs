@@ -142,20 +142,20 @@ public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
         Dictionary<string, FontFamilyGroup> groupTable = new(StringComparer.OrdinalIgnoreCase);
         List<FontFamilyGroup> groups = [];
 
-        List<string> families = Fonts.GetFontFamilies();
+        List<FontFamily> families = Fonts.GetFontFamilies();
         // the bookmarked font families that are actually available.
-        List<string> availableBookmarks = [];
+        List<FontFamily> availableBookmarks = [];
 
         // Ensure group names and font family names are sorted.
-        families.Sort(StringComparer.CurrentCultureIgnoreCase);
+        families.Sort(FontFamily.Comparer);
 
-        foreach (string fontFamily in families)
+        foreach (FontFamily fontFamily in families)
         {
             if (bookmarks.Contains(fontFamily))
             {
                 availableBookmarks.Add(fontFamily);
             }
-            string groupName = fontFamily[0].ToString();
+            string groupName = fontFamily.Name[0].ToString();
             if (!groupTable.TryGetValue(groupName, out FontFamilyGroup group))
             {
                 group = new FontFamilyGroup(groupName);

@@ -118,9 +118,9 @@ internal class SkLabel : SKCanvasView
     /// <summary>
     /// Gets or sets the <see cref="Text"/> font size.
     /// </summary>
-    public string FontFamily
+    public FontFamily FontFamily
     {
-        get => GetValue(FontFamilyProperty) as string;
+        get => GetValue(FontFamilyProperty) as FontFamily;
         set => SetValue(FontFamilyProperty, value);
     }
 
@@ -130,20 +130,17 @@ internal class SkLabel : SKCanvasView
     public static readonly BindableProperty FontFamilyProperty = BindableProperty.Create
     (
         nameof(FontFamily),
-        typeof(string),
+        typeof(FontFamily),
         typeof(SkLabel),
         DefaultFontFamily,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
-            if (value is string family)
+            if (value is not FontFamily fontFamily)
             {
-                if (family.Trim().Length > 0)
-                {
-                    return family;
-                }
+                value = new FontFamily(DefaultFontFamily);
             }
-            return DefaultFontFamily;
+            return value;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {

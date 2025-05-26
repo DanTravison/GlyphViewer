@@ -17,7 +17,7 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     #region Fields
 
     SKFont _font;
-    string _fontFamily = string.Empty;
+    FontFamily _fontFamily = null;
     FontMetricsProperties _fontProperties;
 
     Glyph _glyph = Glyph.Empty;
@@ -88,13 +88,13 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     /// <remarks>
     /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> with <see cref="FontFamilyChangedEventArgs"/>.
     /// </remarks>
-    public string FontFamily
+    public FontFamily FontFamily
     {
         get => _fontFamily;
         set
         {
-            if (StringComparer.Ordinal.Compare(_fontFamily, value) != 0)
-            {
+            if (value != _fontFamily)
+            { 
                 _fontFamily = value;
                 Update(ChangedProperty.FontFamily);
             }
@@ -364,7 +364,7 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     {
         _font?.Dispose();
         _font = null;
-        if (!string.IsNullOrEmpty(_fontFamily))
+        if (_fontFamily is not null)
         {
             _font = FontFamily.CreateFont((float)_fontSize.Value);
             _fontProperties = new FontMetricsProperties(_font);

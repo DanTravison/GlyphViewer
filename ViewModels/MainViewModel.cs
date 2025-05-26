@@ -2,6 +2,7 @@
 
 using CommunityToolkit.Maui.Storage;
 using GlyphViewer.ObjectModel;
+using GlyphViewer.Resources;
 using GlyphViewer.Settings;
 using GlyphViewer.Text;
 using GlyphViewer.Views;
@@ -93,18 +94,9 @@ internal sealed class MainViewModel : ObservableObject
     void LoadGlyphs(IDispatcher dispatcher)
     {
         GlyphCollection glyphs = null;
-        if (!string.IsNullOrWhiteSpace(_metrics.FontFamily))
+        if (_metrics.FontFamily is not null)
         {
-            using (SKTypeface typeface = SKTypeface.FromFamilyName
-            (
-                _metrics.FontFamily,
-                SKFontStyleWeight.Normal,
-                SKFontStyleWidth.Normal,
-                SKFontStyleSlant.Upright
-            ))
-            {
-                glyphs = GlyphCollection.CreateInstance(typeface);
-            }
+            glyphs = GlyphCollection.CreateInstance(_metrics.FontFamily);
         }
         _ = dispatcher.DispatchAsync(() =>
         {
@@ -144,4 +136,42 @@ internal sealed class MainViewModel : ObservableObject
         }
         return null;
     }
+
+    #region Font File Loading
+
+    async void LoadFontFile()
+    {
+        FileInfo file = await PickFontFile();
+        if (file is not null && file.Exists)
+        {
+            FontFamily fontFamily = new FileFont(file);
+            if (fontFamily.GetTypeface(SKFontStyle.Normal) is not null)
+            {
+                _metrics.FontFamily = fontFamily;
+                LoadGlyphs(_dispatcher);
+            }       
+        }
+    }
+
+    static readonly FilePickerFileType _fontFileTypes = new
+    (
+        new Dictionary<DevicePlatform, IEnumerable<string>>
+        {
+                {DevicePlatform.WinUI,   [".ttf", ".otf"] },
+                {DevicePlatform.macOS,   ["ttf", "otf"] },
+                {DevicePlatform.Android, ["font/ttf", "font/otf"] },
+                {DevicePlatform.iOS,     ["public.opentype-font", "public.truetype-font"] }
+        }
+    );
+
+    /// <summary>
+    /// Picks a font file from the file system.
+    /// </summary>
+    /// <returns>The <see cref="FileInfo"/> for the selected file; otherwise, a null reference.</returns>
+    static async Task<FileInfo> PickFontFile()
+    {
+        return await App.PickFile(Strings.FontFilePickerTitle, _fontFileTypes);
+    }
+
+    #endregion Font File Loading
 }

@@ -101,14 +101,14 @@ sealed class DrawContext : IDisposable
     /// <remarks>
     /// This property is set from <see cref="GlyphsView.HeaderFontFamily"/>.
     /// </remarks>
-    public string HeaderFontFamily
+    public FontFamily HeaderFontFamily
     {
         get;
         private set;
     }
     static RenderState OnHeaderFontFamilyChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.HeaderFontFamily = renderer.View.HeaderFontFamily;
+        context.HeaderFontFamily = new(renderer.View.HeaderFontFamily);
         context._headerFont?.Dispose();
         context._headerFont = null;
         return RenderState.Measure;
@@ -196,7 +196,7 @@ sealed class DrawContext : IDisposable
     /// <remarks>
     /// This property is set from the <see cref="Glyph.FontFamily"/> of the first item in <see cref="GlyphsView.Items"/>
     /// </remarks>
-    public string ItemFontFamily
+    public FontFamily ItemFontFamily
     {
         get;
         private set;
@@ -206,7 +206,7 @@ sealed class DrawContext : IDisposable
         GlyphCollection items = renderer.View.Items;
         if (items is not null && items.Count > 0)
         {
-            context.ItemFontFamily = items.FamilyName;
+            context.ItemFontFamily = items.FontFamily;
             context._itemFont?.Dispose();
             context._itemFont = null;
         }
@@ -232,6 +232,8 @@ sealed class DrawContext : IDisposable
         return RenderState.Measure;
     }
 
+    static readonly FontFamily DefaultFontFamily = new FontFamily(App.DefaultFontFamily);
+
     /// <summary>
     /// Gets the item font.
     /// </summary>
@@ -244,7 +246,7 @@ sealed class DrawContext : IDisposable
                 _itemFont = ItemFontFamily.CreateFont(ItemFontSize);
 
                 // Calculate a minimum glyph size for the font.
-                using (SKFont font = App.DefaultFontFamily.CreateFont(ItemFontSize))
+                using (SKFont font = DefaultFontFamily.CreateFont(ItemFontSize))
                 {
                     SKTextMetrics metrics = new("W", font);
                     float dimension = Math.Max(metrics.TextWidth, metrics.Size.Width);

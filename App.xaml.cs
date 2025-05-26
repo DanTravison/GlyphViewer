@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer;
 
+using GlyphViewer.Diagnostics;
 using GlyphViewer.ViewModels;
 using GlyphViewer.Views;
 
@@ -64,4 +65,36 @@ public partial class App : Application
     }
 
     #endregion Window Management
+
+    /// <summary>
+    /// Presents a dialog to select a file.
+    /// </summary>
+    /// <param name="fileTypes">An optional <see cref="FilePickerFileType"/> to filter the open file list.</param>
+    /// <returns>The <see cref="FileInfo"/> on success; otherwise, a null reference.</returns>
+    public static async Task<FileInfo> PickFile(string title, FilePickerFileType fileTypes)
+    {
+        PickOptions options = new()
+        {
+            PickerTitle = title,
+        };
+        if (fileTypes is not null)
+        {
+            options.FileTypes = fileTypes;
+        }
+        FileResult result;
+        try
+        {
+            result = await FilePicker.Default.PickAsync(options);
+        }
+        catch (Exception ex)
+        {
+            Trace.Exception(typeof(App), nameof(PickFile), ex);
+            return null;
+        }
+        if (result is not null && result.FullPath is not null)
+        {
+            return new FileInfo(result.FullPath);
+        }
+        return null;
+    }
 }

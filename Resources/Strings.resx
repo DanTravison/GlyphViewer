@@ -249,4 +249,7 @@
   <data name="WriteFontDescription" xml:space="preserve">
     <value>Write all glyphs in the font to a file</value>
   </data>
+  <data name="FontFilePickerTitle" xml:space="preserve">
+    <value>Select a Font</value>
+  </data>
 </root>

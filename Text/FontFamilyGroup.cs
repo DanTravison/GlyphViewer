@@ -5,9 +5,9 @@ using System.Collections;
 /// <summary>
 /// Provides a group of font families.
 /// </summary>
-public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGroup
+public sealed class FontFamilyGroup : IReadOnlyCollection<FontFamily>, IFontFamilyGroup
 {
-    readonly List<string> _families = [];
+    readonly List<FontFamily> _families = [];
 
     /// <summary>
     /// Initializes a new instance of this class
@@ -41,11 +41,11 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGr
     /// Gets the font family at the specified <paramref name="index"/>.
     /// </summary>
     /// <param name="index">The zero-based index of the font family to get.</param>
-    /// <returns>The font family at the specified <paramref name="index"/>.</returns>
+    /// <returns>The <see cref="FontFamily"/> at the specified <paramref name="index"/>.</returns>
     /// <exception cref="ArgumentOutOfRangeException">
     /// <paramref name="index"/> is less than zero or greater than or equal to <see cref="Count"/>.
     /// </exception>
-    public string this[int index]
+    public FontFamily this[int index]
     {
         get
         {
@@ -66,15 +66,11 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGr
     /// </summary>
     /// <param name="family">The font family to add.</param>
     /// <exception cref="ArgumentNullException">
-    /// The specified <paramref name="family"/> is a
-    /// null reference or empty string.
+    /// <paramref name="family"/> is a null reference.
     /// </exception>
-    public bool Add(string family)
+    public bool Add(FontFamily family)
     {
-        if (string.IsNullOrEmpty(family))
-        {
-            throw new ArgumentNullException(nameof(family));
-        }
+        ArgumentNullException.ThrowIfNull(family, nameof(family));
         _families.Add(family);
         return true;
     }
@@ -84,12 +80,12 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGr
     #region IEnumerable
 
     /// <summary>
-    /// Gets an <see cref="IEnumerator{String}"/> for enumerating the font families in the group.
+    /// Gets an <see cref="IEnumerator{FontFamily}"/> for enumerating the font families in the group.
     /// </summary>
     /// <returns>
     /// An <see cref="IEnumerator{String}"/> for enumerating the font families in the group.
     /// </returns>
-    public IEnumerator<string> GetEnumerator()
+    public IEnumerator<FontFamily> GetEnumerator()
     {
         return _families.GetEnumerator();
     }

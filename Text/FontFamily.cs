@@ -1,0 +1,167 @@
+﻿using SkiaSharp;
+
+namespace GlyphViewer.Text;
+
+/// <summary>
+/// Provides an encapsulation of a font family.
+/// </summary>
+public class FontFamily : IEquatable<FontFamily>
+{
+    class FontFamilyComparer : IComparer<FontFamily>
+    {
+        public static readonly FontFamilyComparer Default = new FontFamilyComparer();
+
+        public int Compare(FontFamily x, FontFamily y)
+        {
+            if (x is null && y is null) return 0;
+            if (x is null) return -1;
+            if (y is null) return 1;
+            return string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    #region Fields
+
+    /// <summary>
+    /// Gets a <see cref="IComparer{FontFamily}"/> for comparing <see cref="FontFamily"/> instances.
+    /// </summary>
+    public static IComparer<FontFamily> Comparer => FontFamilyComparer.Default;
+
+    SKTypeface _typeface = null;
+
+    #endregion Fields
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="name">The font family name.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is a null reference,
+    /// empty string, or only contains whitespace.
+    /// </exception>
+    public FontFamily(string name)
+    {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        Name = name;
+    }
+
+    /// <summary>
+    /// Gets the name of the font.
+    /// </summary>
+    /// <value>
+    /// The font family name for installed fonts; otherwise, the 
+    /// file name for a font loaded from the file system.
+    /// </value>
+    public string Name
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="SKTypeface"/> for the font family.
+    /// </summary>
+    /// <value>
+    /// The <see cref="SKTypeface"/> for the font family; otherwise, a null reference if 
+    /// <see cref="GetTypeface(SKFontStyle)"/> has not been called.
+    /// </value>
+    protected SKTypeface Typeface
+    {         
+        get => _typeface;
+        private set => _typeface = value;
+    }
+
+    #region Methods
+
+    /// <summary>
+    /// Gets the <see cref="SKTypeface"/> for the <see cref="Name"/>
+    /// </summary>
+    /// <param name="style">The optional <see cref="SKFontStyle"/> to apply.</param>
+    /// <returns>A new instance of an <see cref="SKTypeface"/>; otherwise, a null
+    /// reference.
+    /// </returns>
+    /// <remarks>
+    /// A null reference can be returned if the font family was not found 
+    /// or could not be loaded.
+    /// <para>
+    /// NOTE: Fonts loaded from the local file system will ignore <see cref="SKFontStyle"/>.
+    /// </para>
+    /// </remarks>
+    public SKTypeface GetTypeface(SKFontStyle style)
+    {
+        if (_typeface is null)
+        {
+            _typeface = Load(style);
+        }
+        return _typeface;
+    }
+
+    /// <summary>
+    /// Loads the <see cref="SKTypeface"/>.
+    /// </summary>
+    /// <param name="style">The <see cref="SKFontStyle"/> to apply to the typeface.</param>
+    /// <returns>An <see cref="SKTypeface"/> for the font family; otherwise, a null
+    /// reference if the typeface was not found or could not be loaded.
+    /// </returns>
+    protected virtual SKTypeface Load(SKFontStyle style)
+    {
+        return SKTypeface.FromFamilyName(Name, style);
+    }
+
+    /// <summary>
+    /// Gets the string representation
+    /// </summary>
+    /// <returns>The <see cref="Name"/> property.</returns>
+    public override string ToString()
+    {
+        return Name;
+    }
+
+    #endregion Methods
+
+    #region Equality
+
+    /// <summary>
+    /// Determines if the specified <paramref name="obj"/> is equal to this struct.
+    /// </summary>
+    /// <param name="obj">The object to compare..</param>
+    /// <returns>
+    /// true <paramref name="obj"/> is a <see cref="FontFamily"/> and is equal to this struct;
+    /// otherwise, false.
+    /// </returns>
+    public override bool Equals(object obj)
+    {
+        if (obj is FontFamily fontFamily)
+        {
+            return Equals(fontFamily);
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Determines if the specified <paramref name="other"/> is equal to this struct.
+    /// </summary>
+    /// <param name="other">The <see cref="FontFamily"/> to compare..</param>
+    /// <returns>
+    /// true if <paramref name="other"/> is equal to this struct; otherwise, false.
+    /// </returns>
+    public bool Equals(FontFamily other)
+    {
+        return other is not null && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public virtual bool Equals(SKTypeface typeface)
+    {
+        return _typeface is not null && ReferenceEquals(_typeface, typeface);
+    }
+
+
+    /// <summary>
+    ///  Gets a hash code for this instance.
+    /// </summary>
+    /// <returns>A hash code for this instance.</returns>
+    public override int GetHashCode()
+    {
+        return Name.GetHashCode();
+    }
+
+    #endregion Equality
+}

@@ -13,7 +13,7 @@ internal class FontFamiliesViewModel : ObservableObject
 
     FontFamilyGroupCollection _fontFamiliesGroups;
     FontFamilyGroup _selectedGroup;
-    string _selectedBookmark;
+    FontFamily _selectedBookmark;
 
     #endregion Fields
 
@@ -96,12 +96,12 @@ internal class FontFamiliesViewModel : ObservableObject
     /// <summary>
     /// Gets or sets the selected bookmark.
     /// </summary>
-    public string SelectedBookmark
+    public FontFamily SelectedBookmark
     {
         get => _selectedBookmark;
         set
         {
-            if (!string.IsNullOrWhiteSpace(value))
+            if (value is not null)
             {
                 Metrics.FontFamily = value;
             }

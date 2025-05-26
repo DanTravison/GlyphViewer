@@ -18,7 +18,7 @@ public static class Fonts
     /// The default value is <see cref="FontAttributes.None"/>
     /// </para></param>
     /// <returns>A new instance of an <see cref="SKFont"/>.</returns>
-    internal static SKFont CreateFont(this string fontFamily, float fontSize, FontAttributes attributes = FontAttributes.None)
+    internal static SKFont CreateFont(this FontFamily fontFamily, float fontSize, FontAttributes attributes = FontAttributes.None)
     {
         return CreateFont(fontFamily, fontSize, attributes.ToFontStyle());
     }
@@ -33,9 +33,9 @@ public static class Fonts
     /// The default value is <see cref="SKFontStyle.Normal"/>
     /// </para></param>
     /// <returns>A new instance of an <see cref="SKFont"/>.</returns>
-    internal static SKFont CreateFont(this string fontFamily, float fontSize, SKFontStyle style)
+    internal static SKFont CreateFont(this FontFamily fontFamily, float fontSize, SKFontStyle style)
     {
-        using (SKTypeface typeface = SKTypeface.FromFamilyName(fontFamily, style))
+        using (SKTypeface typeface = fontFamily.GetTypeface(style))
         {
             SKFont font = new(typeface, (float)fontSize)
             {
@@ -81,10 +81,15 @@ public static class Fonts
     /// <summary>
     /// Gets the available font families.
     /// </summary>
-    /// <returns>A <see cref="List{String}"/> of the available font families.</returns>
-    public static List<string> GetFontFamilies()
+    /// <returns>A <see cref="List{FontFamily}"/> of the available font families.</returns>
+    public static List<FontFamily> GetFontFamilies()
     {
-        return new(SKFontManager.Default.GetFontFamilies());
+        List<FontFamily> families = [];
+        foreach (string familyName in SKFontManager.Default.GetFontFamilies())
+        {
+            families.Add(new(familyName));
+        }
+        return families;
     }
 
     /// <summary>

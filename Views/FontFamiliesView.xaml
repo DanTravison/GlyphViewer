@@ -73,8 +73,8 @@
             </Setter>
         </Style>
 
-        <DataTemplate x:DataType="x:String" x:Key="GroupItemTemplate">
-            <Label Text="{Binding}"
+        <DataTemplate x:DataType="text:FontFamily" x:Key="GroupItemTemplate">
+            <Label Text="{Binding Name}"
                    Style="{StaticResource GroupItemStyle}"
                    />
         </DataTemplate>
@@ -103,8 +103,8 @@
             </Setter>
         </Style>
 
-        <DataTemplate x:DataType="x:String" x:Key="BookmarkItemTemplate">
-            <Label Text="{Binding}"
+        <DataTemplate x:DataType="text:FontFamily" x:Key="BookmarkItemTemplate">
+            <Label Text="{Binding Name}"
                    Style="{StaticResource BookmarkItemStyle}"
                    />
         </DataTemplate>

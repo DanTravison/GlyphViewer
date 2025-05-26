@@ -16,6 +16,7 @@ public class GlyphView : SKCanvasView
     #region Fields
 
     SKFont _font;
+    FontFamily _fontFamily;
     GlyphMetrics _glyphMetrics = GlyphMetrics.Empty;
 
     #endregion Fields
@@ -312,10 +313,11 @@ public class GlyphView : SKCanvasView
     {
         if (!glyph.IsEmpty)
         {
-            if (_font is null || _font.Typeface.FamilyName != glyph.FontFamily)
+            if (_font is null || _fontFamily != glyph.FontFamily)
             {
                 _font?.Dispose();
                 _font = glyph.FontFamily.CreateFont((float)FontSize);
+                _fontFamily = glyph.FontFamily;
             }
             _glyphMetrics = GlyphMetrics.CreateInstance(glyph, _font);
         }

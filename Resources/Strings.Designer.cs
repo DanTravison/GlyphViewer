@@ -241,6 +241,15 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Select a Font.
+        /// </summary>
+        internal static string FontFilePickerTitle {
+            get {
+                return ResourceManager.GetString("FontFilePickerTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The size of the font in points.
         /// </summary>
         internal static string FontSizeDescription {
