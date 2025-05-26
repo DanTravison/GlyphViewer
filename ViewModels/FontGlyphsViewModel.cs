@@ -163,6 +163,7 @@ internal sealed class FontGlyphsViewModel : ObservableObject
         _writeClipboardCommand.IsEnabled = HasContent;
         _writeFileCommand.IsEnabled = HasContent;
         Search.Glyphs = Glyphs;
+        Metrics.FontProperties.GlyphCount = Glyphs?.Count ?? 0;
     }
 
     #endregion HasContent
@@ -248,8 +249,9 @@ internal sealed class FontGlyphsViewModel : ObservableObject
         GlyphCollection glyphs = Glyphs;
         SKFont font = Metrics.Font;
 
-        FontMetricsProperties fontProperties = new FontMetricsProperties(font);
+        FontMetricsProperties fontProperties = new(font);
         List<GlyphMetricProperties> glyphProperties = [];
+        fontProperties.GlyphCount = glyphs.Count;
 
         for (int i = 0; i < Glyphs.Count; i++)
         {

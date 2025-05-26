@@ -252,4 +252,10 @@
   <data name="FontFilePickerTitle" xml:space="preserve">
     <value>Select a Font</value>
   </data>
+  <data name="FontFilesName" xml:space="preserve">
+    <value>Fonts</value>
+  </data>
+  <data name="FontFilesDescription" xml:space="preserve">
+    <value>Fonts loaded from the local file system.</value>
+  </data>
 </root>

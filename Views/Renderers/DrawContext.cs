@@ -108,7 +108,7 @@ sealed class DrawContext : IDisposable
     }
     static RenderState OnHeaderFontFamilyChanged(GlyphsViewRenderer renderer, DrawContext context)
     {
-        context.HeaderFontFamily = new(renderer.View.HeaderFontFamily);
+        context.HeaderFontFamily = renderer.View.HeaderFontFamily;
         context._headerFont?.Dispose();
         context._headerFont = null;
         return RenderState.Measure;
@@ -232,8 +232,6 @@ sealed class DrawContext : IDisposable
         return RenderState.Measure;
     }
 
-    static readonly FontFamily DefaultFontFamily = new FontFamily(App.DefaultFontFamily);
-
     /// <summary>
     /// Gets the item font.
     /// </summary>
@@ -246,7 +244,7 @@ sealed class DrawContext : IDisposable
                 _itemFont = ItemFontFamily.CreateFont(ItemFontSize);
 
                 // Calculate a minimum glyph size for the font.
-                using (SKFont font = DefaultFontFamily.CreateFont(ItemFontSize))
+                using (SKFont font = App.DefaultFontFamily.CreateFont(ItemFontSize))
                 {
                     SKTextMetrics metrics = new("W", font);
                     float dimension = Math.Max(metrics.TextWidth, metrics.Size.Width);

@@ -250,6 +250,24 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fonts loaded from the local file system..
+        /// </summary>
+        internal static string FontFilesDescription {
+            get {
+                return ResourceManager.GetString("FontFilesDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fonts.
+        /// </summary>
+        internal static string FontFilesName {
+            get {
+                return ResourceManager.GetString("FontFilesName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The size of the font in points.
         /// </summary>
         internal static string FontSizeDescription {

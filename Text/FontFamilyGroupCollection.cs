@@ -1,17 +1,16 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.ObjectModel;
 using GlyphViewer.Settings;
-using System.Collections;
 
 /// <summary>
 /// Provides a collection of <see cref="FontFamilyGroup"/> items.
 /// </summary>
-public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
+public sealed class FontFamilyGroupCollection : ReadOnlyOrderedList<FontFamilyGroup>
 {
     #region Fields
 
     readonly Dictionary<string, FontFamilyGroup> _groupTable;
-    readonly List<FontFamilyGroup> _groups;
 
     #endregion Fields
 
@@ -19,16 +18,17 @@ public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
     /// Initializes a new instance of this class
     /// </summary>
     /// <param name="groupTable">The <see cref="Dictionary{String, FontFamilyGroup}"/>.</param>
-    /// <param name="groups">The <see cref="List{FontFamilyGroup}"/> of groups.</param>
+    /// <param name="groups">The sorted <see cref="List{FontFamilyGroup}"/> of groups.</param>
+    /// <param name="bookmarks">The <see cref="Bookmarks"/> in the collection.</param>
     FontFamilyGroupCollection
     (
         Dictionary<string, FontFamilyGroup> groupTable,
         List<FontFamilyGroup> groups,
         Bookmarks bookmarks
     )
+        : base(FontFamilyGroup.Comparer, groups, true)
     {
         Bookmarks = new List<IFontFamilyGroup>([bookmarks]);
-        _groups = groups;
         _groupTable = groupTable;
     }
 
@@ -51,27 +51,6 @@ public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
             }
             return null;
         }
-    }
-
-    /// <summary>
-    /// Gets the numnber of <see cref="FontFamilyGroup"/> items in the collection.
-    /// </summary>
-    public int Count
-    {
-        get => _groups.Count;
-    }
-
-    /// <summary>
-    /// Gets the <see cref="FontFamilyGroup"/> at the specified <paramref name="index"/>.
-    /// </summary>
-    /// <param name="index">The zero-based index of the <see cref="FontFamilyGroup"/> to get.</param>
-    /// <returns>The <see cref="FontFamilyGroup"/> at the specified <paramref name="index"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="index"/> is less than zero or greater than or equal to <see cref="Count"/>.
-    /// </exception>
-    public FontFamilyGroup this[int index]
-    {
-        get => _groups[index];
     }
 
     /// <summary>
@@ -104,32 +83,6 @@ public sealed class FontFamilyGroupCollection : IReadOnlyList<FontFamilyGroup>
         }
         return null;
     }
-
-    #region IEnumerable
-
-    /// <summary>
-    /// Gets an <see cref="IEnumerator{String}"/> for enumerating the <see cref="FontFamilyGroup"/> items in the collection.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="IEnumerator{String}"/> for enumerating the <see cref="FontFamilyGroup"/> items in the collection.
-    /// </returns>
-    public IEnumerator<FontFamilyGroup> GetEnumerator()
-    {
-        return _groups.GetEnumerator();
-    }
-
-    /// <summary>
-    /// Gets an <see cref="IEnumerable"/> for enumerating the <see cref="FontFamilyGroup"/> items in the collection.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="IEnumerable"/> for enumerating the font families in the collection.
-    /// </returns>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return ((IEnumerable)_groups).GetEnumerator();
-    }
-
-    #endregion IEnumerable
 
     #region CreateInstance
 

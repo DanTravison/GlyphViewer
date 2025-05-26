@@ -12,7 +12,8 @@ internal class SkLabel : SKCanvasView
     static readonly Color DefaultTextColor = Colors.Black;
     const double DefaultFontSize = 12;
     const double MinimumFontSize = 6;
-    const string DefaultFontFamily = App.DefaultFontFamily;
+    static readonly FontFamily DefaultFontFamily = App.DefaultFontFamily;
+
     const FontAttributes DefaultFontAttributes = FontAttributes.None;
 
     #endregion Constants
@@ -132,13 +133,13 @@ internal class SkLabel : SKCanvasView
         nameof(FontFamily),
         typeof(FontFamily),
         typeof(SkLabel),
-        DefaultFontFamily,
+        App.DefaultFontFamily,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is not FontFamily fontFamily)
             {
-                value = new FontFamily(DefaultFontFamily);
+                value = DefaultFontFamily;
             }
             return value;
         },

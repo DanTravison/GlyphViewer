@@ -1,19 +1,34 @@
 ﻿namespace GlyphViewer.Text;
 
-using System.Collections;
+using GlyphViewer.ObjectModel;
 
 /// <summary>
 /// Provides a group of font families.
 /// </summary>
-public sealed class FontFamilyGroup : IReadOnlyCollection<FontFamily>, IFontFamilyGroup
+public sealed class FontFamilyGroup : ReadOnlyOrderedList<FontFamily>, IFontFamilyGroup
 {
-    readonly List<FontFamily> _families = [];
+    class FontFamilyGroupComparer : IComparer<FontFamilyGroup>
+    {
+        public int Compare(FontFamilyGroup x, FontFamilyGroup y)
+        {
+            if (x is null && y is null) return 0;
+            if (x is null) return -1;
+            if (y is null) return 1;
+            return string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    /// <summary>
+    /// Provides an <see cref="IComparer{FontFamilyGroup}"/> for comparing <see cref="FontFamilyGroup"/> instances."/>
+    /// </summary>
+    public static readonly IComparer<FontFamilyGroup> Comparer = new FontFamilyGroupComparer();
 
     /// <summary>
     /// Initializes a new instance of this class
     /// </summary>
     /// <param name="name">The name of the group.</param>
     public FontFamilyGroup(string name)
+        : base(FontFamily.Comparer)
     {
         Name = name;
     }
@@ -27,34 +42,6 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<FontFamily>, IFontFami
     {
         get;
         init;
-    }
-
-    /// <summary>
-    /// Gets the number of font families in the group.
-    /// </summary>
-    public int Count
-    {
-        get => _families.Count;
-    }
-
-    /// <summary>
-    /// Gets the font family at the specified <paramref name="index"/>.
-    /// </summary>
-    /// <param name="index">The zero-based index of the font family to get.</param>
-    /// <returns>The <see cref="FontFamily"/> at the specified <paramref name="index"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="index"/> is less than zero or greater than or equal to <see cref="Count"/>.
-    /// </exception>
-    public FontFamily this[int index]
-    {
-        get
-        {
-            if (index < 0 || index >= Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
-            return _families[index];
-        }
     }
 
     #endregion Properties
@@ -71,35 +58,9 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<FontFamily>, IFontFami
     public bool Add(FontFamily family)
     {
         ArgumentNullException.ThrowIfNull(family, nameof(family));
-        _families.Add(family);
+        List.Add(family);
         return true;
     }
 
     #endregion Methods
-
-    #region IEnumerable
-
-    /// <summary>
-    /// Gets an <see cref="IEnumerator{FontFamily}"/> for enumerating the font families in the group.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="IEnumerator{String}"/> for enumerating the font families in the group.
-    /// </returns>
-    public IEnumerator<FontFamily> GetEnumerator()
-    {
-        return _families.GetEnumerator();
-    }
-
-    /// <summary>
-    /// Gets an <see cref="IEnumerable"/> for enumerating the font families in the collection.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="IEnumerable"/> for enumerating the font families in the collection
-    /// </returns>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return ((IEnumerable)_families).GetEnumerator();
-    }
-
-    #endregion IEnumerable
 }

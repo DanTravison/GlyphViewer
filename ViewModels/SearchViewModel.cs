@@ -70,7 +70,6 @@ internal sealed class SearchViewModel : ObservableObject
             _glyphs = value;
             Results = null;
             SelectedItem = null;
-            _metrics.FontProperties.GlyphCount = value?.Count ?? 0;
             OnPropertyChanged(CanEditChangedEventArgs);
         }
     }
