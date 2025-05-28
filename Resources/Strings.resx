@@ -258,4 +258,16 @@
   <data name="FontFilesDescription" xml:space="preserve">
     <value>Fonts loaded from the local file system.</value>
   </data>
+  <data name="FontFileAddName" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="FontFileAddDescription" xml:space="preserve">
+    <value>Add a font from the file system.</value>
+  </data>
+  <data name="FontFileRemoveName" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="FontFileRemoveDescription" xml:space="preserve">
+    <value>Remove a font file.</value>
+  </data>
 </root>

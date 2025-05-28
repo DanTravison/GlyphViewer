@@ -241,11 +241,47 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add a font from the file system..
+        /// </summary>
+        internal static string FontFileAddDescription {
+            get {
+                return ResourceManager.GetString("FontFileAddDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        internal static string FontFileAddName {
+            get {
+                return ResourceManager.GetString("FontFileAddName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select a Font.
         /// </summary>
         internal static string FontFilePickerTitle {
             get {
                 return ResourceManager.GetString("FontFilePickerTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove a font file..
+        /// </summary>
+        internal static string FontFileRemoveDescription {
+            get {
+                return ResourceManager.GetString("FontFileRemoveDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove.
+        /// </summary>
+        internal static string FontFileRemoveName {
+            get {
+                return ResourceManager.GetString("FontFileRemoveName", resourceCulture);
             }
         }
         

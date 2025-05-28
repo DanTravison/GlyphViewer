@@ -52,14 +52,24 @@ public sealed class FontFamilyGroup : ReadOnlyOrderedList<FontFamily>, IFontFami
     /// Adds a font family to the group.
     /// </summary>
     /// <param name="family">The font family to add.</param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="family"/> is a null reference.
-    /// </exception>
+    /// <exception cref="ArgumentNullException"><paramref name="family"/> is a null reference.</exception>
     public bool Add(FontFamily family)
     {
         ArgumentNullException.ThrowIfNull(family, nameof(family));
         List.Add(family);
         return true;
+    }
+
+    /// <summary>
+    /// Removes a font family from the group.
+    /// </summary>
+    /// <param name="family">The font family to add.</param>
+    /// <returns>true if the <paramref name="family"/> was found and removed; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="family"/> is a null reference.</exception>
+    public bool Remove(FontFamily family)
+    {
+        ArgumentNullException.ThrowIfNull(family, nameof(family));
+        return List.Remove(family);
     }
 
     #endregion Methods

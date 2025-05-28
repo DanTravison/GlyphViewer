@@ -127,33 +127,10 @@ public abstract class FontFamiliesSetting : ReadOnlyOrderedList<FontFamily>, IFo
     /// Replaces the collection contents with the specified <paramref name="families"/>.
     /// </summary>
     /// <param name="families">The <see cref="IEnumerable{FontFamily}"/> for the items to use to populate the collection.</param>
-    /// <returns>
-    /// true if the bookmarks were updated; otherwise, 
-    /// false if <paramref name="families"/> is the same as the current content.
-    /// <para>
-    /// This method assumes that <paramref name="families"/> is sorted.
-    /// </para>
-    /// </returns>
-    public bool Update(IReadOnlyList<FontFamily> families)
+    /// <param name="isSorted">true if the <paramref name="families"/> are sorted; otherwise, false.</param>
+    internal void Update(IReadOnlyList<FontFamily> families, bool isSorted)
     {
-        bool needsUpdate = Count != families.Count;
-        if (!needsUpdate)
-        {
-            for (int x = 0; x < families.Count; x++)
-            {
-                if (families[x] != this[x])
-                {
-                    needsUpdate = true;
-                    break;
-                }
-            }
-        }
-        if (needsUpdate)
-        {
-            List.Clear();
-            List.AddRange(families);
-        }
-        return needsUpdate;
+        List.Update(families, isSorted);
     }
 
     /// <summary>
@@ -224,7 +201,9 @@ public abstract class FontFamiliesSetting : ReadOnlyOrderedList<FontFamily>, IFo
     {
         reader.ReadPropertyName();
         List<FontFamily> families = JsonSerializer.Deserialize<List<FontFamily>>(ref reader, options);
-        Update(families);
+        // NOTE: This is probably redundant since the list was sorted at write time, but better safe than sorry.
+        families.Sort(FontFamily.Comparer);
+        Update(families, true);
         families.Clear();
     }
 

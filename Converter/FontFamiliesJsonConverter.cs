@@ -31,7 +31,7 @@ internal class FontFamiliesJsonConverter : JsonConverter<List<FontFamily>>
             List<string> values = [];
             foreach (FontFamily family in families)
             {
-                if (family is FileFont file && file.Exists)
+                if (family is FileFontFamily file && file.Exists)
                 {
                     values.Add($"{PathPrefix}{file.FilePath}");
                 }
@@ -64,7 +64,7 @@ internal class FontFamiliesJsonConverter : JsonConverter<List<FontFamily>>
                 FileInfo fileInfo = new FileInfo(filePath);
                 if (fileInfo.Exists)
                 {
-                    families.Add(new FileFont(fileInfo));
+                    families.Add(new FileFontFamily(fileInfo));
                 }
             }
             else

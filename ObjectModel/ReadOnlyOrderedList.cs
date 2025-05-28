@@ -15,10 +15,10 @@ public class ReadOnlyOrderedList<T> : ReadOnlyCollection<T>, INotifyCollectionCh
     /// </summary>
     /// <param name="comparer">The <see cref="IComparer{T}"/> to use to order the list.</param>
     /// <param name="items">The optional <see cref="IEnumerable{T}"/> to use to populate the list.</param>
-    /// <param name="presorted">true if <paramref name="items"/> are presorted; otherwise, false.</param>
+    /// <param name="isSorted">true if <paramref name="items"/> are presorted; otherwise, false.</param>
     /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is a null reference.</exception>
-    protected ReadOnlyOrderedList(IComparer<T> comparer, IEnumerable<T> items = null, bool presorted = false) 
-        : base(new OrderedList<T>(comparer, items, presorted))
+    protected ReadOnlyOrderedList(IComparer<T> comparer, IEnumerable<T> items = null, bool isSorted = false) 
+        : base(new OrderedList<T>(comparer, items, isSorted))
     {
         List = (OrderedList<T>)Items;
         List.CollectionChanged += OnListCollectionChanged;

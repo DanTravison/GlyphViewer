@@ -1,10 +1,12 @@
 ﻿namespace GlyphViewer;
 
+using CommunityToolkit.Maui.Storage;
 using GlyphViewer.Diagnostics;
 using GlyphViewer.Resources;
 using GlyphViewer.Text;
 using GlyphViewer.ViewModels;
 using GlyphViewer.Views;
+using System.Runtime.Versioning;
 
 public partial class App : Application
 {
@@ -28,7 +30,7 @@ public partial class App : Application
     public App()
     {
         InitializeComponent();
-        _model = new(Application.Current.Dispatcher);
+        _model = new();
         BindingContext = _model;
     }
 
@@ -112,4 +114,25 @@ public partial class App : Application
         }
         return null;
     }
+
+    /// <summary>
+    /// Prompts the user to save a file with the specified <paramref name="fileName"/> and <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="fileName">The name of the file.</param>
+    /// <param name="stream">The <see cref="Stream"/> to write to the file.</param>
+    /// <returns></returns>
+    [SupportedOSPlatform("Android")]
+    [SupportedOSPlatform("iOS14.2")]
+    [SupportedOSPlatform("MacCatalyst14.2")]
+    [SupportedOSPlatform("Windows")]
+    public static async Task<FileInfo> SaveAs(string fileName, Stream stream)
+    {
+        FileSaverResult result = await FileSaver.Default.SaveAsync(fileName, stream, CancellationToken.None);
+        if (result.IsSuccessful && result.FilePath is not null)
+        {
+            return new FileInfo(result.FilePath);
+        }
+        return null;
+    }
+
 }

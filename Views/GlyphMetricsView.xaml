@@ -9,7 +9,7 @@
     <Grid Grid.Column="2"
                    RowDefinitions="Auto, *" 
                    RowSpacing="5"
-                   WidthRequest="{Binding Settings.Glyph.Width.Value}"
+                   WidthRequest="{Binding UserSettings.Glyph.Width.Value}"
                    >
         <views:GlyphView Grid.Row="0" 
                          Metrics="{Binding}"
@@ -17,7 +17,7 @@
                          BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"
                          LineColor="{AppThemeBinding Light=Tomato, Dark=Red}"
                          BaselineColor="{AppThemeBinding Light=LightGreen, Dark=Green}"
-                         GlyphWidth="{Binding Settings.Glyph.Width.Value}"
+                         GlyphWidth="{Binding UserSettings.Glyph.Width.Value}"
                          />
 
         <views:MetricsView Grid.Row="1"/>

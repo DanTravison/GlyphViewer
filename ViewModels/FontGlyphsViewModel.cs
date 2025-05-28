@@ -29,16 +29,19 @@ internal sealed class FontGlyphsViewModel : ObservableObject
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="settings">The <see cref="UserSettings"/>.</param>
-    /// <param name="metrics">The <see cref="MetricsViewModel"/>.</param>
+    /// <param name="settings">The <see cref="UserSettings"/> to use for bookmarks.</param>
+    /// <param name="metrics">The <see cref="MetricsViewModel"/> to use for the current font family.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="settings"/> or <paramref name="metrics"/> is a null reference.
+    /// </exception>
     public FontGlyphsViewModel(UserSettings settings, MetricsViewModel metrics)
     {
-        ArgumentNullException.ThrowIfNull(settings);
-        ArgumentNullException.ThrowIfNull(metrics);
+        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
+        ArgumentNullException.ThrowIfNull(metrics, nameof(metrics));
 
         Metrics = metrics;
         Search = new SearchViewModel(metrics);
-        Settings = settings;
+        UserSettings = settings;
         _writeFileCommand = new(OnWriteFile)
         {
             IsEnabled = false
@@ -130,7 +133,7 @@ internal sealed class FontGlyphsViewModel : ObservableObject
     /// <summary>
     /// Gets the <see cref="UserSettings"/>.
     /// </summary>
-    public UserSettings Settings
+    public UserSettings UserSettings
     {
         get;
     }
@@ -233,7 +236,7 @@ internal sealed class FontGlyphsViewModel : ObservableObject
             {
                 WriteContent(stream);
                 stream.Position = 0;
-                FileInfo info = await MainViewModel.SaveAs(fileName, stream);
+                FileInfo info = await App.SaveAs(fileName, stream);
             }
         }
     }

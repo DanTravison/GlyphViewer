@@ -17,7 +17,7 @@ public partial class MainPage : ContentPage
         base.OnNavigatedTo(args);
         if (_model.FontFamilies.FontFamilyGroups is null)
         {
-            Task.Run(() => { _model.LoadFonts(Dispatcher); });
+            Task.Run(() => { _model.LoadFonts(); });
         }
     }
 }

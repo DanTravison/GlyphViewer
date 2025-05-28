@@ -21,22 +21,18 @@ public sealed class OrderedList<T> : IList<T>, INotifyCollectionChanged, INotify
     private readonly List<T> _items = [];
 
     /// <summary>
-    /// Iializes a new instance of this class.
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="comparer">The <see cref="IComparer{T}"/> to use to order the items in the list.</param>
     /// <param name="items">The optional <see cref="IEnumerable{T}"/> to use to populate the list.</param>
-    /// <param name="presorted">true if <paramref name="items"/> are presorted; otherwise, false.</param>
+    /// <param name="isSorted">true if <paramref name="items"/> are sorted; otherwise, false.</param>
     /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is a null reference.</exception>
-    public OrderedList(IComparer<T> comparer, IEnumerable<T> items = null, bool presorted = false)
+    public OrderedList(IComparer<T> comparer, IEnumerable<T> items = null, bool isSorted = false)
     {
         _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
         if (items is not null)
         {
-            _items.AddRange(items);
-            if (!presorted)
-            {
-                _items.Sort(comparer);
-            }
+            SetItems(items, isSorted);
         }
     }
 
@@ -168,6 +164,41 @@ public sealed class OrderedList<T> : IList<T>, INotifyCollectionChanged, INotify
         }
     }
 
+    void SetItems(IEnumerable<T> items, bool isSorted)
+    {
+        _items.Clear();
+        if (items is not null)
+        {
+            _items.AddRange(items);
+            if (!isSorted)
+            {
+                _items.Sort(_comparer);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Updates the contents of the list with the specified items.
+    /// </summary>
+    /// <param name="items">The <typeparamref name="T"/> to use to populate the list.</param>
+    /// <param name="isSorted">true if <paramref name="items"/> are sorted, otherwise, false.</param>
+    internal void Update(IEnumerable<T> items, bool isSorted)
+    {
+        if (items is not null)
+        {
+            SetItems(items, isSorted);
+            if (_items.Count > 0)
+            {
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items, 0));
+                PropertyChanged?.Invoke(this, CountChangedEventArgs);
+            }
+        }
+        else
+        {
+            Clear();
+        }
+    }
+
     #endregion Add
 
     #region Remove
@@ -295,14 +326,22 @@ public sealed class OrderedList<T> : IList<T>, INotifyCollectionChanged, INotify
 
     #region IEnumerable
 
+    /// <summary>
+    /// Gets an  <see cref="IEnumerator{T}"/> to enumerate all <typeparamref name="T"/> items in the list.
+    /// </summary>
+    /// <returns>An <see cref="IEnumerator{T}"/>.</returns>
     public IEnumerator<T> GetEnumerator()
     {
         return _items.GetEnumerator();
     }
 
+    /// <summary>
+    /// Gets an  <see cref="IEnumerator"/> to enumerate all <typeparamref name="T"/> items in the list.
+    /// </summary>
+    /// <returns>An <see cref="IEnumerator"/>.</returns>
     IEnumerator IEnumerable.GetEnumerator()
     {
-        return ((IEnumerable)_items).GetEnumerator();
+        return _items.GetEnumerator();
     }
 
     #endregion IEnumerable

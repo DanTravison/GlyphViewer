@@ -26,12 +26,7 @@ internal sealed class UserSettings : SettingPropertyCollection, ISetting
         ItemHeaderFont = AddItem(new ItemHeaderFontSetting(this));
         TitleFont = AddItem(new TitleFontSetting(this));
         Bookmarks = AddItem(new Bookmarks(this));
-        Navigator = new PageNavigator<SettingsPage>(true, this);
-
-        ResetCommand = new Command(ResetEditable)
-        {
-            IsEnabled = true
-        };
+        Fonts = AddItem(new FileFonts(this));
     }
 
     #region Properties
@@ -69,25 +64,17 @@ internal sealed class UserSettings : SettingPropertyCollection, ISetting
     }
 
     /// <summary>
-    /// Gets the <see cref="PageNavigator"/> for opening and closing the settings page.
-    /// </summary>
-    public PageNavigator<SettingsPage> Navigator
-    {
-        get;
-    }
-
-    /// <summary>
-    /// Gets the command to reset the user editable settings to the default values.
-    /// </summary>
-    public Command ResetCommand
-    {
-        get;
-    }
-
-    /// <summary>
     /// Gets the <see cref="Bookmarks"/>.
     /// </summary>
     public Bookmarks Bookmarks
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the <see cref="FileFonts"/> for managing fonts on the local file system.
+    /// </summary>
+    public FileFonts Fonts
     {
         get;
     }

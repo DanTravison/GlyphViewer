@@ -22,11 +22,18 @@ internal sealed class BookmarkCommand : Command
     /// <summary>
     /// Initializes a new instance of this command.
     /// </summary>
-    /// <param name="bookmarks">The <see cref="Bookmarks"/> to update.</param>
-    public BookmarkCommand(Bookmarks bookmarks, MetricsViewModel metrics)
+    /// <param name="settings">The <see cref="UserSettings"/> to use for bookmarks.</param>
+    /// <param name="metrics">The <see cref="MetricsViewModel"/> to use for the current font family.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="settings"/> or <paramref name="metrics"/> is a null reference.
+    /// </exception>
+    public BookmarkCommand(UserSettings settings, MetricsViewModel metrics)
         : base(NopAction)
     {
-        _bookmarks = bookmarks;
+        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
+        ArgumentNullException.ThrowIfNull(metrics, nameof(metrics));
+
+        _bookmarks = settings.Bookmarks;
         _bookmarks.CollectionChanged += OnBookmarksChanged;
         _metrics = metrics;
         _metrics.PropertyChanged += OnMetricsPropertyChanged;

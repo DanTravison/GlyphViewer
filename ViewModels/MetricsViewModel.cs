@@ -42,8 +42,7 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     public MetricsViewModel(UserSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings, nameof(settings));
-
-        Settings = settings;
+        UserSettings = settings;
         _fontSize = settings.ItemFont.FontSize;
         _fontSize.ValueChanged += OnFontSizePropertyChanged;
         _glyph = Glyph.Empty;
@@ -57,9 +56,9 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     #endregion Constructors
 
     /// <summary>
-    /// Gets the <see cref="UserSettings"/>.
+    /// Gets the <see cref="Settings.UserSettings"/>.
     /// </summary>
-    public UserSettings Settings
+    public UserSettings UserSettings
     {
         get;
     }

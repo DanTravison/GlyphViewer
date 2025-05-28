@@ -18,21 +18,21 @@ internal class FileFonts : FontFamiliesSetting
     /// <paramref name="parent"/> does not implement <see cref="ISettingPropertyCollection"/>.
     /// </exception>
     public FileFonts(ISetting parent)
-        : base(parent, nameof(FileFonts), Strings.FontFilesName, Strings.FontFilesDescription, true)
+        : base(parent, nameof(Fonts), Strings.FontFilesName, Strings.FontFilesDescription, false)
     {
     }
 
     /// <summary>
-    /// Adds a <see cref="FileFont"/> to the collection.
+    /// Adds a <see cref="FileFontFamily"/> to the collection.
     /// </summary>
-    /// <param name="fontFamily">The <see cref="FileFont"/> to add.</param>
+    /// <param name="fontFamily">The <see cref="FileFontFamily"/> to add.</param>
     /// <returns>true if the <paramref name="fontFamily"/> was added; otherwise, 
     /// false if the <paramref name="fontFamily"/> already exists in the collection.
     /// </returns>
-    /// <exception cref="ArgumentException"><paramref name="fontFamily"/> must be a <see cref="FileFont"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="fontFamily"/> must be a <see cref="FileFontFamily"/>.</exception>
     public override bool Add(FontFamily fontFamily)
     {
-        if (fontFamily is not FileFont fileFont)
+        if (fontFamily is not FileFontFamily)
         {
             throw new ArgumentException("Only FileFont instances can be added to FileFonts.", nameof(fontFamily));
         }

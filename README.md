@@ -65,6 +65,11 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Provides commands to search and to show/hide search results.
   * SelectedItem property is bound to the selected glyph SearchView.
 	* Updates MetricsModel.Glyph when the selected glyph changes.
+* BookmarkCommand: A command to add and remove font families from bookmarks.
+  * Used by MainViewModel.BoomkarkCommand. 
+* SettingsViewModel: The view model for the SettingsPage.
+  * Provides the property for the current UserSettings.
+  * Provides commands to load and unload file system-based fonts
 
 ## Views
 * MainPage: The application's main page
@@ -111,7 +116,9 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Provides properties for concrete Settings. 
   * Provides Load and Save method using UserSettingsJsonConverter. 
   * Settings are serialized to AppDataDirectory/settings.json
-* Boomarks: An ISetting containing the set of bookmarked font family names.
+* FontFamiliesSettings: An ISetting base class containing a collection of font families. 
+* Boomarks: A FontFamiliesSettings containing the set of bookmarked font family names.
+* FileFonts: A FontFamiliesSettings containing the set of fonts from the local file system.
 * FontSetting: an abstract base class for font settings.
 * ItemFontSetting: Provides the font settings rows in the GlyphsView
 * ItemHeaderFontSetting: Provides the font settings for header rows in the GlyphsView
@@ -158,6 +165,9 @@ Contains the various Glyph classes:
 * Fonts: A couple of extension methods.
 * TextUtilities: Used by Grid to measure column widths.
 * FontFamilyGroupCollection: A collection of FontFamilyGroup.
+  * Manages the collection of all FontFamily instances
+  * Groups the font families by the first letter of the family name.
+  * Synchronizes the FileFonts and Bookmarks settings with the collection. 
 * FontFamilyGroup: A collection of font families in a given group.
 * FontMetricsProperties: A A NamedValue collection for displaying displaying font metrics
 * Fonts.cs: A set of extension methods
@@ -198,7 +208,8 @@ This is used to select a font family group in the FontFamiliesView and a unicode
 * JsonExtensions - provides various JSON extension methods
   * Utf8JsonReader extensions for reading property names, verifing JsonTokenType and reporting unexpected tokens and values.
   * JsonSerializationOptions.Add(params JsonConverter[])
-* UserSettingsJsonConverter - The JSON implementation for UserSettings.Load and Save.
+* UserSettingsJsonConverter - The JSON implementation for serializing UserSettings.
+* FontFamiliesJsonConverter - The JSON implementation for searilizing FontFamiliesSettings.
 
 ## ObjectModel
 * ObservableObject: An implementation of INotifyPropertyChanged with SetProperty overloads.
@@ -209,10 +220,11 @@ This is used to select a font family group in the FontFamiliesView and a unicode
   * Provides directly PropertyChanged notification for the encapsulated value.
   * Allows SettingsPage to present Settings properties as a bindable collection. 
 * Command: An implementation of ICommand with IsEnabled for controlling CanExecute.
-* OrderedList: A simple ordered list of objects.
-  * Bookmarks uses it to manage the list of bookmarked font family names. 
-  * This is a placeholder for use by Bookmarks until CollectionView issue is resolved.
-  * Assuming the CollectionView issue is resolved in Maui 10, this class will be changed to ReadOnlyOrderedList and ReadOnlyCollection\<T\> will be removed. 
+* OrderedList\<T\>: An ordered list of objects supporting INotifyCollectionChanged and INotifyPropertyChanged.
+  * Derives from ReadOnlyCollection\<T\>. 
+  * This is a temporary workaround for the CollectionView issue in Maui 9.0.50.
+* ReadOnlyOrderedList: A read-only encapsulation of OrderedList\<T\>.
+  * Provides the base class for FontFamilyGroupCollection, FontFamilyGroup and FontFamiliesSettings.
 * NamedValue\<T\>
   * Provides a strongly typed Name/Value pair 
   * The base class for SettingProperty\<T\> and ObservableProperty\<T\>

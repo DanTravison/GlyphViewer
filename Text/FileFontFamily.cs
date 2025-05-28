@@ -7,7 +7,7 @@ using SkiaSharp;
 /// <summary>
 /// Provides a <see cref="FontFamily"/> for a font file.
 /// </summary>
-internal class FileFont : FontFamily
+internal class FileFontFamily : FontFamily
 {
     FileInfo _file;
 
@@ -15,7 +15,7 @@ internal class FileFont : FontFamily
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="file">The <see cref="FileInfo"/> for the file.</param>
-    public FileFont(FileInfo file)
+    public FileFontFamily(FileInfo file)
         : base(file.Name)
     {
         _file = file;

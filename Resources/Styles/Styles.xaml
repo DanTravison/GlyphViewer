@@ -48,6 +48,31 @@
         </Setter>
     </Style>
 
+    <Style TargetType="Label" x:Key="SelectedNameStyle"
+               BasedOn="{StaticResource NameStyle}">
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Selected">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor"
+                                        Value="{StaticResource SelectedItemBackgroundColor}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <!-- Issue 29484: https://github.com/dotnet/maui/issues/29484
+                        <VisualState x:Name="PointerOver">
+                            <VisualState.Setters>
+                                <Setter Property="BackgroundColor"
+                                    Value="{StaticResource SelectedItemBackgroundColor}" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        -->
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+    
     <!-- #region JumpList -->
     <Style TargetType="controls:JumpList">
         <Setter Property="BackgroundColor"
