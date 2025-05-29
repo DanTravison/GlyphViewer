@@ -9,7 +9,21 @@ using SkiaSharp;
 /// </summary>
 internal class FileFontFamily : FontFamily
 {
+    static readonly object _lock = new();
+    static readonly Dictionary<string, SKTypeface> _typefaces;
     FileInfo _file;
+    private SKTypeface _typeface;
+
+    static FileFontFamily()
+    {
+        IEqualityComparer<string> comparer;
+#if WINDOWS
+        comparer = StringComparer.OrdinalIgnoreCase;    
+#else
+        comparer = StringComparer.CurrentCulture;
+#endif
+        _typefaces = new Dictionary<string, SKTypeface>(comparer);
+    }
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -56,24 +70,32 @@ internal class FileFontFamily : FontFamily
     }
 
     /// <summary>
-    /// Overrides <see cref="FontFamily.Load"/> to load a typeface from a file.
+    /// Gets the <see cref="SKTypeface"/> for the font family.
     /// </summary>
-    /// <param name="style">Ignored.</param>
-    /// <returns>The <see cref="SKTypeface"/> for the file; otherwise, a null reference.</returns>
-    protected override SKTypeface Load(SKFontStyle style)
+    /// <value>
+    /// The <see cref="SKTypeface"/> for the font family; otherwise, a null reference if 
+    /// the font file does not exist or could not be loaded.
+    /// </value>
+    public override SKTypeface GetTypeface(SKFontStyle style)
     {
-        if (_file is not null && _file.Exists)
+        lock (_lock)
         {
-            try
+            // NOTE: File-based fonts do not support styles, so we can cache the typeface.
+            if (_typeface is null && _file is not null && !_typefaces.TryGetValue(_file.FullName, out _typeface))
             {
-                return SKTypeface.FromFile(_file.FullName);
+                try
+                {
+                    _typeface = SKTypeface.FromFile(_file.FullName);
+                    _typefaces.Add(_file.FullName, _typeface);
+                }
+                catch (Exception ex)
+                {
+                    Trace.Exception(this, nameof(GetTypeface), ex, "Failed to load typeface from file '{0}'", _file.FullName);
+                    _file = null;
+                }
+                
             }
-            catch (Exception ex)
-            {
-                Trace.Exception(this, nameof(Load), ex, "Failed to load typeface from file '{0}'", _file.FullName);
-            }
+            return _typeface;
         }
-        _file = null;
-        return null;
     }
 }

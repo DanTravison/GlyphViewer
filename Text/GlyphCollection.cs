@@ -145,7 +145,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
         {
             return null;
         }
-        HarfBuzzFont hbFont = OpenFont(typeface);
+        HarfBuzzFont hbFont = OpenFont(fontFamily);
         bool hasGlyphNames = false;
 
         List<Glyph> glyphs = new();
@@ -208,17 +208,28 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
         return false;
     }
 
-    static HarfBuzzFont OpenFont(SKTypeface typeface)
+    static HarfBuzzFont OpenFont(FontFamily fontFamily)
     {
         try
         {
-            using (Blob blob = typeface.OpenStream(out int ttcIndex).ToHarfBuzzBlob())
+            int ttcIndex = 0;
+            Blob blob;
+            SKTypeface typeface = fontFamily.GetTypeface(SKFontStyle.Normal);
+            if (fontFamily is FileFontFamily fileFont)
+            {
+                blob = Blob.FromFile(fileFont.FilePath);
+            }
+            else
+            {
+                blob = typeface.OpenStream(out ttcIndex).ToHarfBuzzBlob();
+            }
+            using (blob)
             {
                 using (Face face = new Face(blob, ttcIndex))
                 {
                     face.Index = ttcIndex;
                     face.UnitsPerEm = typeface.UnitsPerEm;
-                    Font font = new Font(face);
+                    HarfBuzzFont font = new (face);
                     // TODO: ???
                     font.SetScale(512, 512);
                     font.SetFunctionsOpenType();
@@ -228,7 +239,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
         }
         catch (Exception)
         {
-            Trace.TraceError($"Error opening font {typeface.FamilyName} to get Glyph names.");
+            Trace.TraceError($"Error opening font {fontFamily.Name} to get Glyph names.");
         }
         return null;
     }

@@ -118,7 +118,7 @@ internal class SettingsViewModel : ObservableObject
 
     #region Font File Loading
 
-        async void LoadFont()
+    async void LoadFont()
     {
         FileInfo file = await PickFontFile();
         if (file is not null && file.Exists)

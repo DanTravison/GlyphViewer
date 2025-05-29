@@ -253,7 +253,7 @@
     <value>Select a Font</value>
   </data>
   <data name="FontFilesName" xml:space="preserve">
-    <value>Fonts</value>
+    <value>File system fonts</value>
   </data>
   <data name="FontFilesDescription" xml:space="preserve">
     <value>Fonts loaded from the local file system.</value>

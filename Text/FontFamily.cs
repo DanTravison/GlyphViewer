@@ -27,8 +27,6 @@ public class FontFamily : IEquatable<FontFamily>
     /// </summary>
     public static IComparer<FontFamily> Comparer => FontFamilyComparer.Default;
 
-    SKTypeface _typeface = null;
-
     #endregion Fields
 
     /// <summary>
@@ -56,26 +54,43 @@ public class FontFamily : IEquatable<FontFamily>
         get;
     }
 
+    #region Methods
+
     /// <summary>
-    /// Gets the <see cref="SKTypeface"/> for the font family.
+    /// Creates an <see cref="SKFont"/>. 
     /// </summary>
-    /// <value>
-    /// The <see cref="SKTypeface"/> for the font family; otherwise, a null reference if 
-    /// <see cref="GetTypeface(SKFontStyle)"/> has not been called.
-    /// </value>
-    protected SKTypeface Typeface
-    {         
-        get => _typeface;
-        private set => _typeface = value;
+    /// <param name="fontSize">The font size in points.</param>
+    /// <param name="attributes">The <see cref="FontAttributes"/>.
+    /// <para>
+    /// The default value is <see cref="FontAttributes.None"/>
+    /// </para></param>
+    /// <returns>A new instance of an <see cref="SKFont"/>.</returns>
+    public SKFont CreateFont(float fontSize, FontAttributes attributes = FontAttributes.None)
+    {
+        return CreateFont(fontSize, attributes.ToFontStyle());
     }
 
-    #region Methods
+    /// <summary>
+    /// Creates an <see cref="SKFont"/> for the specified <paramref name="fontSize"/>
+    /// </summary>
+    /// <param name="fontSize">The the size of the font in points</param>
+    /// <param name="style">The <see cref="SKFontStyle"/> to apply to the font.</param>
+    /// <returns>The <see cref="SKFont"/>; otherwise, a null reference if the font could not be created.</returns>
+    public SKFont CreateFont(float fontSize, SKFontStyle style)
+    {
+        SKTypeface typeface = GetTypeface(style);
+        if (typeface is not null)
+        {
+            return typeface.ToFont(fontSize);
+        }
+        return null;
+    }
 
     /// <summary>
     /// Gets the <see cref="SKTypeface"/> for the <see cref="Name"/>
     /// </summary>
     /// <param name="style">The optional <see cref="SKFontStyle"/> to apply.</param>
-    /// <returns>A new instance of an <see cref="SKTypeface"/>; otherwise, a null
+    /// <returns>An instance of a <see cref="SKTypeface"/>; otherwise, a null
     /// reference.
     /// </returns>
     /// <remarks>
@@ -84,24 +99,11 @@ public class FontFamily : IEquatable<FontFamily>
     /// <para>
     /// NOTE: Fonts loaded from the local file system will ignore <see cref="SKFontStyle"/>.
     /// </para>
+    /// <para>
+    /// NOTE: The returned SKTypeface should be considered a global resource and not disposed.
+    /// </para>
     /// </remarks>
-    public SKTypeface GetTypeface(SKFontStyle style)
-    {
-        if (_typeface is null)
-        {
-            _typeface = Load(style);
-        }
-        return _typeface;
-    }
-
-    /// <summary>
-    /// Loads the <see cref="SKTypeface"/>.
-    /// </summary>
-    /// <param name="style">The <see cref="SKFontStyle"/> to apply to the typeface.</param>
-    /// <returns>An <see cref="SKTypeface"/> for the font family; otherwise, a null
-    /// reference if the typeface was not found or could not be loaded.
-    /// </returns>
-    protected virtual SKTypeface Load(SKFontStyle style)
+    public virtual SKTypeface GetTypeface(SKFontStyle style)
     {
         return SKTypeface.FromFamilyName(Name, style);
     }
@@ -147,12 +149,6 @@ public class FontFamily : IEquatable<FontFamily>
     {
         return other is not null && string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
     }
-
-    public virtual bool Equals(SKTypeface typeface)
-    {
-        return _typeface is not null && ReferenceEquals(_typeface, typeface);
-    }
-
 
     /// <summary>
     ///  Gets a hash code for this instance.

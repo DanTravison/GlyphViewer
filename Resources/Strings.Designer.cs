@@ -295,7 +295,7 @@ namespace GlyphViewer.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Fonts.
+        ///   Looks up a localized string similar to File system fonts.
         /// </summary>
         internal static string FontFilesName {
             get {
