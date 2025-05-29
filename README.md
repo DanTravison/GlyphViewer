@@ -44,6 +44,12 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * The repo file structure will change to support the unit test assembly.
   * Move GlyphViewer into a child directory.
   * Merge the unit tests assembly into the repo. 
+* Experimental: Load fonts from the local file system.
+  * This supports displaying fonts that are not installed on the system/not visible in SkiaSharp.
+  * The SettingsPage has a FileFonts section that allows loading fonts from the local file system.
+  * The fonts are loaded into the FileFonts setting and displayed in the FontFamiliesView.
+  * All font loading is now through FontFamily and FileFontFamily.
+  * File-based fonts are displayed using the file name versus the font family name to avoid confusion. 
 
 # The Project Structure
 
@@ -86,6 +92,11 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * FontFamiliesView: The list of available fonts (typefaces) grouped by the first letter of the typeface name..
   * FamilyGroupPicker: A jump list to select a font family group.
 * SettingsPage: A page for user configurable settings.
+* FileFontsView: a view for loading/unloading fonts from the local file system.
+  * Provides a list of fonts in the local file system.
+  * Provides a button to load the selected font into the FileFonts setting.
+  * Provides a button to unload the selected font from the FileFonts setting.
+  * Presented in the SettingsPage as a child view. 
 
 ## Views/Renderers
 * GlyphsViewRenderer - provides layout, rendering and hit testing for GlyphsView
@@ -161,8 +172,16 @@ Contains the various Glyph classes:
 * SKTextMetrics: Provides general text measurement metrics.
 * NamedValue: A simple Named/Value base class used for Glyph and Font metrics property display.
 * GlyphMetrics: Provides text metrics for the glyph.
-* GlyphMetricsProperties: A NamedValue collection for displaying glyph metrics
-* Fonts: A couple of extension methods.
+* GlyphMetricsProperties: A NamedValue collection for displaying glyph metrics.
+* FontFamily: Represents a font registered in the system.
+  * GetTypeface: Creates an SKTypeface for the font.
+  * CreateFont: Creates an SKFont for the font. 
+* FileFontFamily: Represents a font loaded from the local file system.
+  * GetTypeface: Creates and caches an SKTypeface for the font file.
+* Fonts: Extension methods for working with fonts.
+  * ScalePoints: Scales font points to pixels at the current display density 
+  * DrawText: Wraps Canvas.DrawText by scaling the SKFont.Size using ScalePoints
+  * Measure: wraps SKFont.MeasureText by scaling the SKFont.Size using ScalePoints 
 * TextUtilities: Used by Grid to measure column widths.
 * FontFamilyGroupCollection: A collection of FontFamilyGroup.
   * Manages the collection of all FontFamily instances
@@ -170,15 +189,6 @@ Contains the various Glyph classes:
   * Synchronizes the FileFonts and Bookmarks settings with the collection. 
 * FontFamilyGroup: A collection of font families in a given group.
 * FontMetricsProperties: A A NamedValue collection for displaying displaying font metrics
-* Fonts.cs: A set of extension methods
-  * ToStyleFont: converts FontAttributes to SKFontStyle
-  * GetFontFamilies: enumerate all font families visible to SkiSharp
-  * ToPixels: converts a point size to pixels using 96/72
-	
-Fonts.cs Experimental Extension Methods:
-  * ScalePoints: Scales font points to pixels at the current display density 
-  * DrawText: Wraps Canvas.DrawText by scaling the SKFont.Size using ScalePoints
-  * Measure: wraps SKFont.MeasureText by scaling the SKFont.Size using ScalePoints 
 
 ## Text\Unicode
 * Range: A Unicode range
