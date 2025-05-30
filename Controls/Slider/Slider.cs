@@ -25,12 +25,12 @@ public sealed class Slider : SKCanvasView
     /// <summary>
     /// Defines the default <see cref="TrackColor"/> <see cref="Color"/>.
     /// </summary>
-    public static readonly Color DefaultTrackColor = Colors.White;
+    public static readonly Color DefaultTrackColor = Colors.WhiteSmoke;
 
     /// <summary>
     /// Defines the default <see cref="ThumbColor"/> <see cref="Color"/>.
     /// </summary>
-    public static readonly Color DefaultThumbColor = Colors.White;
+    public static readonly Color DefaultThumbColor = Colors.WhiteSmoke;
 
     /// <summary>
     /// Defines the default <see cref="DisabledColor"/> <see cref="Color"/>. 
@@ -527,7 +527,7 @@ public sealed class Slider : SKCanvasView
         nameof(TrackColor),
         typeof(Color),
         typeof(Slider),
-        Colors.White,
+        DefaultTrackColor,
         propertyChanged: (bindableObject, oldValue, newValue) =>
         {
             if (bindableObject is Slider slider)
@@ -558,7 +558,7 @@ public sealed class Slider : SKCanvasView
         nameof(ThumbColor),
         typeof(Color),
         typeof(Slider),
-        Colors.White,
+        DefaultThumbColor,
         propertyChanged: (bindableObject, oldValue, newValue) =>
         {
             if (bindableObject is Slider slider)
