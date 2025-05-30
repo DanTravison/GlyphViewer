@@ -2,10 +2,8 @@
 
 using GlyphViewer.Converter;
 using GlyphViewer.Diagnostics;
-using GlyphViewer.ObjectModel;
 using GlyphViewer.Resources;
 using GlyphViewer.Settings.Properties;
-using GlyphViewer.ViewModels;
 using GlyphViewer.Views;
 
 using System.Text.Json;

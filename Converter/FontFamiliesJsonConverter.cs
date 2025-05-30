@@ -25,7 +25,7 @@ internal class FontFamiliesJsonConverter : JsonConverter<List<FontFamily>>
     /// <param name="writer">The <see cref="Utf8JsonWriter"/> to write.</param>
     /// <param name="families">The <see cref="List{FontFamily}"/> to write.</param>
     protected override void OnWrite(Utf8JsonWriter writer, List<FontFamily> families, JsonSerializerOptions options)
-    { 
+    {
         if (families.Count > 0)
         {
             List<string> values = [];

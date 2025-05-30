@@ -17,7 +17,7 @@ public class ReadOnlyOrderedList<T> : ReadOnlyCollection<T>, INotifyCollectionCh
     /// <param name="items">The optional <see cref="IEnumerable{T}"/> to use to populate the list.</param>
     /// <param name="isSorted">true if <paramref name="items"/> are presorted; otherwise, false.</param>
     /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is a null reference.</exception>
-    protected ReadOnlyOrderedList(IComparer<T> comparer, IEnumerable<T> items = null, bool isSorted = false) 
+    protected ReadOnlyOrderedList(IComparer<T> comparer, IEnumerable<T> items = null, bool isSorted = false)
         : base(new OrderedList<T>(comparer, items, isSorted))
     {
         List = (OrderedList<T>)Items;

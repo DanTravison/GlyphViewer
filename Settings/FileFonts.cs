@@ -1,8 +1,8 @@
 ﻿namespace GlyphViewer.Settings;
 
 using GlyphViewer.Resources;
-using GlyphViewer.Text;
 using GlyphViewer.Settings.Properties;
+using GlyphViewer.Text;
 
 /// <summary>
 /// Provides a <see cref="FontFamiliesSetting"/> for <see cref="FontFile"/> instances.

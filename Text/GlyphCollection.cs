@@ -229,7 +229,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
                 {
                     face.Index = ttcIndex;
                     face.UnitsPerEm = typeface.UnitsPerEm;
-                    HarfBuzzFont font = new (face);
+                    HarfBuzzFont font = new(face);
                     // TODO: ???
                     font.SetScale(512, 512);
                     font.SetFunctionsOpenType();

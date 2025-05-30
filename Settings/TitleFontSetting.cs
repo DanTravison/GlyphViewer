@@ -1,6 +1,5 @@
 ﻿namespace GlyphViewer.Settings;
 
-using CommunityToolkit.Maui.Converters;
 using GlyphViewer.Resources;
 using GlyphViewer.Text;
 using FontAttr = Microsoft.Maui.Controls.FontAttributes;

@@ -160,7 +160,7 @@ internal class FontFamiliesViewModel : ObservableObject
             if (SelectedBookmark == font)
             {
                 SelectedBookmark = null;
-            }   
+            }
         }
         return result;
     }

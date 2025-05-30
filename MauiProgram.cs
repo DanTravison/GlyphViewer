@@ -2,7 +2,9 @@
 
 using CommunityToolkit.Maui;
 using GlyphViewer.Resources;
+#if DEBUG
 using Microsoft.Extensions.Logging;
+#endif
 using SkiaSharp.Views.Maui.Controls.Hosting;
 
 public static class MauiProgram

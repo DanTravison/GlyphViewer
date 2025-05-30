@@ -93,7 +93,7 @@ internal class FileFontFamily : FontFamily
                     Trace.Exception(this, nameof(GetTypeface), ex, "Failed to load typeface from file '{0}'", _file.FullName);
                     _file = null;
                 }
-                
+
             }
             return _typeface;
         }

@@ -1,6 +1,4 @@
-﻿using GlyphViewer.Resources;
-
-#if (false)
+﻿#if (false)
 [assembly: ExportFont(FontResource.DefaultFamilyResourceName, Alias = FontResource.DefaultFamily)]
 [assembly: ExportFont(FontResource.DefaultSemiBoldResourceName, Alias = FontResource.DefaultSemiBoldFamily)]
 [assembly: ExportFont(FontResource.DefaultSymbolResourceName, Alias = FontResource.DefaultSymbolFamily)]

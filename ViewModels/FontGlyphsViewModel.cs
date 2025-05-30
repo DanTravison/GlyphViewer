@@ -167,7 +167,7 @@ internal sealed class FontGlyphsViewModel : ObservableObject
         _writeFileCommand.IsEnabled = HasContent;
         Search.Glyphs = Glyphs;
         if (Metrics.FontProperties is not null)
-        {             
+        {
             Metrics.FontProperties.GlyphCount = Glyphs?.Count ?? 0;
         }
     }
