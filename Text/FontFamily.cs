@@ -81,12 +81,13 @@ public class FontFamily : IEquatable<FontFamily>
     /// <returns>The <see cref="SKFont"/>; otherwise, a null reference if the font could not be created.</returns>
     public SKFont CreateFont(float fontSize, SKFontStyle style)
     {
+        Trace.Line(TraceFlag.Font, this, nameof(CreateFont), "Creating font '{0}'", Name);
         SKTypeface typeface = GetTypeface(style);
         if (typeface is not null)
         {
             return typeface.ToFont(fontSize);
         }
-        Trace.Warning(TraceFlag.Storage, this, nameof(CreateFont), "Failed to create font for '{0}", Name);
+        Trace.Error(TraceFlag.Font, this, nameof(CreateFont), "Failed to create font for '{0}", Name);
         return null;
     }
 

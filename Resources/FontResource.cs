@@ -152,6 +152,7 @@ public sealed class FontResource
             {
                 try
                 {
+                    Trace.Line(TraceFlag.Font, this, nameof(GetTypeface), $"Loading font '{Name}' from embedded resource '{ManifestName}'");
                     _typeface = SKTypeface.FromStream(this.Assembly.GetManifestResourceStream(ManifestName));
                 }
                 catch (System.Exception ex)

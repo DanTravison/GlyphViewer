@@ -6,6 +6,7 @@
 
 namespace GlyphViewer.Resources;
 
+using GlyphViewer.Diagnostics;
 using System.Reflection;
 
 /// <summary>
@@ -76,6 +77,7 @@ public static class FontLoader
     {
         lock (_lock)
         {
+            Trace.Line(TraceFlag.Font, typeof(FontLoader), nameof(Load), "Adding '{0}' from '{1}' to Maui", fontResource.Alias, fontResource.ManifestName);
             fonts = fonts.AddEmbeddedResourceFont(fontResource.Assembly, fontResource.ResourceName, fontResource.Alias);
             _fonts.Add(fontResource);
         }

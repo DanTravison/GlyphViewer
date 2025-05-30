@@ -31,6 +31,9 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * The range of Unicode characters is currently limited to 0x0000-0xFFFF.
 * Testing is manual on Windows.
   * Testing on iOS, MacCatalyst, and Android is planned.
+* Testing on Android tablets is in progress.
+  * Converting MauiFont to embedded resource was needed to use SkiaSharp on Android
+  * See FontFamily, FontLoader and FontResource below.
 * The GlyphsView is still in progress. I'm considering the following enhancements:
   * Display the text code for each glyph in the font's glyph list.
 * Currently tracking [issue 3239](https://github.com/mono/SkiaSharp/issues/3239) in SkiaSharp
@@ -41,6 +44,12 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * [Bookmarks](https://github.com/DanTravison/GlyphViewer/blob/main/Settings/Bookmarks.cs) is using a temporary workaround based on ReadOnlyCollection\<T\>.
 * Currently tracking [issue 29484](https://github.com/dotnet/maui/issues/29484)
   * CollectionView Selected state does not work on the selected item when combined with PointerOver.
+* Currently tracking [issue 19639](https://github.com/dotnet/maui/issues/19639)
+  * On android, collectionview items cannot be selected.
+  * No resolution is expected.
+* Currently tracking [issue 3280](https://github.com/mono/SkiaSharp/discussions/3280)
+  * Why doesn't SKTypeface.FromStream support SKFontStyle?
+  * No resolution is forthcoming.
 * The repo file structure will change to support the unit test assembly.
   * Move GlyphViewer into a child directory.
   * Merge the unit tests assembly into the repo. 
@@ -50,6 +59,12 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * The fonts are loaded into the FileFonts setting and displayed in the FontFamiliesView.
   * All font loading is now through FontFamily and FileFontFamily.
   * File-based fonts are displayed using the file name versus the font family name to avoid confusion. 
+  Experimental: Defining a font as an embedded resource versus a MauiFont.
+  * MauiFont resources are not visible to SkiaSharp.
+  * The change converts MauiFont to an embedded resource font using FontResource.
+  * FontFamily uses FontLoader and FontResource to load the embedded resource font for SkiaSharp.
+  * NOTE: SkiaSharp does not support setting SKFontStyle for embedded resource fonts or fonts loaded from the file system.
+  * ISSUE: Using an embedded resource font in Maui on Android works but causes multiple Java.Lang.RuntimeException log entries 
 
 # The Project Structure
 
@@ -166,6 +181,16 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Defines CellLayoutModel.WidthOptions and CellLayoutModel.HeightOptions properties
   * Consumed by SettingsPage for editing CellLayoutStyle properties. 
 
+## Resource clases for embedded resource fonts
+* FontResource:
+  * Provides a class for encapsulating for a font defined as an embedded resource. 
+  * Used in-lieu of MauiFont to enable SkiaSharp using the embedded resource font.
+  * Provides a GetTypeface() method that loads the embedded resource font and caches the SKTypeface.
+* FontLoader: A static class for loading embedded resoure fonts into Maui.
+  * Provides a Resolve method to resolve font 'names' to embedded resource names.
+  * Provides a Load(FontResource) method to resolve a name to a FontResource.
+  * The name can be the FontResource.Name, FontResource.Alias, or FontResource.ResourceName.
+  
 ## Text
 Contains the various Glyph classes:
 * Glyph: The basic Glyph class
@@ -176,6 +201,7 @@ Contains the various Glyph classes:
 * FontFamily: Represents a font registered in the system.
   * GetTypeface: Creates an SKTypeface for the font.
   * CreateFont: Creates an SKFont for the font. 
+  * Integrates with FontResource and FontLoader to support embedded resource fonts.
 * FileFontFamily: Represents a font loaded from the local file system.
   * GetTypeface: Creates and caches an SKTypeface for the font file.
 * Fonts: Extension methods for working with fonts.
