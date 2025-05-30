@@ -47,7 +47,7 @@ public static class Fonts
     /// <returns>A <see cref="List{FontFamily}"/> of the available font families.</returns>
     public static List<FontFamily> GetFontFamilies()
     {
-        Dictionary<string, FontFamily> table = new(StringComparer.Ordinal);
+        Dictionary<string, FontFamily> table = new(StringComparer.InvariantCultureIgnoreCase);
         List<FontFamily> families = [];
         foreach (string familyName in SKFontManager.Default.GetFontFamilies())
         {
