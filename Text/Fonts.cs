@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.Resources;
 using SkiaSharp;
 using System.Runtime.CompilerServices;
 
@@ -8,44 +9,6 @@ using System.Runtime.CompilerServices;
 /// </summary>
 public static class Fonts
 {
-    /// <summary>
-    /// Creates an <see cref="SKFont"/>. 
-    /// </summary>
-    /// <param name="fontFamily">The font family name to create.</param>
-    /// <param name="fontSize">The font size in points.</param>
-    /// <param name="attributes">The <see cref="FontAttributes"/>.
-    /// <para>
-    /// The default value is <see cref="FontAttributes.None"/>
-    /// </para></param>
-    /// <returns>A new instance of an <see cref="SKFont"/>.</returns>
-    internal static SKFont CreateFont(this string fontFamily, float fontSize, FontAttributes attributes = FontAttributes.None)
-    {
-        return CreateFont(fontFamily, fontSize, attributes.ToFontStyle());
-    }
-
-    /// <summary>
-    /// Creates an <see cref="SKFont"/>. 
-    /// </summary>
-    /// <param name="fontFamily">The font family name to create.</param>
-    /// <param name="fontSize">The font size in points.</param>
-    /// <param name="style">The <see cref="SKFontStyle"/>.
-    /// <para>
-    /// The default value is <see cref="SKFontStyle.Normal"/>
-    /// </para></param>
-    /// <returns>A new instance of an <see cref="SKFont"/>.</returns>
-    internal static SKFont CreateFont(this string fontFamily, float fontSize, SKFontStyle style)
-    {
-        using (SKTypeface typeface = SKTypeface.FromFamilyName(fontFamily, style))
-        {
-            SKFont font = new(typeface, (float)fontSize)
-            {
-                Subpixel = true,
-                Edging = SKFontEdging.SubpixelAntialias
-            };
-            return font;
-        }
-    }
-
     /// <summary>
     /// Converts a <see cref="FontAttributes"/> to an <see cref="SKFontStyle"/>.
     /// </summary>
@@ -81,10 +44,26 @@ public static class Fonts
     /// <summary>
     /// Gets the available font families.
     /// </summary>
-    /// <returns>A <see cref="List{String}"/> of the available font families.</returns>
-    public static List<string> GetFontFamilies()
+    /// <returns>A <see cref="List{FontFamily}"/> of the available font families.</returns>
+    public static List<FontFamily> GetFontFamilies()
     {
-        return new(SKFontManager.Default.GetFontFamilies());
+        Dictionary<string, FontFamily> table = new(StringComparer.InvariantCultureIgnoreCase);
+        List<FontFamily> families = [];
+        foreach (string familyName in SKFontManager.Default.GetFontFamilies())
+        {
+            families.Add(new(familyName));
+            table.Add(familyName, new FontFamily(familyName));
+        }
+        foreach (FontResource resource in FontLoader.EmbeddedFonts)
+        {
+            if (!table.ContainsKey(resource.Name))
+            {
+                FontFamily family = new(resource.Name);
+                families.Add(family);
+                table.Add(resource.Name, family);
+            }
+        }
+        return families;
     }
 
     /// <summary>

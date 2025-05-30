@@ -1,19 +1,34 @@
 ﻿namespace GlyphViewer.Text;
 
-using System.Collections;
+using GlyphViewer.ObjectModel;
 
 /// <summary>
 /// Provides a group of font families.
 /// </summary>
-public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGroup
+public sealed class FontFamilyGroup : ReadOnlyOrderedList<FontFamily>, IFontFamilyGroup
 {
-    readonly List<string> _families = [];
+    class FontFamilyGroupComparer : IComparer<FontFamilyGroup>
+    {
+        public int Compare(FontFamilyGroup x, FontFamilyGroup y)
+        {
+            if (x is null && y is null) return 0;
+            if (x is null) return -1;
+            if (y is null) return 1;
+            return string.Compare(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    /// <summary>
+    /// Provides an <see cref="IComparer{FontFamilyGroup}"/> for comparing <see cref="FontFamilyGroup"/> instances."/>
+    /// </summary>
+    public static readonly IComparer<FontFamilyGroup> Comparer = new FontFamilyGroupComparer();
 
     /// <summary>
     /// Initializes a new instance of this class
     /// </summary>
     /// <param name="name">The name of the group.</param>
     public FontFamilyGroup(string name)
+        : base(FontFamily.Comparer)
     {
         Name = name;
     }
@@ -29,34 +44,6 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGr
         init;
     }
 
-    /// <summary>
-    /// Gets the number of font families in the group.
-    /// </summary>
-    public int Count
-    {
-        get => _families.Count;
-    }
-
-    /// <summary>
-    /// Gets the font family at the specified <paramref name="index"/>.
-    /// </summary>
-    /// <param name="index">The zero-based index of the font family to get.</param>
-    /// <returns>The font family at the specified <paramref name="index"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// <paramref name="index"/> is less than zero or greater than or equal to <see cref="Count"/>.
-    /// </exception>
-    public string this[int index]
-    {
-        get
-        {
-            if (index < 0 || index >= Count)
-            {
-                throw new ArgumentOutOfRangeException(nameof(index));
-            }
-            return _families[index];
-        }
-    }
-
     #endregion Properties
 
     #region Methods
@@ -65,45 +52,25 @@ public sealed class FontFamilyGroup : IReadOnlyCollection<string>, IFontFamilyGr
     /// Adds a font family to the group.
     /// </summary>
     /// <param name="family">The font family to add.</param>
-    /// <exception cref="ArgumentNullException">
-    /// The specified <paramref name="family"/> is a
-    /// null reference or empty string.
-    /// </exception>
-    public bool Add(string family)
+    /// <exception cref="ArgumentNullException"><paramref name="family"/> is a null reference.</exception>
+    public bool Add(FontFamily family)
     {
-        if (string.IsNullOrEmpty(family))
-        {
-            throw new ArgumentNullException(nameof(family));
-        }
-        _families.Add(family);
+        ArgumentNullException.ThrowIfNull(family, nameof(family));
+        List.Add(family);
         return true;
     }
 
+    /// <summary>
+    /// Removes a font family from the group.
+    /// </summary>
+    /// <param name="family">The font family to add.</param>
+    /// <returns>true if the <paramref name="family"/> was found and removed; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="family"/> is a null reference.</exception>
+    public bool Remove(FontFamily family)
+    {
+        ArgumentNullException.ThrowIfNull(family, nameof(family));
+        return List.Remove(family);
+    }
+
     #endregion Methods
-
-    #region IEnumerable
-
-    /// <summary>
-    /// Gets an <see cref="IEnumerator{String}"/> for enumerating the font families in the group.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="IEnumerator{String}"/> for enumerating the font families in the group.
-    /// </returns>
-    public IEnumerator<string> GetEnumerator()
-    {
-        return _families.GetEnumerator();
-    }
-
-    /// <summary>
-    /// Gets an <see cref="IEnumerable"/> for enumerating the font families in the collection.
-    /// </summary>
-    /// <returns>
-    /// An <see cref="IEnumerable"/> for enumerating the font families in the collection
-    /// </returns>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return ((IEnumerable)_families).GetEnumerator();
-    }
-
-    #endregion IEnumerable
 }

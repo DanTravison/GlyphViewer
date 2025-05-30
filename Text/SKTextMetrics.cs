@@ -25,10 +25,9 @@ public class SKTextMetrics : IEquatable<SKTextMetrics>
     /// </summary>
     /// <param name="text">The text to measure.</param>
     /// <param name="font">The <see cref="SKFont"/> to use to measure the text.</param>
-    /// <param name="paint">The optional <see cref="SKPaint"/> to use to measure the text.</param>
     /// <exception cref="ArgumentNullException"><paramref name="font"/> is a null reference.</exception>
     /// <exception cref="ArgumentException"><paramref name="text"/> is a null or empty string.</exception>
-    public SKTextMetrics(string text, SKFont font, SKPaint paint = null)
+    public SKTextMetrics(string text, SKFont font)
     {
         ArgumentNullException.ThrowIfNull(font, nameof(font));
         if (string.IsNullOrEmpty(text))
@@ -38,7 +37,7 @@ public class SKTextMetrics : IEquatable<SKTextMetrics>
         FamilyName = font.Typeface.FamilyName;
         FontSize = font.Size;
         Text = text;
-        TextWidth = font.Measure(text, out SKRect bounds, paint);
+        TextWidth = font.Measure(text, out SKRect bounds, null);
         Descent = bounds.Bottom;
         Ascent = bounds.Top;
         Size = bounds.Size;

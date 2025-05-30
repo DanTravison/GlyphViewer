@@ -34,7 +34,8 @@ internal class UserSettingsJsonConverter : JsonConverter<UserSettings>
         };
         Options.Add
         (
-            new UserSettingsJsonConverter()
+            Converter,
+            FontFamiliesJsonConverter.Converter
         );
     }
 

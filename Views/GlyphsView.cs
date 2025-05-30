@@ -447,9 +447,9 @@ public sealed class GlyphsView : SKCanvasView
     /// <summary>
     /// Gets or sets the font to use for header text.
     /// </summary>
-    public string HeaderFontFamily
+    public FontFamily HeaderFontFamily
     {
-        get => (string)GetValue(HeaderFontFamilyProperty);
+        get => GetValue(HeaderFontFamilyProperty) as FontFamily;
         set => SetValue(HeaderFontFamilyProperty, value);
     }
 
@@ -459,21 +459,18 @@ public sealed class GlyphsView : SKCanvasView
     public static readonly BindableProperty HeaderFontFamilyProperty = BindableProperty.Create
     (
         nameof(HeaderFontFamily),
-        typeof(string),
+        typeof(FontFamily),
         typeof(GlyphsView),
         ItemHeaderFontSetting.DefaultFontFamily,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
-            if (value is string family)
+
+            if (value is not FontFamily)
             {
-                family = family.Trim();
-                if (family.Length > 0)
-                {
-                    return value;
-                }
+                return ItemHeaderFontSetting.DefaultFontFamily;
             }
-            return ItemHeaderFontSetting.DefaultFontFamily;
+            return value;
         }
     );
 

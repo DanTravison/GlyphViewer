@@ -1,6 +1,7 @@
 ﻿namespace GlyphViewer.Settings;
 
 using GlyphViewer.Settings.Properties;
+using GlyphViewer.Text;
 using System.ComponentModel;
 
 /// <summary>
@@ -35,7 +36,7 @@ public abstract class FontSetting : Setting
         string name,
         string displayName,
         string description,
-        string defaultFontFamily,
+        FontFamily defaultFontFamily,
         double defaultFontSize,
         double minimumFontSize,
         double maximumFonSize,
@@ -44,10 +45,7 @@ public abstract class FontSetting : Setting
     )
         : base(parent, name, displayName, description)
     {
-        FontFamily = new
-        (
-            defaultFontFamily
-        );
+        FontFamily = new(defaultFontFamily);
         FontSize = new
         (
             defaultFontSize,
@@ -82,7 +80,7 @@ public abstract class FontSetting : Setting
     #region Properties
 
     /// <summary>
-    /// Gets the <see cref="String"/> font family name.
+    /// Gets the <see cref="FontFamily"/>.
     /// </summary>
     public FontFamilyProperty FontFamily
     {
@@ -113,7 +111,7 @@ public abstract class FontSetting : Setting
     /// </remarks>
     public string Sample
     {
-        get => string.IsNullOrEmpty(_sample) ? FontFamily.Value : _sample;
+        get => string.IsNullOrEmpty(_sample) ? FontFamily.Value.Name : _sample;
         set => SetProperty(ref _sample, value, SampleChangedEventArgs);
     }
 

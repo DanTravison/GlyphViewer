@@ -17,7 +17,7 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     #region Fields
 
     SKFont _font;
-    string _fontFamily = string.Empty;
+    FontFamily _fontFamily = null;
     FontMetricsProperties _fontProperties;
 
     Glyph _glyph = Glyph.Empty;
@@ -42,8 +42,7 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     public MetricsViewModel(UserSettings settings)
     {
         ArgumentNullException.ThrowIfNull(settings, nameof(settings));
-
-        Settings = settings;
+        UserSettings = settings;
         _fontSize = settings.ItemFont.FontSize;
         _fontSize.ValueChanged += OnFontSizePropertyChanged;
         _glyph = Glyph.Empty;
@@ -57,9 +56,9 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     #endregion Constructors
 
     /// <summary>
-    /// Gets the <see cref="UserSettings"/>.
+    /// Gets the <see cref="Settings.UserSettings"/>.
     /// </summary>
-    public UserSettings Settings
+    public UserSettings UserSettings
     {
         get;
     }
@@ -88,12 +87,12 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     /// <remarks>
     /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> with <see cref="FontFamilyChangedEventArgs"/>.
     /// </remarks>
-    public string FontFamily
+    public FontFamily FontFamily
     {
         get => _fontFamily;
         set
         {
-            if (StringComparer.Ordinal.Compare(_fontFamily, value) != 0)
+            if (value != _fontFamily)
             {
                 _fontFamily = value;
                 Update(ChangedProperty.FontFamily);
@@ -364,7 +363,7 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
     {
         _font?.Dispose();
         _font = null;
-        if (!string.IsNullOrEmpty(_fontFamily))
+        if (_fontFamily is not null)
         {
             _font = FontFamily.CreateFont((float)_fontSize.Value);
             _fontProperties = new FontMetricsProperties(_font);
@@ -384,11 +383,8 @@ internal sealed class MetricsViewModel : ObservableObject, IDisposable
         }
         else
         {
-            using (SKPaint paint = new() { IsAntialias = true })
-            {
-                GlyphMetrics metrics = GlyphMetrics.CreateInstance(_glyph, _font, null);
-                _glyphProperties = new GlyphMetricProperties(metrics);
-            }
+            GlyphMetrics metrics = GlyphMetrics.CreateInstance(_glyph, _font);
+            _glyphProperties = new GlyphMetricProperties(metrics);
         }
     }
 

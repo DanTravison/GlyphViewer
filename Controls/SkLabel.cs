@@ -12,7 +12,8 @@ internal class SkLabel : SKCanvasView
     static readonly Color DefaultTextColor = Colors.Black;
     const double DefaultFontSize = 12;
     const double MinimumFontSize = 6;
-    const string DefaultFontFamily = App.DefaultFontFamily;
+    static readonly FontFamily DefaultFontFamily = App.DefaultFontFamily;
+
     const FontAttributes DefaultFontAttributes = FontAttributes.None;
 
     #endregion Constants
@@ -118,9 +119,9 @@ internal class SkLabel : SKCanvasView
     /// <summary>
     /// Gets or sets the <see cref="Text"/> font size.
     /// </summary>
-    public string FontFamily
+    public FontFamily FontFamily
     {
-        get => GetValue(FontFamilyProperty) as string;
+        get => GetValue(FontFamilyProperty) as FontFamily;
         set => SetValue(FontFamilyProperty, value);
     }
 
@@ -130,20 +131,17 @@ internal class SkLabel : SKCanvasView
     public static readonly BindableProperty FontFamilyProperty = BindableProperty.Create
     (
         nameof(FontFamily),
-        typeof(string),
+        typeof(FontFamily),
         typeof(SkLabel),
-        DefaultFontFamily,
+        App.DefaultFontFamily,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
-            if (value is string family)
+            if (value is not FontFamily fontFamily)
             {
-                if (family.Trim().Length > 0)
-                {
-                    return family;
-                }
+                value = DefaultFontFamily;
             }
-            return DefaultFontFamily;
+            return value;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
@@ -334,13 +332,9 @@ internal class SkLabel : SKCanvasView
             {
                 using (SKFont font = GetFont())
                 {
-                    SKPaint paint = new SKPaint()
-                    {
-                        IsAntialias = true
-                    };
                     if (!string.IsNullOrEmpty(Text))
                     {
-                        _metrics = new SKTextMetrics(Text, font, paint);
+                        _metrics = new SKTextMetrics(Text, font);
                     }
                 }
             }
@@ -397,7 +391,7 @@ internal class SkLabel : SKCanvasView
             {
                 if (_metrics is null)
                 {
-                    _metrics = new SKTextMetrics(Text, font, paint);
+                    _metrics = new SKTextMetrics(Text, font);
                 }
                 switch (VerticalTextAlignment)
                 {

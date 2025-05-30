@@ -10,9 +10,9 @@
 
     <ContentView.Resources>
         <Style TargetType="Label" x:Key="TitleLabelStyle">
-            <Setter Property="FontFamily" Value="{Binding Settings.TitleFont.FontFamily.Value}"/>
-            <Setter Property="FontSize" Value="{Binding Settings.TitleFont.FontSize.Value}"/>
-            <Setter Property="FontAttributes" Value="{Binding Settings.TitleFont.FontAttributes.Value}"/>
+            <Setter Property="FontFamily" Value="{Binding UserSettings.TitleFont.FontFamily.Value}"/>
+            <Setter Property="FontSize" Value="{Binding UserSettings.TitleFont.FontSize.Value}"/>
+            <Setter Property="FontAttributes" Value="{Binding UserSettings.TitleFont.FontAttributes.Value}"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
         </Style>
         
@@ -56,7 +56,7 @@
                                Spacing="5"
                                Grid.Row="0"
                                Grid.Column="1">
-            <Label Text="{Binding Metrics.FontFamily}"
+            <Label Text="{Binding Metrics.FontFamily.Name}"
                    Style="{StaticResource TitleLabelStyle}"
                    />
             <Button BindingContext="{Binding BookmarkCommand}"

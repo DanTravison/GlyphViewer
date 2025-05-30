@@ -226,7 +226,7 @@ public abstract class SettingPropertyCollection : ObservableObject, ISettingProp
     }
 
     /// <summary>
-    /// Resets only the user editable propertie.
+    /// Resets only the user editable properties.
     /// </summary>
     public void ResetEditable()
     {

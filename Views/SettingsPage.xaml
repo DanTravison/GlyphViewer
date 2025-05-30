@@ -2,12 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodel="clr-namespace:GlyphViewer.ViewModels"
+             xmlns:view="clr-namespace:GlyphViewer.Views"
              xmlns:settings="clr-namespace:GlyphViewer.Settings"
              xmlns:properties="clr-namespace:GlyphViewer.Settings.Properties"
              xmlns:controls="clr-namespace:GlyphViewer.Controls"
              xmlns:res="clr-namespace:GlyphViewer.Resources"
              x:Class="GlyphViewer.Views.SettingsPage"
-             x:DataType="settings:UserSettings">
+             x:DataType="viewmodel:SettingsViewModel">
     
     <ContentPage.Resources>
 
@@ -54,7 +55,7 @@
             <Setter Property="ToolTipProperties.Text" Value="{Binding Description}"/>
         </Style>
 
-        <Style TargetType="controls:SkLabel" x:Key="FontSizeStyle" x:DataType="settings:FontSetting">
+        <Style TargetType="Label" x:Key="FontSizeStyle" x:DataType="settings:FontSetting">
             <Setter Property="FontFamily" Value="{Binding FontFamily.Value}"/>
             <Setter Property="FontSize" Value="{Binding FontSize.Value}"/>
             <Setter Property="FontAttributes" Value="{Binding FontAttributes.Value}"/>
@@ -172,7 +173,7 @@
                                Grid.Row="0"
                                Grid.Column="2"/>
                         
-                        <controls:SkLabel Grid.Row="1"
+                        <Label Grid.Row="1"
                                           Grid.Column="0"
                                           Grid.ColumnSpan="3"
                                           Style="{StaticResource FontSizeStyle}"/>
@@ -187,90 +188,109 @@
 
     </ContentPage.Resources>
 
-    <Grid ColumnDefinitions="Auto, Auto, *"
-          RowDefinitions="Auto, Auto, Auto, Auto, Auto, *"
-          Margin="10"
-          >
-        <!-- Title Bar -->
-        <Grid ColumnDefinitions="Auto, *, Auto"
-              Grid.Column="0"
-              Grid.ColumnSpan="3">
+    <ScrollView Orientation="Vertical">
+        
+        <Grid ColumnDefinitions="Auto, Auto, *"
+              RowDefinitions="Auto, Auto, Auto, Auto, Auto, *, Auto, *"
+              Margin="10"
+              ColumnSpacing="10"
+              >
+            <!-- Title Bar -->
+            <Grid ColumnDefinitions="Auto, *, Auto"
+                  Grid.Column="0"
+                  Grid.ColumnSpan="3">
             
-            <Button Style="{StaticResource GlyphButtonStyle}" 
-                    Text="{x:Static res:FluentUI.ArrowLeftFilled}"
-                    HorizontalOptions="Start"
-                    Command="{Binding Navigator.CloseCommand}"
-                    ToolTipProperties.Text="{x:Static res:Strings.BackButtonLabel}"
-                    Grid.Column="0"
-                    />
+                <Button Style="{StaticResource GlyphButtonStyle}" 
+                        Text="{x:Static res:FluentUI.ArrowLeftFilled}"
+                        HorizontalOptions="Start"
+                        Command="{Binding Navigator.CloseCommand}"
+                        ToolTipProperties.Text="{x:Static res:Strings.BackButtonLabel}"
+                        Grid.Column="0"
+                        />
 
-            <Label Text="{x:Static res:Strings.SettingsTitle}"
-                   HorizontalOptions="Center"
-                   FontSize="{Binding TitleFont.FontSize.Value, Mode=OneWay}"
-                   Grid.Column="1"
+                <Label Text="{x:Static res:Strings.SettingsTitle}"
+                       HorizontalOptions="Center"
+                       FontSize="{Binding UserSettings.TitleFont.FontSize.Value, Mode=OneWay}"
+                       Grid.Column="1"
+                       />
+
+               <Button Style="{StaticResource GlyphButtonStyle}"
+                       Text="{x:Static res:FluentUI.ArrowResetFilled}"
+                       ToolTipProperties.Text="{x:Static res:Strings.ResetSettingsDescription}"
+                       Command="{Binding ResetCommand}"
+                       Grid.Column="2"
+                       />
+           </Grid>
+
+            <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
+                     Margin="0,0,0,10"
+                     HeightRequest="2"
+                     Grid.Row="1"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="3"
+                     />
+
+            <!-- Cell layout options -->
+            <Label Text="{x:Static res:Strings.GlyphItemWidthLabel}" 
+                   Style="{StaticResource LabelStyle}"
+                   VerticalTextAlignment="Start"
+                   Grid.Row="2"
+                   Grid.Column="0"
                    />
 
-            <Button Style="{StaticResource GlyphButtonStyle}"
-                    Text="{x:Static res:FluentUI.ArrowResetFilled}"
-                    ToolTipProperties.Text="{x:Static res:Strings.ResetSettingsDescription}"
-                    Command="{Binding ResetCommand}"
-                    Grid.Column="2"
-                    />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding UserSettings.Glyph.CellLayout.WidthOptions}"
+                                 Style="{StaticResource CellLayoutOptionsStyle}"
+                                 Grid.Row="2"
+                                 Grid.Column="1"
+                                 />
+
+            <Label Text="{x:Static res:Strings.GlyphItemHeightLabel}" 
+                   Style="{StaticResource LabelStyle}"
+                   VerticalTextAlignment="Start"
+                   Grid.Row="3"
+                   Grid.Column="0"
+                   />
+
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding UserSettings.Glyph.CellLayout.HeightOptions}"
+                                 Style="{StaticResource CellLayoutOptionsStyle}"
+                                 Grid.Row="3"
+                                 Grid.Column="1"
+                                 />
+
+            <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
+                     Margin="0,0,0,10"
+                     HeightRequest="2"
+                     Grid.Row="4"
+                     Grid.Column="0"
+                     Grid.ColumnSpan="3"
+                     />
+
+            <!-- Setting properties -->
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding UserSettings.Properties}"
+                                 BindableLayout.ItemTemplateSelector="{StaticResource SettingDataTemplateSelector}"
+                                 Spacing="10"
+                                 Grid.Row="5" 
+                                 Grid.Column="0"
+                                 Grid.ColumnSpan="3"
+                                 Margin="0,0,0,10"
+                                 />
+
+            <!-- File system Fonts -->
+            <Label Text="{x:Static res:Strings.FontFilesName}" 
+                   Style="{StaticResource LabelStyle}"
+                   VerticalTextAlignment="Start"
+                   Grid.Row="7"
+                   Grid.Column="0"
+                   />
+
+            <Border Grid.Row="7"
+                    Grid.Column="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray400}}"
+                    StrokeThickness="1"
+                    >
+                
+                <view:FileFontsView MinimumHeightRequest="200"/>
+            </Border>
         </Grid>
-
-        <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
-                 Margin="0,0,0,10"
-                 HeightRequest="2"
-                 Grid.Row="1"
-                 Grid.Column="0"
-                 Grid.ColumnSpan="3"
-                 />
-
-        <!-- Cell layout options -->
-        <Label Text="{x:Static res:Strings.GlyphItemWidthLabel}" 
-               Style="{StaticResource LabelStyle}"
-               VerticalTextAlignment="Start"
-               Grid.Row="2"
-               Grid.Column="0"
-               />
-
-        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Glyph.CellLayout.WidthOptions}"
-                             Style="{StaticResource CellLayoutOptionsStyle}"
-                             Grid.Row="2"
-                             Grid.Column="1"
-                             Grid.ColumnSpan="2"
-                             />
-
-        <Label Text="{x:Static res:Strings.GlyphItemHeightLabel}" 
-               Style="{StaticResource LabelStyle}"
-               VerticalTextAlignment="Start"
-               Grid.Row="3"
-               Grid.Column="0"
-               />
-
-        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Glyph.CellLayout.HeightOptions}"
-                             Style="{StaticResource CellLayoutOptionsStyle}"
-                             Grid.Row="3"
-                             Grid.Column="1"
-                             Grid.ColumnSpan="2"
-                             />
-
-        <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
-                 Margin="0,0,0,10"
-                 HeightRequest="2"
-                 Grid.Row="4"
-                 Grid.Column="0"
-                 Grid.ColumnSpan="3"
-                 />
-
-        <!-- Setting properties -->
-        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Properties}"
-                             BindableLayout.ItemTemplateSelector="{StaticResource SettingDataTemplateSelector}"
-                             Spacing="10"
-                             Grid.Row="5" 
-                             Grid.Column="0"
-                             Grid.ColumnSpan="3"
-                             />
-
-    </Grid>
+    </ScrollView>
 </ContentPage>

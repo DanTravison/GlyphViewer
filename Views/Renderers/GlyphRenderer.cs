@@ -13,10 +13,9 @@ internal class GlyphRenderer
     /// </summary>
     /// <param name="glyph">The <see cref="Glyph"/> to draw.</param>
     /// <param name="drawContext">The <see cref="DrawContext"/> to use to measure.</param>
-    /// <param name="paint">The <see cref="SKPaint"/> to use to measure.</param>
-    public GlyphRenderer(Glyph glyph, DrawContext drawContext, SKPaint paint)
+    public GlyphRenderer(Glyph glyph, DrawContext drawContext)
     {
-        Metrics = GlyphMetrics.CreateInstance(glyph, drawContext.ItemFont, paint);
+        Metrics = GlyphMetrics.CreateInstance(glyph, drawContext.ItemFont);
         float height = Metrics.Descent - Metrics.Ascent;
         if (height == 0)
         {

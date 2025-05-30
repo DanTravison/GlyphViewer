@@ -1,11 +1,12 @@
 ﻿namespace GlyphViewer.ViewModels;
 
 using GlyphViewer.ObjectModel;
+using GlyphViewer.Settings;
 using GlyphViewer.Text;
 using System.ComponentModel;
 
 /// <summary>
-/// Privides a view model for the FontFamiliesView.
+/// Provides a view model for the FontFamiliesView.
 /// </summary>
 internal class FontFamiliesViewModel : ObservableObject
 {
@@ -13,19 +14,29 @@ internal class FontFamiliesViewModel : ObservableObject
 
     FontFamilyGroupCollection _fontFamiliesGroups;
     FontFamilyGroup _selectedGroup;
-    string _selectedBookmark;
+    FontFamily _selectedBookmark;
+    readonly FileFonts _fileFonts;
 
     #endregion Fields
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="metrics">The <see cref="MetricsViewModel"/>.</param>
-    public FontFamiliesViewModel(MetricsViewModel metrics)
+    /// <param name="settings">The <see cref="UserSettings"/> to use for bookmarks.</param>
+    /// <param name="metrics">The <see cref="MetricsViewModel"/> to use for the current font family.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="settings"/> or <paramref name="metrics"/> is a null reference.
+    /// </exception>
+    public FontFamiliesViewModel(UserSettings settings, MetricsViewModel metrics)
     {
+        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
         ArgumentNullException.ThrowIfNull(metrics, nameof(metrics));
+
         Metrics = metrics;
+        _fileFonts = settings.Fonts;
     }
+
+    #region Properties
 
     /// <summary>
     /// Gets the <see cref="MetricsViewModel"/>.
@@ -33,6 +44,28 @@ internal class FontFamiliesViewModel : ObservableObject
     public MetricsViewModel Metrics
     {
         get;
+    }
+
+    /// <summary>
+    /// Gets or sets the selected bookmark.
+    /// </summary>
+    public FontFamily SelectedBookmark
+    {
+        get => _selectedBookmark;
+        set
+        {
+            if (value is not null)
+            {
+                Metrics.FontFamily = value;
+            }
+            else
+            {
+                // This path occurs after Glyphs are updated
+                // to clear the selected bookmark in FontFamiliesView.
+                _selectedBookmark = null;
+                OnPropertyChanged(SelectedBookmarkChangedEventArgs);
+            }
+        }
     }
 
     #region Font Families
@@ -48,9 +81,11 @@ internal class FontFamiliesViewModel : ObservableObject
         get => _fontFamiliesGroups;
         set
         {
-            if (SetProperty(ref _fontFamiliesGroups, value, FontFamiliesChangedEventArgs))
+            if (!ReferenceEquals(_fontFamiliesGroups, value))
             {
+                _fontFamiliesGroups = value;
                 Metrics.FontFamily = null;
+                OnPropertyChanged(FontFamiliesChangedEventArgs);
             }
         }
     }
@@ -93,27 +128,44 @@ internal class FontFamiliesViewModel : ObservableObject
 
     #endregion Family Group
 
+    #endregion Properties
+
+    #region Add/Remove Font Family
+
     /// <summary>
-    /// Gets or sets the selected bookmark.
+    /// Adds a <see cref="FileFontFamily"/>.
     /// </summary>
-    public string SelectedBookmark
+    /// <param name="font">The <see cref="FileFontFamily"/> to add.</param>
+    public void Add(FileFontFamily font)
     {
-        get => _selectedBookmark;
-        set
+        ArgumentNullException.ThrowIfNull(font, nameof(font));
+        _fileFonts.Add(font);
+    }
+
+    /// <summary>
+    /// Removes a <see cref="FileFontFamily"/> from the <see cref="FontFamilyGroups"/>.
+    /// </summary>
+    /// <param name="font">The <see cref="FileFontFamily"/> to remove.</param>
+    /// <returns>true if the <paramref name="font"/> was found and removed; otherwise, false.</returns>
+    public bool Remove(FileFontFamily font)
+    {
+        ArgumentNullException.ThrowIfNull(font, nameof(font));
+        bool result = _fileFonts.Remove(font);
+        if (result)
         {
-            if (!string.IsNullOrWhiteSpace(value))
+            if (Metrics.FontFamily == font)
             {
-                Metrics.FontFamily = value;
+                Metrics.FontFamily = null;
             }
-            else
+            if (SelectedBookmark == font)
             {
-                // This path occurs after Glyphs are updated
-                // to clear the selected bookmark in FontFamiliesView.
-                _selectedBookmark = null;
-                OnPropertyChanged(SelectedBookmarkChangedEventArgs);
+                SelectedBookmark = null;
             }
         }
+        return result;
     }
+
+    #endregion Add/Remove Font Family
 
     #region PropertyChangedEventArgs
 

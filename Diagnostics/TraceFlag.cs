@@ -139,6 +139,11 @@ public enum TraceFlag : int
     /// </summary>
     Platform = 1 << 24,
 
+    /// <summary>
+    /// Tracing for font loading operations.
+    /// </summary>
+    Font = 1 << 25,
+
     #region Combined Flags
 
     /// <summary>

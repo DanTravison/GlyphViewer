@@ -249,4 +249,25 @@
   <data name="WriteFontDescription" xml:space="preserve">
     <value>Write all glyphs in the font to a file</value>
   </data>
+  <data name="FontFilePickerTitle" xml:space="preserve">
+    <value>Select a Font</value>
+  </data>
+  <data name="FontFilesName" xml:space="preserve">
+    <value>File system fonts</value>
+  </data>
+  <data name="FontFilesDescription" xml:space="preserve">
+    <value>Fonts loaded from the local file system.</value>
+  </data>
+  <data name="FontFileAddName" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="FontFileAddDescription" xml:space="preserve">
+    <value>Add a font from the file system.</value>
+  </data>
+  <data name="FontFileRemoveName" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="FontFileRemoveDescription" xml:space="preserve">
+    <value>Remove a font file.</value>
+  </data>
 </root>

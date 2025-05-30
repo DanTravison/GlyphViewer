@@ -22,11 +22,18 @@ internal sealed class BookmarkCommand : Command
     /// <summary>
     /// Initializes a new instance of this command.
     /// </summary>
-    /// <param name="bookmarks">The <see cref="Bookmarks"/> to update.</param>
-    public BookmarkCommand(Bookmarks bookmarks, MetricsViewModel metrics)
+    /// <param name="settings">The <see cref="UserSettings"/> to use for bookmarks.</param>
+    /// <param name="metrics">The <see cref="MetricsViewModel"/> to use for the current font family.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="settings"/> or <paramref name="metrics"/> is a null reference.
+    /// </exception>
+    public BookmarkCommand(UserSettings settings, MetricsViewModel metrics)
         : base(NopAction)
     {
-        _bookmarks = bookmarks;
+        ArgumentNullException.ThrowIfNull(settings, nameof(settings));
+        ArgumentNullException.ThrowIfNull(metrics, nameof(metrics));
+
+        _bookmarks = settings.Bookmarks;
         _bookmarks.CollectionChanged += OnBookmarksChanged;
         _metrics = metrics;
         _metrics.PropertyChanged += OnMetricsPropertyChanged;
@@ -38,13 +45,13 @@ internal sealed class BookmarkCommand : Command
     /// <summary>
     /// Gets or sets the current font family name.
     /// </summary>
-    public string FamilyName
+    public FontFamily FontFamily
     {
         get => _metrics.FontFamily;
     }
 
     /// <summary>
-    /// Gets the value indicating if the <see cref="FamilyName"/> is bookmarked.
+    /// Gets the value indicating if the <see cref="FontFamily"/> is bookmarked.
     /// </summary>
     public bool IsBookmarked
     {
@@ -58,13 +65,12 @@ internal sealed class BookmarkCommand : Command
 
     private void OnBookmarkChanged()
     {
-        IsBookmarked = !string.IsNullOrEmpty(FamilyName) && _bookmarks.Contains(FamilyName);
+        IsBookmarked = FontFamily is not null && _bookmarks.Contains(FontFamily);
     }
 
     private void OnFamilyNameChanged()
     {
-        string familyName = _metrics.FontFamily;
-        IsEnabled = !string.IsNullOrEmpty(familyName);
+        IsEnabled = _metrics.FontFamily is not null;
         OnBookmarkChanged();
     }
 
@@ -86,22 +92,22 @@ internal sealed class BookmarkCommand : Command
     #region Execute
 
     /// <summary>
-    /// Adds or removes the <see cref="FamilyName"/> from the bookmarks.
+    /// Adds or removes the <see cref="FontFamily"/> from the bookmarks.
     /// </summary>
     /// <param name="_">Not used.</param>
     public override sealed void Execute(object _)
     {
-        if (!string.IsNullOrEmpty(FamilyName))
+        if (FontFamily is not null)
         {
             if (IsBookmarked)
             {
-                _bookmarks.Remove(FamilyName);
+                _bookmarks.Remove(FontFamily);
             }
             else
             {
-                _bookmarks.Add(FamilyName);
+                _bookmarks.Add(FontFamily);
             }
-            IsBookmarked = _bookmarks.Contains(FamilyName);
+            IsBookmarked = _bookmarks.Contains(FontFamily);
         }
     }
 
@@ -110,9 +116,9 @@ internal sealed class BookmarkCommand : Command
     #region PropertyChangedEventArgs
 
     /// <summary>
-    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="FamilyName"/> changes.
+    /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="FontFamily"/> changes.
     /// </summary>
-    static readonly PropertyChangedEventArgs FamilyNameChangedEventArgs = new(nameof(FamilyName));
+    static readonly PropertyChangedEventArgs FamilyNameChangedEventArgs = new(nameof(FontFamily));
     /// <summary>
     /// Provides <see cref="PropertyChangedEventArgs"/> when <see cref="Glyph"/> changes.
     /// </summary>

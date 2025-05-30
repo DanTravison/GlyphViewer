@@ -26,7 +26,6 @@ public sealed class Glyph : IEquatable<Glyph>
     /// </summary>
     Glyph()
     {
-        FontFamily = string.Empty;
         Text = string.Empty;
         Code = string.Empty;
         Char = '\0';
@@ -46,21 +45,14 @@ public sealed class Glyph : IEquatable<Glyph>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="range"/> equals <see cref="Unicode.Range.Empty"/>.</exception>
     public Glyph
     (
-        string fontFamily,
+        FontFamily fontFamily,
         char ch,
         UnicodeCategory category,
         Unicode.Range range,
         string name = null
     )
     {
-        if (fontFamily is not null)
-        {
-            fontFamily = fontFamily.Trim();
-        }
-        if (string.IsNullOrEmpty(fontFamily))
-        {
-            throw new ArgumentNullException(nameof(fontFamily));
-        }
+        ArgumentNullException.ThrowIfNull(fontFamily, nameof(fontFamily));
         if (range.IsEmpty)
         {
             throw new ArgumentOutOfRangeException(nameof(range));
@@ -100,7 +92,7 @@ public sealed class Glyph : IEquatable<Glyph>
     /// <summary>
     /// Gets the font family to use to draw the <see cref="Text"/>.
     /// </summary>
-    public string FontFamily
+    public FontFamily FontFamily
     {
         get;
     }

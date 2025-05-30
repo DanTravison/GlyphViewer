@@ -59,7 +59,7 @@
 		<MauiIcon Include="Resources\AppIcon\appicon.png" />
 		
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.png"  BaseSize="128,128"/>
+		<MauiSplashScreen Include="Resources\Splash\splash.png" Color="#000000" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -68,6 +68,18 @@
 		<MauiFont Include="Resources\Fonts\*" />
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiFont Remove="Resources\Fonts\fluentsystemicons-resizable.ttf" />
+	  <MauiFont Remove="Resources\Fonts\opensans-regular.ttf" />
+	  <MauiFont Remove="Resources\Fonts\OpenSans-Semibold.ttf" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\Fonts\fluentsystemicons-resizable.ttf" />
+	  <EmbeddedResource Include="Resources\Fonts\opensans-regular.ttf" />
+	  <EmbeddedResource Include="Resources\Fonts\opensans-semibold.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -100,6 +112,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Controls\JumpList.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FileFontsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\FontFamiliesView.xaml">

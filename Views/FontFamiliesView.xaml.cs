@@ -1,3 +1,4 @@
+using GlyphViewer.Text;
 using GlyphViewer.ViewModels;
 
 namespace GlyphViewer.Views;
@@ -41,7 +42,7 @@ public partial class FontFamiliesView : ContentView
             _model.SelectedFamilyGroup is not null
         )
         {
-            string fontFamily = _model.SelectedFamilyGroup[0];
+            FontFamily fontFamily = _model.SelectedFamilyGroup[0];
             Families.ScrollTo(fontFamily, _model.SelectedFamilyGroup, ScrollToPosition.Start, false);
         }
     }

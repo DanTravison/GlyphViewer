@@ -16,7 +16,7 @@
                    Style="{StaticResource JumpListItemStyle}"/>
         </DataTemplate>
 
-        <Style TargetType="Label" x:Key="GroupHeaderLabelStyle">
+        <Style TargetType="Label" x:Key="GroupHeaderStyle">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontAttributes" Value="Bold"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
@@ -35,59 +35,32 @@
             </Setter>
         </Style>
 
-        <DataTemplate x:DataType="text:IFontFamilyGroup" x:Key="GroupHeaderTemplate">
-            <Label Text="{Binding Name}" 
-                   Style="{StaticResource GroupHeaderLabelStyle}"
-                   >
-                <Label.GestureRecognizers>
-                    <!-- TODO: convert this to a command -->
-                    <TapGestureRecognizer Tapped="OnPickGroup"/>
-                </Label.GestureRecognizers>
-            </Label>
-        </DataTemplate>
-
-        <Style TargetType="Label" x:Key="GroupItemStyle">
-            <Setter Property="FontSize" Value="{StaticResource DefaultFontSize}"/>
-            <Setter Property="Margin" Value="5, 0, 5, 5"/>
-            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
-            <Setter Property="VisualStateManager.VisualStateGroups">
-                <VisualStateGroupList>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="Normal" />
-                        <VisualState x:Name="Selected">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor"
-                                        Value="{StaticResource SelectedItemBackgroundColor}" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        <!-- Issue 29484: https://github.com/dotnet/maui/issues/29484
-                        <VisualState x:Name="PointerOver">
-                            <VisualState.Setters>
-                                <Setter Property="BackgroundColor"
-                                    Value="{StaticResource SelectedItemBackgroundColor}" />
-                            </VisualState.Setters>
-                        </VisualState>
-                        -->
-                   </VisualStateGroup>
-                </VisualStateGroupList>
-            </Setter>
-        </Style>
-
-        <DataTemplate x:DataType="x:String" x:Key="GroupItemTemplate">
-            <Label Text="{Binding}"
-                   Style="{StaticResource GroupItemStyle}"
-                   />
-        </DataTemplate>
-
-        <Style TargetType="CollectionView" x:Key="FontFamilyGroupStyle">
+        <Style TargetType="CollectionView" x:Key="GroupStyle">
             <Setter Property="IsGrouped" Value="True"/>
             <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="GroupHeaderTemplate" Value="{StaticResource GroupHeaderTemplate}"/>
-            <Setter Property="ItemTemplate" Value="{StaticResource GroupItemTemplate}"/>
+            <Setter Property="GroupHeaderTemplate">
+                <DataTemplate x:DataType="text:IFontFamilyGroup">
+                    <Label Text="{Binding Name}" 
+                           Style="{StaticResource GroupHeaderStyle}"
+                           >
+                        <Label.GestureRecognizers>
+                            <!-- TODO: convert this to a command -->
+                            <TapGestureRecognizer Tapped="OnPickGroup"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </DataTemplate>
+            </Setter>
+            <Setter Property="ItemTemplate">
+                <DataTemplate x:DataType="text:FontFamily">
+                    <Label Text="{Binding Name}"
+                           Style="{StaticResource SelectedNameStyle}"
+                           />
+                </DataTemplate>
+            </Setter> 
         </Style>
 
         <Style TargetType="Label" x:Key="BookmarkItemStyle"
-               BasedOn="{StaticResource GroupItemStyle}">
+               BasedOn="{StaticResource NameStyle}">
             <Setter Property="VisualStateManager.VisualStateGroups">
                 <VisualStateGroupList>
                     <VisualStateGroup x:Name="CommonStates">
@@ -103,30 +76,33 @@
             </Setter>
         </Style>
 
-        <DataTemplate x:DataType="x:String" x:Key="BookmarkItemTemplate">
-            <Label Text="{Binding}"
+        <DataTemplate x:DataType="text:FontFamily" x:Key="BookmarkItemTemplate">
+            <Label Text="{Binding Name}"
                    Style="{StaticResource BookmarkItemStyle}"
                    />
         </DataTemplate>
 
-        <Style TargetType="CollectionView" x:Key="BookmarkGroupStyle">
-            <Setter Property="IsGrouped" Value="True"/>
-            <Setter Property="SelectionMode" Value="Single"/>
-            <Setter Property="GroupHeaderTemplate" Value="{StaticResource GroupHeaderTemplate}"/>
-            <Setter Property="ItemTemplate" Value="{StaticResource BookmarkItemTemplate}"/>
-        </Style>
-
-    </ContentView.Resources>
+     </ContentView.Resources>
 
     <!-- NOTE: Placing ContentView directly in a '*' row can cause
          the content to overflow the row. Use 'Auto,*' as a workaround.
     -->
-    <Grid RowDefinitions="Auto, Auto, *">
+    <Grid RowDefinitions="Auto, Auto, Auto, *">
 
-        <CollectionView Grid.Row="0"
-                        Style="{StaticResource BookmarkGroupStyle}"
+        <Label Grid.Row="0"
+               Text="{Binding FontFamilyGroups.Bookmarks.DisplayName}"
+               Style="{StaticResource GroupHeaderStyle}"
+               >
+            <Label.GestureRecognizers>
+                <!-- TODO: convert this to a command -->
+                <TapGestureRecognizer Tapped="OnPickGroup"/>
+            </Label.GestureRecognizers>
+        </Label>
+        <CollectionView Grid.Row="1"
+                        SelectionMode="Single"
                         ItemsSource="{Binding FontFamilyGroups.Bookmarks, Mode=OneWay}"
                         SelectedItem="{Binding SelectedBookmark, Mode=TwoWay}"
+                        ItemTemplate="{StaticResource BookmarkItemTemplate}"
                         Margin="0"
                         />
 
@@ -134,7 +110,7 @@
              Using JumpList.ZIndex to show/hide the picker.
         -->
         <controls:JumpList x:Name="GroupPicker" 
-                           Grid.Row="21"
+                           Grid.Row="2"
                            Grid.RowSpan="2"
                            ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"
                            SelectedItem="{Binding SelectedFamilyGroup, Mode=OneWayToSource}"
@@ -142,9 +118,9 @@
                            />
 
         <CollectionView x:Name="Families"
-                        Grid.Row="1"
+                        Grid.Row="2"
                         Grid.RowSpan="2"
-                        Style="{StaticResource FontFamilyGroupStyle}"
+                        Style="{StaticResource GroupStyle}"
                         ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"
                         SelectedItem="{Binding Metrics.FontFamily, Mode=TwoWay}"
                         />

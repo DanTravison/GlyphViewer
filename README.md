@@ -31,6 +31,9 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * The range of Unicode characters is currently limited to 0x0000-0xFFFF.
 * Testing is manual on Windows.
   * Testing on iOS, MacCatalyst, and Android is planned.
+* Testing on Android tablets is in progress.
+  * Converting MauiFont to embedded resource was needed to use SkiaSharp on Android
+  * See FontFamily, FontLoader and FontResource below.
 * The GlyphsView is still in progress. I'm considering the following enhancements:
   * Display the text code for each glyph in the font's glyph list.
 * Currently tracking [issue 3239](https://github.com/mono/SkiaSharp/issues/3239) in SkiaSharp
@@ -41,9 +44,27 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * [Bookmarks](https://github.com/DanTravison/GlyphViewer/blob/main/Settings/Bookmarks.cs) is using a temporary workaround based on ReadOnlyCollection\<T\>.
 * Currently tracking [issue 29484](https://github.com/dotnet/maui/issues/29484)
   * CollectionView Selected state does not work on the selected item when combined with PointerOver.
+* Currently tracking [issue 19639](https://github.com/dotnet/maui/issues/19639)
+  * On android, collectionview items cannot be selected.
+  * No resolution is expected.
+* Currently tracking [issue 3280](https://github.com/mono/SkiaSharp/discussions/3280)
+  * Why doesn't SKTypeface.FromStream support SKFontStyle?
+  * No resolution is forthcoming.
 * The repo file structure will change to support the unit test assembly.
   * Move GlyphViewer into a child directory.
   * Merge the unit tests assembly into the repo. 
+* Experimental: Load fonts from the local file system.
+  * This supports displaying fonts that are not installed on the system/not visible in SkiaSharp.
+  * The SettingsPage has a FileFonts section that allows loading fonts from the local file system.
+  * The fonts are loaded into the FileFonts setting and displayed in the FontFamiliesView.
+  * All font loading is now through FontFamily and FileFontFamily.
+  * File-based fonts are displayed using the file name versus the font family name to avoid confusion. 
+  Experimental: Defining a font as an embedded resource versus a MauiFont.
+  * MauiFont resources are not visible to SkiaSharp.
+  * The change converts MauiFont to an embedded resource font using FontResource.
+  * FontFamily uses FontLoader and FontResource to load the embedded resource font for SkiaSharp.
+  * NOTE: SkiaSharp does not support setting SKFontStyle for embedded resource fonts or fonts loaded from the file system.
+  * ISSUE: Using an embedded resource font in Maui on Android works but causes multiple Java.Lang.RuntimeException log entries 
 
 # The Project Structure
 
@@ -65,6 +86,11 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Provides commands to search and to show/hide search results.
   * SelectedItem property is bound to the selected glyph SearchView.
 	* Updates MetricsModel.Glyph when the selected glyph changes.
+* BookmarkCommand: A command to add and remove font families from bookmarks.
+  * Used by MainViewModel.BoomkarkCommand. 
+* SettingsViewModel: The view model for the SettingsPage.
+  * Provides the property for the current UserSettings.
+  * Provides commands to load and unload file system-based fonts
 
 ## Views
 * MainPage: The application's main page
@@ -81,6 +107,11 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * FontFamiliesView: The list of available fonts (typefaces) grouped by the first letter of the typeface name..
   * FamilyGroupPicker: A jump list to select a font family group.
 * SettingsPage: A page for user configurable settings.
+* FileFontsView: a view for loading/unloading fonts from the local file system.
+  * Provides a list of fonts in the local file system.
+  * Provides a button to load the selected font into the FileFonts setting.
+  * Provides a button to unload the selected font from the FileFonts setting.
+  * Presented in the SettingsPage as a child view. 
 
 ## Views/Renderers
 * GlyphsViewRenderer - provides layout, rendering and hit testing for GlyphsView
@@ -111,7 +142,9 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Provides properties for concrete Settings. 
   * Provides Load and Save method using UserSettingsJsonConverter. 
   * Settings are serialized to AppDataDirectory/settings.json
-* Boomarks: An ISetting containing the set of bookmarked font family names.
+* FontFamiliesSettings: An ISetting base class containing a collection of font families. 
+* Boomarks: A FontFamiliesSettings containing the set of bookmarked font family names.
+* FileFonts: A FontFamiliesSettings containing the set of fonts from the local file system.
 * FontSetting: an abstract base class for font settings.
 * ItemFontSetting: Provides the font settings rows in the GlyphsView
 * ItemHeaderFontSetting: Provides the font settings for header rows in the GlyphsView
@@ -148,27 +181,40 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * Defines CellLayoutModel.WidthOptions and CellLayoutModel.HeightOptions properties
   * Consumed by SettingsPage for editing CellLayoutStyle properties. 
 
+## Resource clases for embedded resource fonts
+* FontResource:
+  * Provides a class for encapsulating for a font defined as an embedded resource. 
+  * Used in-lieu of MauiFont to enable SkiaSharp using the embedded resource font.
+  * Provides a GetTypeface() method that loads the embedded resource font and caches the SKTypeface.
+* FontLoader: A static class for loading embedded resoure fonts into Maui.
+  * Provides a Resolve method to resolve font 'names' to embedded resource names.
+  * Provides a Load(FontResource) method to resolve a name to a FontResource.
+  * The name can be the FontResource.Name, FontResource.Alias, or FontResource.ResourceName.
+  
 ## Text
 Contains the various Glyph classes:
 * Glyph: The basic Glyph class
 * SKTextMetrics: Provides general text measurement metrics.
 * NamedValue: A simple Named/Value base class used for Glyph and Font metrics property display.
 * GlyphMetrics: Provides text metrics for the glyph.
-* GlyphMetricsProperties: A NamedValue collection for displaying glyph metrics
-* Fonts: A couple of extension methods.
-* TextUtilities: Used by Grid to measure column widths.
-* FontFamilyGroupCollection: A collection of FontFamilyGroup.
-* FontFamilyGroup: A collection of font families in a given group.
-* FontMetricsProperties: A A NamedValue collection for displaying displaying font metrics
-* Fonts.cs: A set of extension methods
-  * ToStyleFont: converts FontAttributes to SKFontStyle
-  * GetFontFamilies: enumerate all font families visible to SkiSharp
-  * ToPixels: converts a point size to pixels using 96/72
-	
-Fonts.cs Experimental Extension Methods:
+* GlyphMetricsProperties: A NamedValue collection for displaying glyph metrics.
+* FontFamily: Represents a font registered in the system.
+  * GetTypeface: Creates an SKTypeface for the font.
+  * CreateFont: Creates an SKFont for the font. 
+  * Integrates with FontResource and FontLoader to support embedded resource fonts.
+* FileFontFamily: Represents a font loaded from the local file system.
+  * GetTypeface: Creates and caches an SKTypeface for the font file.
+* Fonts: Extension methods for working with fonts.
   * ScalePoints: Scales font points to pixels at the current display density 
   * DrawText: Wraps Canvas.DrawText by scaling the SKFont.Size using ScalePoints
   * Measure: wraps SKFont.MeasureText by scaling the SKFont.Size using ScalePoints 
+* TextUtilities: Used by Grid to measure column widths.
+* FontFamilyGroupCollection: A collection of FontFamilyGroup.
+  * Manages the collection of all FontFamily instances
+  * Groups the font families by the first letter of the family name.
+  * Synchronizes the FileFonts and Bookmarks settings with the collection. 
+* FontFamilyGroup: A collection of font families in a given group.
+* FontMetricsProperties: A A NamedValue collection for displaying displaying font metrics
 
 ## Text\Unicode
 * Range: A Unicode range
@@ -198,7 +244,8 @@ This is used to select a font family group in the FontFamiliesView and a unicode
 * JsonExtensions - provides various JSON extension methods
   * Utf8JsonReader extensions for reading property names, verifing JsonTokenType and reporting unexpected tokens and values.
   * JsonSerializationOptions.Add(params JsonConverter[])
-* UserSettingsJsonConverter - The JSON implementation for UserSettings.Load and Save.
+* UserSettingsJsonConverter - The JSON implementation for serializing UserSettings.
+* FontFamiliesJsonConverter - The JSON implementation for searilizing FontFamiliesSettings.
 
 ## ObjectModel
 * ObservableObject: An implementation of INotifyPropertyChanged with SetProperty overloads.
@@ -209,10 +256,11 @@ This is used to select a font family group in the FontFamiliesView and a unicode
   * Provides directly PropertyChanged notification for the encapsulated value.
   * Allows SettingsPage to present Settings properties as a bindable collection. 
 * Command: An implementation of ICommand with IsEnabled for controlling CanExecute.
-* OrderedList: A simple ordered list of objects.
-  * Bookmarks uses it to manage the list of bookmarked font family names. 
-  * This is a placeholder for use by Bookmarks until CollectionView issue is resolved.
-  * Assuming the CollectionView issue is resolved in Maui 10, this class will be changed to ReadOnlyOrderedList and ReadOnlyCollection\<T\> will be removed. 
+* OrderedList\<T\>: An ordered list of objects supporting INotifyCollectionChanged and INotifyPropertyChanged.
+  * Derives from ReadOnlyCollection\<T\>. 
+  * This is a temporary workaround for the CollectionView issue in Maui 9.0.50.
+* ReadOnlyOrderedList: A read-only encapsulation of OrderedList\<T\>.
+  * Provides the base class for FontFamilyGroupCollection, FontFamilyGroup and FontFamiliesSettings.
 * NamedValue\<T\>
   * Provides a strongly typed Name/Value pair 
   * The base class for SettingProperty\<T\> and ObservableProperty\<T\>
