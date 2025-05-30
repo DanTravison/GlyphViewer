@@ -1,7 +1,9 @@
-﻿using GlyphViewer.Resources;
+﻿namespace GlyphViewer.Text;
+
+using GlyphViewer.Diagnostics;
+using GlyphViewer.Resources;
 using SkiaSharp;
 
-namespace GlyphViewer.Text;
 
 /// <summary>
 /// Provides an encapsulation of a font family.
@@ -84,6 +86,7 @@ public class FontFamily : IEquatable<FontFamily>
         {
             return typeface.ToFont(fontSize);
         }
+        Trace.Warning(TraceFlag.Storage, this, nameof(CreateFont), "Failed to create font for '{0}", Name);
         return null;
     }
 
