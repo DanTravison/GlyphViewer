@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.Resources;
 using SkiaSharp;
 using System.Runtime.CompilerServices;
 
@@ -46,10 +47,21 @@ public static class Fonts
     /// <returns>A <see cref="List{FontFamily}"/> of the available font families.</returns>
     public static List<FontFamily> GetFontFamilies()
     {
+        Dictionary<string, FontFamily> table = new(StringComparer.Ordinal);
         List<FontFamily> families = [];
         foreach (string familyName in SKFontManager.Default.GetFontFamilies())
         {
             families.Add(new(familyName));
+            table.Add(familyName, new FontFamily(familyName));
+        }
+        foreach (FontResource resource in FontLoader.EmbeddedFonts)
+        {
+            if (!table.ContainsKey(resource.Name))
+            {
+                FontFamily family = new(resource.Name);
+                families.Add(family);
+                table.Add(resource.Name, family);
+            }
         }
         return families;
     }

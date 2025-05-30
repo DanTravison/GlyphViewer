@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using GlyphViewer.Resources;
+using SkiaSharp;
 
 namespace GlyphViewer.Text;
 
@@ -97,7 +98,7 @@ public class FontFamily : IEquatable<FontFamily>
     /// A null reference can be returned if the font family was not found 
     /// or could not be loaded.
     /// <para>
-    /// NOTE: Fonts loaded from the local file system will ignore <see cref="SKFontStyle"/>.
+    /// NOTE: Fonts loaded from embedded resources or the local file system do not support <see cref="SKFontStyle"/>.
     /// </para>
     /// <para>
     /// NOTE: The returned SKTypeface should be considered a global resource and not disposed.
@@ -105,7 +106,12 @@ public class FontFamily : IEquatable<FontFamily>
     /// </remarks>
     public virtual SKTypeface GetTypeface(SKFontStyle style)
     {
-        return SKTypeface.FromFamilyName(Name, style);
+        SKTypeface typeface = SKTypeface.FromFamilyName(Name, style);
+        if (typeface is null && FontLoader.Resolve(Name) is FontResource resource)
+        {
+            typeface = resource.GetTypeface();
+        }
+        return typeface;
     }
 
     /// <summary>

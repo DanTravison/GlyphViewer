@@ -244,7 +244,7 @@ sealed class DrawContext : IDisposable
                 _itemFont = ItemFontFamily.CreateFont(ItemFontSize);
 
                 // Calculate a minimum glyph size for the font.
-                using (SKFont font = App.DefaultFontFamily.CreateFont(ItemFontSize))
+                using (SKFont font = SKTypeface.Default.ToFont(ItemFontSize))
                 {
                     SKTextMetrics metrics = new("W", font);
                     float dimension = Math.Max(metrics.TextWidth, metrics.Size.Width);

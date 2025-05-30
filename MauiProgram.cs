@@ -18,9 +18,7 @@ public static class MauiProgram
             .UseMauiCommunityToolkit()
             .ConfigureFonts(fonts =>
             {
-                fonts.AddFont("OpenSans-Regular.ttf", App.DefaultFontFamilyName);
-                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                fonts.AddFont("fluentsystemicons-resizable.ttf", nameof(FluentUI));
+                FontLoader.Load(fonts, FontLoader.Defaults);
             });
 
 #if DEBUG

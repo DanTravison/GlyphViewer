@@ -81,7 +81,7 @@ public sealed class FontFamilyGroupCollection : ReadOnlyOrderedList<FontFamilyGr
     /// <param name="fontFamily">The <see cref="FontFamily"/> to add.</param>
     public void Add(FontFamily fontFamily)
     {
-        string groupName = fontFamily.Name[0].ToString();
+        string groupName = fontFamily.Name[0].ToString().ToUpper();
         if (!_groupTable.TryGetValue(groupName, out FontFamilyGroup group))
         {
             group = new FontFamilyGroup(groupName);
