@@ -54,7 +54,6 @@
                 <DataTemplate x:DataType="text:FontFamily">
                     <Label Text="{Binding Name}"
                            Style="{StaticResource SelectedNameStyle}"
-                           ToolTipProperties.Text="{Binding Name}"
                            />
                 </DataTemplate>
             </Setter> 
@@ -80,7 +79,6 @@
         <DataTemplate x:DataType="text:FontFamily" x:Key="BookmarkItemTemplate">
             <Label Text="{Binding Name}"
                    Style="{StaticResource BookmarkItemStyle}"
-                   ToolTipProperties.Text="{Binding Name}"
                    />
         </DataTemplate>
 
