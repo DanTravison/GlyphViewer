@@ -23,6 +23,13 @@
                 Value="0" />
     </Style>
 
+    <Style TargetType="controls:Slider"
+           ApplyToDerivedTypes="True">
+        <Setter Property="ThumbColor" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark=WhiteSmoke}"/>
+        <Setter Property="TrackColor" Value="{AppThemeBinding Light={StaticResource Gray600}, Dark=WhiteSmoke}"/>
+        <Setter Property="DisabledColor" Value="{StaticResource Gray200}"/>
+    </Style>
+
     <Style TargetType="Label" x:Key="NameStyle">
         <Setter Property="FontSize" Value="{StaticResource DefaultFontSize}"/>
         <Setter Property="Margin" Value="5, 0, 5, 5"/>
