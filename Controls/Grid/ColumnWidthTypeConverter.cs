@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Controls;
 
+using GlyphViewer.Text;
 using System.ComponentModel;
 using System.Globalization;
 
@@ -153,7 +154,7 @@ public class ColumnWidthTypeConverter : TypeConverter
             //
             // Parse the font family, weight, and attributes
             //
-            string fontFamily = App.DefaultFontFamilyName;
+            string fontFamily = FontFamily.DefaultFontName;
             double fontSize = ColumnWidth.DefaultFontSize;
             FontAttributes fontAttributes = ColumnWidth.DefaultFontAttributes;
 

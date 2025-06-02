@@ -27,13 +27,16 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 </p>
 
 # Status
-* The basically functionality is complete.
+* The basical functionality is complete.
   * The range of Unicode characters is currently limited to 0x0000-0xFFFF.
 * Testing is manual on Windows.
   * Testing on iOS, MacCatalyst, and Android is planned.
 * Testing on Android tablets is in progress.
   * Converting MauiFont to embedded resource was needed to use SkiaSharp on Android
   * See FontFamily, FontLoader and FontResource below.
+  * Currently tracking [issue 3283](https://github.com/mono/SkiaSharp/issues/3283)
+    * SKTypeface.FromFamilyName is falling back to serif and sans-serif on Android for many installed fonts. 
+    * The tool is useful for embedded or file-system files but not for installed fonts.
 * The GlyphsView is still in progress. I'm considering the following enhancements:
   * Display the text code for each glyph in the font's glyph list.
 * Currently tracking [issue 3239](https://github.com/mono/SkiaSharp/issues/3239) in SkiaSharp

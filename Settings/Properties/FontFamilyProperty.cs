@@ -15,10 +15,10 @@ public sealed class FontFamilyProperty : SettingProperty<FontFamily>
     /// </summary>
     /// <param name="defaultValue">The <see cref="NamedValue{FontFamily}.DefaultValue"/>.
     /// <para>
-    /// The default value is <see cref="App.DefaultFontFamily"/>.
+    /// The default value is <see cref="FontFamily.DefaultFontFamily"/>.
     /// </para></param>
     public FontFamilyProperty(FontFamily defaultValue = null)
-        : base(nameof(FontSetting.FontFamily), defaultValue ?? App.DefaultFontFamily, Strings.FamilyNameLabel, Strings.FamilyNameDescription)
+        : base(nameof(FontSetting.FontFamily), defaultValue ?? FontFamily.DefaultFontFamily, Strings.FamilyNameLabel, Strings.FamilyNameDescription)
     {
     }
 
@@ -31,7 +31,7 @@ public sealed class FontFamilyProperty : SettingProperty<FontFamily>
     protected override FontFamily ReadValue(ref Utf8JsonReader reader, JsonSerializerOptions options)
     {
         string familyName = reader.GetString();
-        return new FontFamily(familyName);
+        return FontFamily.CreateInstance(familyName);
     }
 
     /// <summary>

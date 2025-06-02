@@ -115,7 +115,7 @@ public readonly struct ColumnWidth
     public ColumnWidth(string literal, string fontFamily, double fontSize, FontAttributes attributes)
     {
         UnitType = ColumnUnitType.Literal;
-        FontFamily = string.IsNullOrEmpty(fontFamily) ? App.DefaultFontFamilyName : fontFamily;
+        FontFamily = string.IsNullOrEmpty(fontFamily) ? Text.FontFamily.DefaultFontName : fontFamily;
         FontSize = fontSize == 0.0 ? DefaultFontSize : fontSize;
         FontAttributes = attributes;
         Literal = literal;
@@ -257,7 +257,7 @@ public readonly struct ColumnWidth
     const string FontSeparator = ", ";
     void AppendFontInfo(StringBuilder builder)
     {
-        if (string.IsNullOrEmpty(FontFamily) || object.ReferenceEquals(FontFamily, App.DefaultFontFamilyName))
+        if (string.IsNullOrEmpty(FontFamily) || object.ReferenceEquals(FontFamily, Text.FontFamily.DefaultFontName))
         {
             return;
         }

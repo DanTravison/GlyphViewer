@@ -73,13 +73,11 @@
 	<ItemGroup>
 	  <MauiFont Remove="Resources\Fonts\fluentsystemicons-resizable.ttf" />
 	  <MauiFont Remove="Resources\Fonts\opensans-regular.ttf" />
-	  <MauiFont Remove="Resources\Fonts\OpenSans-Semibold.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Fonts\fluentsystemicons-resizable.ttf" />
 	  <EmbeddedResource Include="Resources\Fonts\opensans-regular.ttf" />
-	  <EmbeddedResource Include="Resources\Fonts\opensans-semibold.ttf" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -73,7 +73,7 @@
                              IsChecked="{Binding IsSelected, Mode=TwoWay}"
                              Grid.Column="0"
                             />
-                <Label FontFamily="FluentUI"
+                <Label FontFamily="{StaticResource FluentUIFamily}"
                        Text="{Binding Text}"
                        FontSize="40"
                        Grid.Column="1"/>

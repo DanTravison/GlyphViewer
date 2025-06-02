@@ -3,6 +3,7 @@
 using GlyphViewer.Diagnostics;
 using SkiaSharp;
 using System.Reflection;
+using System.Threading;
 
 /// <summary>
 /// Provides a font description for loading a font stored as an embedded resource.
@@ -17,45 +18,34 @@ public sealed class FontResource
     public const string FontNamespace = "GlyphViewer.Resources.Fonts";
 
     /// <summary>
-    /// Gets the Font Family name for the default font.
+    /// Gets the name/alias for the default font.
     /// </summary>
-    /// <remarks>
-    /// This value mirrors the DefaultFontFamily StaticResource in the XAML resources.
-    /// </remarks>
-    public const string DefaultFamily = "OpenSansRegular";
+    public const string DefaultFontName = "OpenSansRegular";
 
     /// <summary>
-    /// Gets the resource name for the <see cref="DefaultFamily"/>.
+    /// Gets the family name for the default font.
+    /// </summary>
+    public const string DefaultFamilyName = "Open Sans";
+
+    /// <summary>
+    /// Gets the resource name for the default font.
     /// </summary>
     public const string DefaultFamilyResourceName = "opensans-regular.ttf";
 
     /// <summary>
-    /// Gets the Font Family name for the default semi-bold font.
+    /// Gets the name/alias name for the fluent ui font.
     /// </summary>
-    public const string DefaultSemiBoldFamily = "OpenSansSemibold";
+    public const string FluentUIName = nameof(FluentUI);
 
     /// <summary>
-    /// Gets the resource name for the <see cref="DefaultSemiBoldFamily"/>.
+    /// Gets the family name for the fluent ui font.
     /// </summary>
-    public const string DefaultSemiBoldResourceName = "opensans-semibold.ttf";
+    public const string FluentUIFamilyName= "FluentSystemIcons-Resizable";
 
     /// <summary>
-    /// Gets the Font Family name for the default <see cref="FluentUI"/> font.
-    /// </summary>   
-    public const string FluentUIFamily = nameof(FluentUI);
-
-    /// <summary>
-    /// Gets the Font Family name for the default symbol font.
+    /// Gets the resource name for the fluent ui font.
     /// </summary>
-    /// <remarks>
-    /// This value mirrors the DefaultSymbolFontFamily StaticResource in the XAML resources.
-    /// </remarks>
-    public const string DefaultSymbolFamily = nameof(FluentUI);
-
-    /// <summary>
-    /// Gets the resource name for the <see cref="DefaultSymbolFamily"/>.
-    /// </summary>
-    public const string DefaultSymbolResourceName = "fluentsystemicons-resizable.ttf";
+    public const string FluentUIResourceName = "fluentsystemicons-resizable.ttf";
 
     #endregion Constants
 
@@ -64,7 +54,7 @@ public sealed class FontResource
     /// <summary>
     /// Gets the default fonts to load.
     /// </summary>
-    readonly object _lock = new();
+    readonly Lock _lock = new();
     SKTypeface _typeface;
 
     #endregion Fields
@@ -75,35 +65,32 @@ public sealed class FontResource
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="assembly">The <see cref="Assembly"/> containing the embedded font resource.</param>
-    /// <param name="fileName">The embedded resource's file name.</param>
-    /// <param name="alias">The alias to use for the font. </param>
+    /// <param name="resourceName">The embedded resource's file name.</param>
+    /// <param name="alias">The <see cref="Alias"/> to use for the font. </param>
+    /// <param name="familyName">The expected <see cref="FamilyName"/>.</param>
     /// <param name="namespaceName">The namespace where the font is declared.
     /// <para>
     /// The default value is <see cref="FontNamespace"/>.
     /// </para>
     /// </param>
     /// <remarks>This constructor is for fonts marked as EmbeddedResource.</remarks>
-    public FontResource(Assembly assembly, string fileName, string alias, string namespaceName = FontNamespace)
+    public FontResource(Assembly assembly, string resourceName, string alias, string familyName, string namespaceName = FontNamespace)
     {
+        ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(resourceName, nameof(resourceName));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(alias, nameof(alias));
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(familyName, nameof(familyName));
+
         Assembly = assembly;
-        ResourceName = fileName;
+        ResourceName = resourceName;
         Alias = alias;
-        string[] parts = fileName.Split('.');
-        Name = parts.Length > 0 ? parts[0] : fileName;
-        ManifestName = $"{namespaceName}.{fileName}";
+        FamilyName = familyName;
+        ManifestName = $"{namespaceName}.{resourceName}";
     }
 
     #endregion Constructors
 
     #region Properties
-
-    /// <summary>
-    /// Gets the resource name of the embedded resource font.
-    /// </summary>
-    public string ResourceName
-    {
-        get;
-    }
 
     /// <summary>
     /// Gets the alias for the font.
@@ -116,7 +103,7 @@ public sealed class FontResource
     /// <summary>
     /// Gets the font name.
     /// </summary>
-    public string Name
+    public string FamilyName
     {
         get;
     }
@@ -129,13 +116,20 @@ public sealed class FontResource
         get;
     }
 
+    /// <summary>
+    /// Gets the resource name of the embedded resource font.
+    /// </summary>
+    public string ResourceName
+    {
+        get;
+    }
 
     /// <summary>
-    /// Gets the full name of the embedded resource.
+    /// Gets the namespace-qualified <see cref="ResourceName"/> of the embedded resource.
     /// </summary>
     /// <value>
-    /// The full name of the embedded resource.
-    /// </value> 
+    /// The  namespace-qualified <see cref="ResourceName"/> of the embedded resource.
+    /// </value>
     public string ManifestName
     {
         get;
@@ -152,7 +146,7 @@ public sealed class FontResource
             {
                 try
                 {
-                    Trace.Line(TraceFlag.Font, this, nameof(GetTypeface), $"Loading font '{Name}' from embedded resource '{ManifestName}'");
+                    Trace.Line(TraceFlag.Font, this, nameof(GetTypeface), $"Loading font '{FamilyName}' from embedded resource '{ManifestName}'");
                     _typeface = SKTypeface.FromStream(this.Assembly.GetManifestResourceStream(ManifestName));
                 }
                 catch (System.Exception ex)
@@ -161,18 +155,9 @@ public sealed class FontResource
                     _typeface = SKTypeface.Default;
                 }
             }
+            // NOTE: Since SKTypeface.FromStream() does not support SKFontStyle, 
+            // we can cached the SKTypeface instance.
             return _typeface;
-        }
-    }
-
-    /// <summary>
-    /// Gets the <see cref="FontResource"/> for the <see cref="DefaultFamily"/>.
-    /// </summary>
-    public static FontResource Default
-    {
-        get
-        {
-            return FontLoader.DefaultFont;
         }
     }
 

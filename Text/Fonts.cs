@@ -51,16 +51,18 @@ public static class Fonts
         List<FontFamily> families = [];
         foreach (string familyName in SKFontManager.Default.GetFontFamilies())
         {
-            families.Add(new(familyName));
-            table.Add(familyName, new FontFamily(familyName));
+            FontFamily family = FontFamily.CreateInstance(familyName);
+            families.Add(family);
+            table.Add(familyName, family);
         }
         foreach (FontResource resource in FontLoader.EmbeddedFonts)
         {
-            if (!table.ContainsKey(resource.Name))
+            if (!table.ContainsKey(resource.FamilyName))
             {
-                FontFamily family = new(resource.Name);
+                FontFamily family = FontFamily.CreateInstance(resource.FamilyName);
                 families.Add(family);
-                table.Add(resource.Name, family);
+
+                table.Add(resource.FamilyName, family);
             }
         }
         return families;

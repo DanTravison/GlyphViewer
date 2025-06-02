@@ -1,13 +1,8 @@
-﻿#if (false)
-[assembly: ExportFont(FontResource.DefaultFamilyResourceName, Alias = FontResource.DefaultFamily)]
-[assembly: ExportFont(FontResource.DefaultSemiBoldResourceName, Alias = FontResource.DefaultSemiBoldFamily)]
-[assembly: ExportFont(FontResource.DefaultSymbolResourceName, Alias = FontResource.DefaultSymbolFamily)]
-#endif
-
 namespace GlyphViewer.Resources;
 
 using GlyphViewer.Diagnostics;
 using System.Reflection;
+using System.Threading;
 
 /// <summary>
 /// Manages loading fonts.
@@ -16,7 +11,7 @@ public static class FontLoader
 {
     #region Fields
 
-    static readonly object _lock = new();
+    static readonly Lock _lock = new();
     static readonly List<FontResource> _fonts = [];
 
     #endregion Fields
@@ -28,9 +23,20 @@ public static class FontLoader
         Assembly assembly = typeof(FontResource).Assembly;
         List<FontResource> defaults =
         [
-            new (assembly, FontResource.DefaultFamilyResourceName,    FontResource.DefaultFamily),
-            new (assembly, FontResource.DefaultSemiBoldResourceName,  FontResource.DefaultSemiBoldFamily),
-            new (assembly, FontResource.DefaultSymbolResourceName,    FontResource.FluentUIFamily),
+            new
+            (
+                assembly,
+                resourceName:FontResource.DefaultFamilyResourceName,
+                alias:FontResource.DefaultFontName,
+                familyName:FontResource.DefaultFamilyName
+            ),
+            new
+            (
+                assembly,
+                resourceName:FontResource.FluentUIResourceName,
+                alias:FontResource.FluentUIName,
+                familyName:FontResource.FluentUIFamilyName
+            ),
         ];
         Defaults = defaults;
         DefaultFont = defaults[0];
@@ -106,9 +112,9 @@ public static class FontLoader
     /// <summary>
     /// Resolves a <see cref="FontResource"/> by its alias.
     /// </summary>
-    /// <param name="alias">The alias to resolve.</param>
-    /// <returns>The <see cref="FontResource"/>for the <paramref name="alias"/>; otherwise, a null reference.</returns>
-    public static FontResource Resolve(string alias)
+    /// <param name="name">The name to resolve.</param>
+    /// <returns>The <see cref="FontResource"/>for the <paramref name="name"/>; otherwise, a null reference.</returns>
+    public static FontResource Resolve(string name)
     {
         lock (_lock)
         {
@@ -117,12 +123,12 @@ public static class FontLoader
                 FontResource resource = _fonts[i];
                 if
                 (
-                    StringComparer.Ordinal.Compare(alias, resource.Alias) == 0
+                    StringComparer.Ordinal.Compare(name, resource.Alias) == 0
                     ||
-                    StringComparer.Ordinal.Compare(alias, resource.Name) == 0
-                      ||
-                    StringComparer.Ordinal.Compare(alias, resource.ResourceName) == 0
-              )
+                    StringComparer.Ordinal.Compare(name, resource.FamilyName) == 0
+                    ||
+                    StringComparer.Ordinal.Compare(name, resource.ResourceName) == 0
+                )
                 {
                     return resource;
                 }
