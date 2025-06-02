@@ -153,7 +153,7 @@ public class ColumnWidthTypeConverter : TypeConverter
             //
             // Parse the font family, weight, and attributes
             //
-            string fontFamily = App.DefaultFontFamilyName;
+            string fontFamily = Text.FontFamily.DefaultFontFamily.Name;
             double fontSize = ColumnWidth.DefaultFontSize;
             FontAttributes fontAttributes = ColumnWidth.DefaultFontAttributes;
 

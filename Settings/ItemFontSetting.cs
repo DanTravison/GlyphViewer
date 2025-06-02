@@ -59,7 +59,7 @@ public sealed class ItemFontSetting : FontSetting
             nameof(UserSettings.ItemFont),
             Strings.ItemFontName,
             Strings.ItemFontDescription,
-            App.FluentUIFontFamily, // NOTE: This is only used by PageSettings.
+            Text.FontFamily.FluentUIFontFamily, // NOTE: This is only used by PageSettings.
             DefaultFontSize,
             MinimumFontSize,
             MaximumFontSize,

@@ -56,11 +56,11 @@ public static class Fonts
         }
         foreach (FontResource resource in FontLoader.EmbeddedFonts)
         {
-            if (!table.ContainsKey(resource.Name))
+            if (!table.ContainsKey(resource.FamilyName))
             {
-                FontFamily family = new(resource.Name);
+                FontFamily family = new(resource.FamilyName);
                 families.Add(family);
-                table.Add(resource.Name, family);
+                table.Add(resource.FamilyName, family);
             }
         }
         return families;

@@ -10,21 +10,6 @@ using System.Runtime.Versioning;
 
 public partial class App : Application
 {
-    /// <summary>
-    /// Gets the family name for the default font.
-    /// </summary>
-    public const string DefaultFontFamilyName = "OpenSansRegular";
-
-    /// <summary>
-    /// Gets the default <see cref="FontFamily"/>
-    /// </summary>
-    public static readonly FontFamily DefaultFontFamily = new FontFamily(DefaultFontFamilyName);
-
-    /// <summary>
-    /// Gets the <see cref="FontFamily"/> for the <see cref="FluentUI"/> font.
-    /// </summary>
-    public static readonly FontFamily FluentUIFontFamily = new FontFamily(nameof(FluentUI));
-
     readonly MainViewModel _model;
 
     public App()

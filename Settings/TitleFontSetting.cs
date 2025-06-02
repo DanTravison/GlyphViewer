@@ -25,11 +25,6 @@ public class TitleFontSetting : FontSetting
     public const double DefaultFontSize = 32;
 
     /// <summary>
-    /// Define the default font family name.
-    /// </summary>
-    public static readonly FontFamily DefaultFontFamily = App.DefaultFontFamily;
-
-    /// <summary>
     /// Define the default <see cref="Microsoft.Maui.Controls.FontAttributes"/>.
     /// </summary>
     public const FontAttr DefaultFontAttributes = FontAttr.Bold | FontAttr.Italic;
@@ -45,12 +40,11 @@ public class TitleFontSetting : FontSetting
             nameof(UserSettings.TitleFont),
             Strings.TitleFontLabel,
             Strings.TitleFontDescription,
-            DefaultFontFamily,
+            Text.FontFamily.DefaultFontFamily,
             DefaultFontSize,
             MinimumFontSize,
             MaximumFontSize,
-            DefaultFontAttributes
-        )
+            DefaultFontAttributes)
     {
     }
 }

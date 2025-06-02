@@ -12,7 +12,7 @@
         <Style TargetType="Button" x:Key="JumpListCloseButtonStyle">
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
             <Setter Property="BackgroundColor" Value="Transparent"/>
-            <Setter Property="FontFamily" Value="FluentUI"/>
+            <Setter Property="FontFamily" Value="{StaticResource FluentUIFontFamily}"/>
             <Setter Property="FontSize" Value="30"/>
             <Setter Property="FontAttributes" Value="Bold"/>
             <Setter Property="Text" Value="{x:Static res:FluentUI.DismissCircle}"/>
