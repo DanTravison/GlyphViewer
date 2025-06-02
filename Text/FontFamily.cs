@@ -30,26 +30,58 @@ public class FontFamily : IEquatable<FontFamily>
     /// </summary>
     public static IComparer<FontFamily> Comparer => FontFamilyComparer.Default;
 
+    static readonly Dictionary<string, FontFamily> _fontFamilies = new(StringComparer.OrdinalIgnoreCase);
+    static readonly Lock _lock = new();
+
     #endregion Fields
+
+    #region Constants
+
+    /// <summary>
+    /// Gets the name for the default font.
+    /// </summary>
+    public const string DefaultFontName = FontResource.DefaultFontName;
+
+    /// <summary>
+    /// Gets the default <see cref="FontFamily"/>
+    /// </summary>
+    public static readonly FontFamily DefaultFontFamily;
+
+    /// <summary>
+    /// Gets the <see cref="FontFamily"/> for the <see cref="FluentUI"/> font.
+    /// </summary>
+    public static readonly FontFamily FluentUIFontFamily;
+
+    #endregion Constants
+
+    #region Constructors
+
+    static FontFamily()
+    {
+        _fontFamilies = new(StringComparer.OrdinalIgnoreCase);
+
+        DefaultFontFamily = FontFamily.CreateInstance(FontResource.DefaultFontName);
+        FluentUIFontFamily = CreateInstance(FontResource.FluentUIName);
+    }
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The font family name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is a null reference,
-    /// empty string, or only contains whitespace.
-    /// </exception>
-    public FontFamily(string name)
+    protected FontFamily(string name)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
         Name = name;
     }
+
+    #endregion Constructors
+
+    #region Properties
 
     /// <summary>
     /// Gets the name of the font.
     /// </summary>
     /// <value>
-    /// The font family name for installed fonts; otherwise, the 
+    /// The font family name for installed fonts; otherwise, the
     /// file name for a font loaded from the file system.
     /// </value>
     public string Name
@@ -57,10 +89,12 @@ public class FontFamily : IEquatable<FontFamily>
         get;
     }
 
-    #region Methods
+    #endregion Properties
+
+    #region CreateFont
 
     /// <summary>
-    /// Creates an <see cref="SKFont"/>. 
+    /// Creates an <see cref="SKFont"/>.
     /// </summary>
     /// <param name="fontSize">The font size in points.</param>
     /// <param name="attributes">The <see cref="FontAttributes"/>.
@@ -91,6 +125,10 @@ public class FontFamily : IEquatable<FontFamily>
         return null;
     }
 
+    #endregion CreateFont
+
+    #region GetTypeface
+
     /// <summary>
     /// Gets the <see cref="SKTypeface"/> for the <see cref="Name"/>
     /// </summary>
@@ -99,7 +137,7 @@ public class FontFamily : IEquatable<FontFamily>
     /// reference.
     /// </returns>
     /// <remarks>
-    /// A null reference can be returned if the font family was not found 
+    /// A null reference can be returned if the font family was not found
     /// or could not be loaded.
     /// <para>
     /// NOTE: Fonts loaded from embedded resources or the local file system do not support <see cref="SKFontStyle"/>.
@@ -110,13 +148,89 @@ public class FontFamily : IEquatable<FontFamily>
     /// </remarks>
     public virtual SKTypeface GetTypeface(SKFontStyle style)
     {
-        SKTypeface typeface = SKTypeface.FromFamilyName(Name, style);
-        if (typeface is null && FontLoader.Resolve(Name) is FontResource resource)
+        // Determine if the caller is requesting a a custom font (embedded resource or local file system font).
+        FontResource resource = FontLoader.Resolve(Name);
+
+        // First try to load the system installed font.  We prefer the system installed font since
+        // it allows us to apply SKFontStyle.
+        SKTypeface typeface = SKTypeface.FromFamilyName
+        (
+            resource is null ? Name : resource.FamilyName,
+            style
+        );
+        // If the request is not for a custom font...
+        if (resource is null)
         {
+            if (typeface.FamilyName != Name)
+            {
+                // we got a fallback font.
+                Trace.Warning(TraceFlag.Font, this, nameof(GetTypeface), "Font '{0}' not found. Using fallback font '{1}'", Name, typeface.FamilyName);
+            }
+        }
+        // Determine if the returned font is the desired font.
+        else if (typeface is null || resource.FamilyName != typeface.FamilyName)
+        {
+            // Either the desired font was not found or we got a fallback font.
+            // Load the custom font.
             typeface = resource.GetTypeface();
         }
+
+        // if all else, use the default typeface.
+        typeface = typeface ?? SKTypeface.Default;
+
+        Trace.Line(TraceFlag.Font, this, nameof(GetTypeface), "Resolved '{0}' to '{1}'", Name, typeface?.FamilyName);
         return typeface;
     }
+
+    /// <summary>
+    /// Gets the <see cref="SKTypeface"/> for the <see cref="Name"/>
+    /// </summary>
+    /// <param name="attributes">The <see cref="FontAttributes"/> to apply.
+    /// <para>
+    /// This parameter is ignored if the font is loaded from an embedded resource or the local file system.
+    /// </para>
+    /// </param>
+    /// <returns>
+    /// An <see cref="SKTypeface"/> for the font; otherwise,
+    /// <see cref="SKTypeface.Default"/> if the font was not found.
+    /// </returns>
+    public SKTypeface GetTypeface(FontAttributes attributes)
+    {
+        return GetTypeface(attributes.ToFontStyle());
+    }
+
+    #endregion GetTypeface
+
+    #region CreateInstance
+
+    /// <summary>
+    /// Creates a new instance of the <see cref="FontFamily"/>.
+    /// </summary>
+    /// <param name="name">The <see cref="FontFamily.Name"/>.</param>
+    /// <returns>The <see cref="FontFamily"/> for the specified <paramref name="name"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> is a null reference,
+    /// -or-
+    /// an empty string,
+    /// -or-
+    /// contains only whitespace characters.
+    /// </exception>
+    public static FontFamily CreateInstance(string name)
+    {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
+        lock (_lock)
+        {
+            if (!_fontFamilies.TryGetValue(name, out FontFamily fontFamily))
+            {
+                fontFamily = new FontFamily(name);
+                _fontFamilies.Add(name, fontFamily);
+            }
+            return fontFamily;
+        }
+    }
+
+    #endregion CreateInstance
+
+    #region Equality
 
     /// <summary>
     /// Gets the string representation
@@ -126,10 +240,6 @@ public class FontFamily : IEquatable<FontFamily>
     {
         return Name;
     }
-
-    #endregion Methods
-
-    #region Equality
 
     /// <summary>
     /// Determines if the specified <paramref name="obj"/> is equal to this struct.
