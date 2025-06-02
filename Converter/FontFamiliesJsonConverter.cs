@@ -69,7 +69,7 @@ internal class FontFamiliesJsonConverter : JsonConverter<List<FontFamily>>
             }
             else
             {
-                families.Add(FontFamily.CreateInstance(value));
+                families.Add(new FontFamily(value));
             }
         }
         return families;

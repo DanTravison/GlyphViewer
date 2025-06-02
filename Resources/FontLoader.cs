@@ -1,6 +1,7 @@
 ﻿#if (false)
-[assembly: ExportFont(FontResource.DefaultFont.ResourceName, Alias = FontResource.DefaultFont.Alias)]
-[assembly: ExportFont(FontResource.DefaultSymbolFont.ResourceName, Alias = FontResource.DefaultSymbolFont.Alias)]
+[assembly: ExportFont(FontResource.DefaultFamilyResourceName, Alias = FontResource.DefaultFamily)]
+[assembly: ExportFont(FontResource.DefaultSemiBoldResourceName, Alias = FontResource.DefaultSemiBoldFamily)]
+[assembly: ExportFont(FontResource.DefaultSymbolResourceName, Alias = FontResource.DefaultSymbolFamily)]
 #endif
 
 namespace GlyphViewer.Resources;
@@ -27,8 +28,9 @@ public static class FontLoader
         Assembly assembly = typeof(FontResource).Assembly;
         List<FontResource> defaults =
         [
-            FontResource.DefaultFont,
-            FontResource.FluentUIFont
+            new (assembly, FontResource.DefaultFamilyResourceName,    FontResource.DefaultFamily),
+            new (assembly, FontResource.DefaultSemiBoldResourceName,  FontResource.DefaultSemiBoldFamily),
+            new (assembly, FontResource.DefaultSymbolResourceName,    FontResource.FluentUIFamily),
         ];
         Defaults = defaults;
         DefaultFont = defaults[0];
@@ -71,22 +73,14 @@ public static class FontLoader
     /// </summary>
     /// <param name="fonts">The <see cref="IFontCollection"/> to populate.</param>
     /// <param name="fontResource">An <see cref="FontResource"/> to load.</param>
-    public static IFontCollection Load(IFontCollection fonts, FontResource fontResource)
+    public static void Load(IFontCollection fonts, FontResource fontResource)
     {
-        Trace.Line(TraceFlag.Font, typeof(FontLoader), nameof(Load), "Adding '{0}' from '{1}' to Maui", fontResource.Alias, fontResource.ManifestName);
-
-        fonts = fonts.AddEmbeddedResourceFont
-        (
-            fontResource.Assembly, 
-            fontResource.ResourceName, 
-            fontResource.Alias
-        );
-
         lock (_lock)
         {
+            Trace.Line(TraceFlag.Font, typeof(FontLoader), nameof(Load), "Adding '{0}' from '{1}' to Maui", fontResource.Alias, fontResource.ManifestName);
+            fonts = fonts.AddEmbeddedResourceFont(fontResource.Assembly, fontResource.ResourceName, fontResource.Alias);
             _fonts.Add(fontResource);
         }
-        return fonts;
     }
 
     /// <summary>
@@ -96,9 +90,12 @@ public static class FontLoader
     /// <param name="fontResources">An <see cref="IEnumerable{FontResource}"/> for iterating the fonts to load.</param>
     public static void Load(IFontCollection fonts, IEnumerable<FontResource> fontResources)
     {
-        foreach (FontResource desc in fontResources)
+        lock (_lock)
         {
-            fonts = Load(fonts, desc);
+            foreach (FontResource desc in fontResources)
+            {
+                Load(fonts, desc);
+            }
         }
     }
 
@@ -109,9 +106,9 @@ public static class FontLoader
     /// <summary>
     /// Resolves a <see cref="FontResource"/> by its alias.
     /// </summary>
-    /// <param name="name">The name to resolve.</param>
-    /// <returns>The <see cref="FontResource"/>for the <paramref name="name"/>; otherwise, a null reference.</returns>
-    public static FontResource Resolve(string name)
+    /// <param name="alias">The alias to resolve.</param>
+    /// <returns>The <see cref="FontResource"/>for the <paramref name="alias"/>; otherwise, a null reference.</returns>
+    public static FontResource Resolve(string alias)
     {
         lock (_lock)
         {
@@ -120,12 +117,12 @@ public static class FontLoader
                 FontResource resource = _fonts[i];
                 if
                 (
-                    StringComparer.Ordinal.Compare(name, resource.Alias) == 0
+                    StringComparer.Ordinal.Compare(alias, resource.Alias) == 0
                     ||
-                    StringComparer.Ordinal.Compare(name, resource.FamilyName) == 0
-                    ||
-                    StringComparer.Ordinal.Compare(name, resource.ResourceName) == 0
-                )
+                    StringComparer.Ordinal.Compare(alias, resource.Name) == 0
+                      ||
+                    StringComparer.Ordinal.Compare(alias, resource.ResourceName) == 0
+              )
                 {
                     return resource;
                 }

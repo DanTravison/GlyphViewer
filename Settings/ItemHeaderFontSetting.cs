@@ -30,7 +30,7 @@ public sealed class ItemHeaderFontSetting : FontSetting
     /// <summary>
     /// Define the default font family name.
     /// </summary>
-    public static readonly FontFamily DefaultFontFamily = Text.FontFamily.DefaultFontFamily;
+    public static readonly FontFamily DefaultFontFamily = App.DefaultFontFamily;
 
     /// <summary>
     /// Define the default <see cref="Microsoft.Maui.Controls.FontAttributes"/>.
@@ -55,7 +55,7 @@ public sealed class ItemHeaderFontSetting : FontSetting
         nameof(UserSettings.ItemHeaderFont),
         Strings.ItemHeaderFontLabel,
         Strings.ItemHeaderFontDescription,
-        Text.FontFamily.DefaultFontFamily,
+        DefaultFontFamily,
         DefaultFontSize,
         MinimumFontSize,
         MaximumFontSize,

@@ -1,6 +1,5 @@
 ﻿namespace GlyphViewer.Controls;
 
-using GlyphViewer.Resources;
 using GlyphViewer.Text;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
@@ -13,6 +12,7 @@ internal class SkLabel : SKCanvasView
     static readonly Color DefaultTextColor = Colors.Black;
     const double DefaultFontSize = 12;
     const double MinimumFontSize = 6;
+    static readonly FontFamily DefaultFontFamily = App.DefaultFontFamily;
 
     const FontAttributes DefaultFontAttributes = FontAttributes.None;
 
@@ -133,13 +133,13 @@ internal class SkLabel : SKCanvasView
         nameof(FontFamily),
         typeof(FontFamily),
         typeof(SkLabel),
-        FontFamily.DefaultFontFamily,
+        App.DefaultFontFamily,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
             if (value is not FontFamily fontFamily)
             {
-                value = FontResource.DefaultFont.FamilyName;
+                value = DefaultFontFamily;
             }
             return value;
         },

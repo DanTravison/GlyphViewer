@@ -465,6 +465,7 @@ public sealed class GlyphsView : SKCanvasView
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
+
             if (value is not FontFamily)
             {
                 return ItemHeaderFontSetting.DefaultFontFamily;

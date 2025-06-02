@@ -4,6 +4,7 @@ using GlyphViewer.Diagnostics;
 using GlyphViewer.Resources;
 using SkiaSharp;
 
+
 /// <summary>
 /// Provides an encapsulation of a font family.
 /// </summary>
@@ -23,9 +24,6 @@ public class FontFamily : IEquatable<FontFamily>
     }
 
     #region Fields
-
-    static readonly Dictionary<string, FontFamily> _fontFamilies = new(StringComparer.OrdinalIgnoreCase);
-    static readonly Lock _lock = new();
 
     /// <summary>
     /// Gets a <see cref="IComparer{FontFamily}"/> for comparing <see cref="FontFamily"/> instances.
@@ -57,22 +55,6 @@ public class FontFamily : IEquatable<FontFamily>
     public string Name
     {
         get;
-    }
-
-    /// <summary>
-    /// Gets the default <see cref="FontFamily"/>
-    /// </summary>
-    public static FontFamily DefaultFontFamily
-    {
-        get => CreateInstance(FontResource.DefaultFamilyName);
-    }
-
-    /// <summary>
-    /// Gets the <see cref="FontFamily"/> for the <see cref="FluentUI"/> font.
-    /// </summary>
-    public static FontFamily FluentUIFontFamily
-    {
-        get => CreateInstance(FontResource.FluentUIFamilyName);
     }
 
     #region Methods
@@ -188,29 +170,4 @@ public class FontFamily : IEquatable<FontFamily>
     }
 
     #endregion Equality
-
-    /// <summary>
-    /// Creates a new instance of the <see cref="FontFamily"/>.
-    /// </summary>
-    /// <param name="name">The <see cref="FontFamily.Name"/>.</param>
-    /// <returns>The <see cref="FontFamily"/> for the specified <paramref name="name"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is a null reference,
-    /// -or-
-    /// an empty string, 
-    /// -or-
-    /// contains only whitespace characters.
-    /// </exception>
-    public static FontFamily CreateInstance(string name)
-    {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(name, nameof(name));
-        lock (_lock)
-        {
-            if (!_fontFamilies.TryGetValue(name, out FontFamily fontFamily))
-            {
-                fontFamily = new FontFamily(name);
-                _fontFamilies.Add(name, fontFamily);
-            }
-            return fontFamily;
-        }
-    }
 }
