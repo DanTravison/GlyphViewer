@@ -52,8 +52,13 @@
             </Setter>
             <Setter Property="ItemTemplate">
                 <DataTemplate x:DataType="text:FontFamily">
+                    <!-- Tracking issue https://github.com/dotnet/maui/issues/18700
+                         [Windows] CollectionView GroupHeader doesn't fill space horizontaly
+                         Placing the label in a grid doesn't work either.
+                    -->
                     <Label Text="{Binding Name}"
                            Style="{StaticResource SelectedNameStyle}"
+                           HorizontalOptions="Fill"
                            />
                 </DataTemplate>
             </Setter> 
@@ -117,6 +122,9 @@
                            ItemTemplate="{StaticResource JumpListItemTemplate}"
                            />
 
+        <!-- Tracking issue https://github.com/dotnet/maui/issues/18700
+             [Windows] CollectionView GroupHeader doesn't fill space horizontaly
+        -->
         <CollectionView x:Name="Families"
                         Grid.Row="2"
                         Grid.RowSpan="2"

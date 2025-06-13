@@ -47,6 +47,8 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
   * [Bookmarks](https://github.com/DanTravison/GlyphViewer/blob/main/Settings/Bookmarks.cs) is using a temporary workaround based on ReadOnlyCollection\<T\>.
 * Currently tracking [issue 29484](https://github.com/dotnet/maui/issues/29484)
   * CollectionView Selected state does not work on the selected item when combined with PointerOver.
+* Currently tracking [issue 18700](https://github.com/dotnet/maui/issues/18700)
+  * [Windows] CollectionView GroupHeader doesn't fill space horizontaly
 * Currently tracking [issue 19639](https://github.com/dotnet/maui/issues/19639)
   * On android, collectionview items cannot be selected.
   * No resolution is expected.
