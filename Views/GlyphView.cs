@@ -300,10 +300,6 @@ public class GlyphView : SKCanvasView
         // to the desired height when the glyph is empty or the glyph height < desired height
         if (heightRequest != HeightRequest)
         {
-            // Address GlyphView does not size correctly when glyph's height exceeds the height of the glyph view.
-            // https://github.com/DanTravison/GlyphViewer/issues/23
-            // See https://github.com/mono/SkiaSharp/issues/3239
-            HeightRequest = heightRequest;
             InvalidateMeasure();
         }
         InvalidateSurface();
