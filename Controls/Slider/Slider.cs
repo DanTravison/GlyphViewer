@@ -158,6 +158,7 @@ public sealed class Slider : SKCanvasView
         typeof(double),
         typeof(Slider),
         0.0,
+        BindingMode.TwoWay,
         coerceValue: (bindableObject, newValue) =>
         {
             if (bindableObject is Slider slider)
@@ -271,18 +272,10 @@ public sealed class Slider : SKCanvasView
         {
             if (bindableObject is Slider slider)
             {
-                slider.OnMinimumChanged((double)newValue);
+                slider.OnRangeChanged();
             }
         }
     );
-
-    void OnMinimumChanged(double minimum)
-    {
-        if (Value < minimum)
-        {
-            Value = minimum;
-        }
-    }
 
     #endregion Minimum
 
@@ -327,16 +320,21 @@ public sealed class Slider : SKCanvasView
         {
             if (bindableObject is Slider slider)
             {
-                slider.OnMaximumChanged((double)newValue);
+                slider.OnRangeChanged();
             }
         }
     );
 
-    void OnMaximumChanged(double maximum)
+    void OnRangeChanged()
     {
-        if (Value > maximum)
+        double value = Math.Clamp(Value, Minimum, Maximum);
+        if (value != Value)
         {
-            Value = maximum;
+            Value = value;
+        }
+        else
+        {
+            InvalidateSurface();
         }
     }
 

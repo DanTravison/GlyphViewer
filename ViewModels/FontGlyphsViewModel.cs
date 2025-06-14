@@ -105,6 +105,7 @@ internal sealed class FontGlyphsViewModel : ObservableObject
             if (SetProperty(ref _rows, value, RowsChangedEventArgs))
             {
                 OnPropertyChanged(MaxRowChangedEventArgs);
+                Row = 0;
             }
         }
     }

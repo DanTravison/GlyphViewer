@@ -163,6 +163,7 @@ public sealed class GlyphsView : SKCanvasView
             if (bindable is GlyphsView view)
             {
                 view._renderer.Content = newValue as GlyphCollection;
+                view.InvalidateSurface();
             }
         }
     );

@@ -71,7 +71,7 @@
                          Minimum="0"
                          Maximum="{Binding MaxRow, Mode=OneWay}"
                          Interval="1"
-                         Value="{Binding Row, Mode=TwoWay}"
+                         Value="{Binding Row}"
                          Orientation="Vertical"
                          />
     </Grid>
