@@ -62,14 +62,6 @@ internal class SkLabel : SKCanvasView
 
     void InvalidateText()
     {
-        // Workaround for SkLabel does not resize after the first call to InvalidateMeasure
-        // https://github.com/DanTravison/GlyphViewer/issues/25
-        // See https://github.com/mono/SkiaSharp/issues/3239
-        // NOTE: Unless HeightRequest is explicitly cleared, MeasureOverride does not get called
-        // after the first successful attempt to resize the control.
-        // Additionally, MeasureOverride must explicitly set HeightRequest.
-        HeightRequest = -1;
-
         _needsMetrics = true;
         InvalidateMeasure();
         InvalidateSurface();
@@ -343,13 +335,6 @@ internal class SkLabel : SKCanvasView
 
         float width = (float)Padding.HorizontalThickness + _metrics.TextWidth;
         float height = (float)Padding.VerticalThickness + _metrics.Size.Height;
-
-        // Workaround for SkLabel does not resize after the first call to InvalidateMeasure
-        // https://github.com/DanTravison/GlyphViewer/issues/25
-        // See https://github.com/mono/SkiaSharp/issues/3239
-        // NOTE: Must explicitly set HeightRequest here as well as in InvalidateText
-        HeightRequest = height;
-
         return new Size(width, height);
     }
 
