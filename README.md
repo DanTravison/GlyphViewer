@@ -40,8 +40,7 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 * The GlyphsView is still in progress. I'm considering the following enhancements:
   * Display the text code for each glyph in the font's glyph list.
 * Currently tracking [issue 3239](https://github.com/mono/SkiaSharp/issues/3239) in SkiaSharp
-  * There is a workaround in the [GLyphView](https://github.com/DanTravison/GlyphViewer/issues/23)
-  * There is another workaround in [SkLabel](https://github.com/DanTravison/GlyphViewer/issues/25)
+  * There is a workaround in Controls\CanvasViewHandler
 * Currently tracking [issue 29284](https://github.com/dotnet/maui/issues/29284)
   * CollectionView should support CollectionChanged events on a custom collection class
   * [Bookmarks](https://github.com/DanTravison/GlyphViewer/blob/main/Settings/Bookmarks.cs) is using a temporary workaround based on ReadOnlyCollection\<T\>.
