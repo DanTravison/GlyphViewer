@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 #endif
 using SkiaSharp.Views.Maui.Controls.Hosting;
 using GlyphViewer.Diagnostics;
+using GlyphViewer.Controls;
 
 public static class MauiProgram
 {
@@ -22,6 +23,9 @@ public static class MauiProgram
             .UseMauiApp<App>()
             .UseSkiaSharp()
             .UseMauiCommunityToolkit()
+            // Workaround for Issue 18700 https://github.com/mono/SkiaSharp/issues/3239
+            // [BUG] InvalidateMeasure doesn't call MeasureOverride after the first call.
+            .UseCanvasView()
             .ConfigureFonts(fonts =>
             {
                 FontLoader.Load(fonts, FontLoader.Defaults);
