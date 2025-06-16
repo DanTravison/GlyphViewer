@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:GlyphViewer.Controls"
+             xmlns:text="clr-namespace:GlyphViewer.Text"
+             x:Class="GlyphViewer.Controls.SliderView"
+             >
+
+    <ContentView.Resources>
+        <Style TargetType="Button" x:Key="SliderButtonStyle"
+               BasedOn="{StaticResource GlyphButtonStyle}">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontSize" Value="40"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinimumHeightRequest" Value="20"/>
+            <Setter Property="MinimumWidthRequest" Value="20"/>
+        </Style>
+    </ContentView.Resources>
+
+    <controls:Toolbar x:DataType="controls:SliderView"
+                      BindingContext="{Binding Source={RelativeSource AncestorType={x:Type controls:SliderView}}, x:DataType=controls:SliderView, Path=Context}" 
+                      Orientation="{Binding Orientation}"
+                      ItemSpacing="2">
+
+        <Button x:Name="PreviousButton"
+                x:DataType="controls:SliderView"
+                Style="{StaticResource SliderButtonStyle}"
+                Command="{Binding PreviousCommand}"
+                controls:Toolbar.Alignment="Start"
+                />
+
+        <controls:Slider x:Name="Slider" 
+                         x:DataType="controls:SliderView"
+                         Value="{Binding Value, Mode=TwoWay}"
+                         Minimum="{Binding Minimum}"
+                         Maximum="{Binding Maximum}"
+                         Interval="{Binding Interval}"
+                         IsEnabled="{Binding IsEnabled}"
+                         Orientation="{Binding Orientation}"
+                         controls:Toolbar.Alignment="CenterFill"
+                         />
+
+        <Button x:Name="NextButton"
+                x:DataType="controls:SliderView"
+                Style="{StaticResource SliderButtonStyle}"
+                Command="{Binding NextCommand}"
+                controls:Toolbar.Alignment="End"
+                />
+        
+    </controls:Toolbar>
+</ContentView>

@@ -78,7 +78,7 @@ public sealed class Slider : SKCanvasView
         {
             InvalidateSurface();
         }
-        base.OnPropertyChanging(propertyName);
+        base.OnPropertyChanged(propertyName);
     }
 
     /// <summary>
@@ -164,16 +164,7 @@ public sealed class Slider : SKCanvasView
             if (bindableObject is Slider slider)
             {
                 double value = SliderDrawable.Round((double)newValue, slider.Interval);
-
-                if (value < slider.Minimum + slider.Interval)
-                {
-                    value = slider.Minimum;
-                }
-                else if (value > slider.Maximum - slider.Interval)
-                {
-                    value = slider.Maximum;
-                }
-                return value;
+                newValue = Math.Clamp(value, slider.Minimum, slider.Maximum);
             }
             return newValue;
         },

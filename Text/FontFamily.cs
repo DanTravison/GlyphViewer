@@ -45,12 +45,12 @@ public class FontFamily : IEquatable<FontFamily>
     /// <summary>
     /// Gets the default <see cref="FontFamily"/>
     /// </summary>
-    public static readonly FontFamily DefaultFontFamily;
+    public static readonly FontFamily Default;
 
     /// <summary>
     /// Gets the <see cref="FontFamily"/> for the <see cref="FluentUI"/> font.
     /// </summary>
-    public static readonly FontFamily FluentUIFontFamily;
+    public static readonly FontFamily FluentUI;
 
     #endregion Constants
 
@@ -60,8 +60,8 @@ public class FontFamily : IEquatable<FontFamily>
     {
         _fontFamilies = new(StringComparer.OrdinalIgnoreCase);
 
-        DefaultFontFamily = FontFamily.CreateInstance(FontResource.DefaultFontName);
-        FluentUIFontFamily = CreateInstance(FontResource.FluentUIName);
+        Default = CreateInstance(FontResource.DefaultFontName);
+        FluentUI = CreateInstance(FontResource.FluentUIName);
     }
 
     /// <summary>

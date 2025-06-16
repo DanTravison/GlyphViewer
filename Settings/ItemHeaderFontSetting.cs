@@ -30,7 +30,7 @@ public sealed class ItemHeaderFontSetting : FontSetting
     /// <summary>
     /// Define the default font family name.
     /// </summary>
-    public static readonly FontFamily DefaultFontFamily = Text.FontFamily.DefaultFontFamily;
+    public static readonly FontFamily DefaultFontFamily = Text.FontFamily.Default;
 
     /// <summary>
     /// Define the default <see cref="Microsoft.Maui.Controls.FontAttributes"/>.

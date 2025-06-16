@@ -112,6 +112,9 @@
 	  <MauiXaml Update="Controls\JumpList.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Controls\SliderView\SliderView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\FileFontsView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

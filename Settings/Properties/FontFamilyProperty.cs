@@ -15,10 +15,10 @@ public sealed class FontFamilyProperty : SettingProperty<FontFamily>
     /// </summary>
     /// <param name="defaultValue">The <see cref="NamedValue{FontFamily}.DefaultValue"/>.
     /// <para>
-    /// The default value is <see cref="FontFamily.DefaultFontFamily"/>.
+    /// The default value is <see cref="FontFamily.Default"/>.
     /// </para></param>
     public FontFamilyProperty(FontFamily defaultValue = null)
-        : base(nameof(FontSetting.FontFamily), defaultValue ?? FontFamily.DefaultFontFamily, Strings.FamilyNameLabel, Strings.FamilyNameDescription)
+        : base(nameof(FontSetting.FontFamily), defaultValue ?? FontFamily.Default, Strings.FamilyNameLabel, Strings.FamilyNameDescription)
     {
     }
 
