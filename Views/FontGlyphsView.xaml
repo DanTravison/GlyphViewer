@@ -66,14 +66,15 @@
                               />
         </Grid>
 
-        <controls:Slider Grid.Row="0" 
-                         Grid.Column="1"
-                         Minimum="0"
-                         Maximum="{Binding MaxRow, Mode=OneWay}"
-                         Interval="1"
-                         Value="{Binding Row}"
-                         Orientation="Vertical"
-                         />
+        <controls:SliderView Grid.Row="0" 
+                             Grid.Column="1"
+                             Minimum="0" 
+                             Maximum="{Binding MaxRow}"
+                             Interval="1"
+                             Value="{Binding Row}"
+                             Orientation="Vertical"                           
+                             />
+
     </Grid>
 
 
