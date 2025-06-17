@@ -123,11 +123,13 @@
                            />
 
         <!-- Tracking issue https://github.com/dotnet/maui/issues/18700
-             [Windows] CollectionView GroupHeader doesn't fill space horizontaly
+             [Windows] CollectionView GroupHeader doesn't fill space horizontally
+             WidthRequest is a workaround to ensure the header fills the space.
         -->
         <CollectionView x:Name="Families"
                         Grid.Row="2"
                         Grid.RowSpan="2"
+                        WidthRequest="{Binding FontFamilyGroups.SuggestedWidth}"
                         Style="{StaticResource GroupStyle}"
                         ItemsSource="{Binding FontFamilyGroups, Mode=OneWay}"
                         SelectedItem="{Binding Metrics.FontFamily, Mode=TwoWay}"
