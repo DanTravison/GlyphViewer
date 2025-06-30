@@ -241,6 +241,9 @@ This is used to scroll the GlyphsView content versus scrolling a large SKCanvasV
 Provide a control template for a jump list.
 This is used to select a font family group in the FontFamiliesView and a unicode range in GlyphsView. 
 
+## Controls\SliderView
+A ContentView that encapsulates a Slider with thumbs to increase and descrease the value by the interval. 
+
 ## Converters
 * JsonConverter - an abstract base class for a JsonConverter
   * Provides basic argument validation
