@@ -300,8 +300,12 @@ public class GlyphView : SKCanvasView
         // to the desired height when the glyph is empty or the glyph height < desired height
         if (heightRequest != HeightRequest)
         {
+            // NOTE: CanvasViewHandler workaround does not work for this case.
+            // Set HeightRequest to a call to MeasureOverride to ensure the canvas is resized correctly.
+            HeightRequest = heightRequest;
             InvalidateMeasure();
         }
+        // TODO: Handle TextWidth > GlyphWidth
         InvalidateSurface();
     }
 

@@ -71,6 +71,15 @@ public sealed class FontFamilyGroupCollection : ReadOnlyOrderedList<FontFamilyGr
         get;
     }
 
+    /// <summary>
+    /// Get the measured width, in pixels, of longest font family name.
+    /// </summary>
+    public double SuggestedWidth
+    {
+        get;
+        private set;
+    }
+
     #endregion Properties
 
     #region Add/Remove
@@ -146,6 +155,7 @@ public sealed class FontFamilyGroupCollection : ReadOnlyOrderedList<FontFamilyGr
         Bookmarks bookmarks = settings.Bookmarks;
         FileFonts files = settings.Fonts;
         FontFamilyGroupCollection groups = new FontFamilyGroupCollection(bookmarks, files);
+        string longestName = string.Empty;
 
         List<FontFamily> families = Fonts.GetFontFamilies();
 
@@ -163,6 +173,10 @@ public sealed class FontFamilyGroupCollection : ReadOnlyOrderedList<FontFamilyGr
                 availableBookmarks.Add(fontFamily);
             }
             groups.Add(fontFamily);
+            if (fontFamily.Name.Length >  longestName.Length)
+            {
+                longestName = fontFamily.Name;
+            }
         }
 
         foreach (FileFontFamily file in files)
@@ -175,9 +189,20 @@ public sealed class FontFamilyGroupCollection : ReadOnlyOrderedList<FontFamilyGr
         }
 
         availableBookmarks.Sort(FontFamily.Comparer);
+
         // Update the bookmarks with the available font families.
         bookmarks.Update(availableBookmarks, true);
 
+        // Workaround for https://github.com/dotnet/maui/issues/18700
+        // [Windows] CollectionView GroupHeader doesn't fill space horizontally
+        // SuggestedWidth is a workaround to ensure the header fills the space.
+        groups.SuggestedWidth = (double)TextUtilities.TextWidth
+        (
+            longestName + "WWWWW",
+            FontFamily.Default.Name,
+            FontAttributes.Bold,
+            14 // TODO: Read DefaultFontSize from Styles.xaml
+        );
         return groups;
     }
 

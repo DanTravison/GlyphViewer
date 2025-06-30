@@ -13,7 +13,7 @@ public class SKTextMetrics : IEquatable<SKTextMetrics>
     public static readonly SKTextMetrics EmptyInstance = new();
 
     /// <summary>
-    /// Initialies an empty instance of this class.
+    /// Initializes an empty instance of this class.
     /// </summary>
     protected SKTextMetrics()
     {
