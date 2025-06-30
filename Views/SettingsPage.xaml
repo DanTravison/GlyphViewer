@@ -12,7 +12,13 @@
     
     <ContentPage.Resources>
 
-        <Style TargetType="controls:Slider" x:Key="FontSizeSliderStyle" x:DataType="settings:FontSetting">
+        <Style TargetType="BoxView" x:Key="SettingSeparatorStyle"
+               BasedOn="{StaticResource HorizontalSeparatorStyle}">
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="HeightRequest" Value="2"/>
+        </Style>
+
+        <Style TargetType="controls:SliderView" x:Key="FontSizeSliderStyle" x:DataType="settings:FontSetting">
             <Setter Property="Orientation" Value="Horizontal"/>
             <Setter Property="Value" Value="{Binding FontSize.Value, Mode=TwoWay}"/>
             <Setter Property="Minimum" Value="{Binding FontSize.MininumValue}"/>
@@ -20,7 +26,7 @@
             <Setter Property="Interval" Value="{Binding FontSize.Increment}"/>
         </Style>
 
-        <Style TargetType="controls:Slider" x:Key="GlyphWidthStyle" x:DataType="settings:GlyphSetting">
+        <Style TargetType="controls:SliderView" x:Key="GlyphWidthStyle" x:DataType="settings:GlyphSetting">
             <Setter Property="Orientation" Value="Horizontal"/>
             <Setter Property="Value" Value="{Binding Width.Value, Mode=TwoWay}"/>
             <Setter Property="Minimum" Value="{Binding Width.MininumValue}"/>
@@ -28,7 +34,7 @@
             <Setter Property="Interval" Value="{Binding Width.Increment}"/>
         </Style>
 
-        <Style TargetType="controls:Slider" x:Key="DoubleSliderStyle" x:DataType="properties:DoubleProperty">
+        <Style TargetType="controls:SliderView" x:Key="DoubleSliderStyle" x:DataType="properties:DoubleProperty">
             <Setter Property="Orientation" Value="Horizontal"/>
             <Setter Property="Value" Value="{Binding Value, Mode=TwoWay}"/>
             <Setter Property="Minimum" Value="{Binding MininumValue}"/>
@@ -41,12 +47,6 @@
             <Setter Property="FontSize" Value="20"/>
             <Setter Property="FontAttributes" Value="Bold"/>
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryDarkText}, Dark=WhiteSmoke}"/>
-        </Style>
-
-        <Style TargetType="BoxView" x:Key="SettingSeparatorStyle"
-               BasedOn="{StaticResource HorizontalSeparatorStyle}">
-            <Setter Property="Grid.Column" Value="0"/>
-            <Setter Property="Grid.ColumnSpan" Value="3"/>
         </Style>
 
         <Style TargetType="Label" x:Key="SettingNameStyle"  x:DataType="properties:ISettingProperty"
@@ -101,9 +101,9 @@
                                Grid.Column="0"
                                Style="{StaticResource SettingNameStyle}"/>
 
-                        <controls:Slider Grid.Row="0"
-                                         Grid.Column="1"
-                                         Style="{StaticResource DoubleSliderStyle}"/>
+                        <controls:SliderView Grid.Row="0"
+                                             Grid.Column="1"
+                                             Style="{StaticResource DoubleSliderStyle}"/>
                         
                         <Label Text="{Binding Value, StringFormat='{0,3:000}'}"
                                Style="{StaticResource SettingNameStyle}"
@@ -112,6 +112,8 @@
                         
                         <BoxView Style="{StaticResource SettingSeparatorStyle}"
                                  Grid.Row="1"
+                                 Grid.Column="0"
+                                 Grid.ColumnSpan="3"
                                  />
                     </Grid>
                 </DataTemplate>
@@ -127,9 +129,9 @@
                                Grid.Column="0"
                                Style="{StaticResource SettingNameStyle}"/>
 
-                        <controls:Slider Grid.Row="0"
-                                         Grid.Column="1"
-                                         Style="{StaticResource GlyphWidthStyle}"/>
+                        <controls:SliderView Grid.Row="0"
+                                             Grid.Column="1"
+                                             Style="{StaticResource GlyphWidthStyle}"/>
 
                         <Label Text="{Binding Width.Value, StringFormat='{0,3:000}'}"
                                Style="{StaticResource SettingNameStyle}"
@@ -147,6 +149,8 @@
 
                         <BoxView Style="{StaticResource SettingSeparatorStyle}"
                                  Grid.Row="2"
+                                 Grid.Column="0"
+                                 Grid.ColumnSpan="3"
                                  />
                     </Grid>
                 </DataTemplate>
@@ -162,10 +166,10 @@
                                Grid.Column="0"
                                Style="{StaticResource SettingNameStyle}"/>
 
-                        <controls:Slider Grid.Row="0"
-                                         Grid.Column="1"
-                                         Orientation="Horizontal"
-                                         Style="{StaticResource FontSizeSliderStyle}"/>
+                        <controls:SliderView Grid.Row="0"
+                                             Grid.Column="1"
+                                             Orientation="Horizontal"
+                                             Style="{StaticResource FontSizeSliderStyle}"/>
 
                         <Label Text="{Binding FontSize.Value, StringFormat='{0,3:000}'}"
                                ToolTipProperties.Text="{Binding FontSize.Description}"
@@ -174,12 +178,14 @@
                                Grid.Column="2"/>
                         
                         <Label Grid.Row="1"
-                                          Grid.Column="0"
-                                          Grid.ColumnSpan="3"
-                                          Style="{StaticResource FontSizeStyle}"/>
+                               Grid.Column="0"
+                               Grid.ColumnSpan="3"
+                               Style="{StaticResource FontSizeStyle}"/>
 
                         <BoxView Style="{StaticResource SettingSeparatorStyle}"
                                  Grid.Row="2"
+                                 Grid.Column="0"
+                                 Grid.ColumnSpan="3"
                                 />
                     </Grid>
                 </DataTemplate>
@@ -222,9 +228,7 @@
                        />
            </Grid>
 
-            <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
-                     Margin="0,0,0,10"
-                     HeightRequest="2"
+            <BoxView Style="{StaticResource SettingSeparatorStyle}"
                      Grid.Row="1"
                      Grid.Column="0"
                      Grid.ColumnSpan="3"
@@ -257,9 +261,7 @@
                                  Grid.Column="1"
                                  />
 
-            <BoxView Style="{StaticResource HorizontalSeparatorStyle}"
-                     Margin="0,0,0,10"
-                     HeightRequest="2"
+            <BoxView Style="{StaticResource SettingSeparatorStyle}"
                      Grid.Row="4"
                      Grid.Column="0"
                      Grid.ColumnSpan="3"
@@ -288,7 +290,6 @@
                     Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray400}}"
                     StrokeThickness="1"
                     >
-                
                 <view:FileFontsView MinimumHeightRequest="200"/>
             </Border>
         </Grid>
