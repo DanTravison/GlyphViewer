@@ -16,19 +16,19 @@ public readonly struct Range : IEquatable<Range>
     public static readonly Range Empty = new();
 
     /// <summary>
-    /// Gets the first code point in the range.
+    /// Gets the first codepoint in the range.
     /// </summary>
-    public readonly uint First;
+    public readonly int First;
 
     /// <summary>
-    /// Gets the first code point in the range.
+    /// Gets the first codepoint in the range.
     /// </summary>
-    public readonly uint Last;
+    public readonly int Last;
 
     /// <summary>
-    /// Gets the number of code points in the range.
+    /// Gets the number of codepoints in the range.
     /// </summary>
-    public readonly uint Length;
+    public readonly int Length;
 
     /// <summary>
     /// Gets the name of the range.
@@ -41,7 +41,7 @@ public readonly struct Range : IEquatable<Range>
     /// <summary>
     /// Gets the identifier for the range.
     /// </summary>
-    public uint Id
+    public int Id
     {
         get => First;
     }
@@ -72,9 +72,9 @@ public readonly struct Range : IEquatable<Range>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The name of the range.</param>
-    /// <param name="first">The first code point in the range.</param>
-    /// <param name="last">The last code point in the range.</param>
-    internal Range(string name, ushort first, ushort last)
+    /// <param name="first">The first codepoint in the range.</param>
+    /// <param name="last">The last codepoint in the range.</param>
+    internal Range(string name, int first, int last)
         : this(first, last, name)
     {
     }
@@ -82,11 +82,11 @@ public readonly struct Range : IEquatable<Range>
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="first">The first code point in the range.</param>
-    /// <param name="last">The last code point in the range.</param>
+    /// <param name="first">The first codepoint in the range.</param>
+    /// <param name="last">The last codepoint in the range.</param>
     /// <param name="name">The name of the range.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="last"/> is less than <paramref name="first"/>.</exception>
-    internal Range(uint first, uint last, string name)
+    internal Range(int first, int last, string name)
     {
         if (last < first)
         {
@@ -101,13 +101,13 @@ public readonly struct Range : IEquatable<Range>
     #endregion Constructors
 
     /// <summary>
-    /// Gets the value indicating if the range contains a specified <paramref name="codePoint"/>.
+    /// Gets the value indicating if the range contains a specified <paramref name="codepoint"/>.
     /// </summary>
-    /// <param name="codePoint">The code point to query.</param>
-    /// <returns>true if the range contains a specified <paramref name="codePoint"/>; otherwise, false.</returns>
-    public bool Contains(ushort codePoint)
+    /// <param name="codepoint">The codepoint to query.</param>
+    /// <returns>true if the range contains a specified <paramref name="codepoint"/>; otherwise, false.</returns>
+    public bool Contains(int codepoint)
     {
-        return codePoint >= First && codePoint <= Last;
+        return (uint)codepoint >= First && (uint)codepoint <= Last;
     }
 
     #region Equality

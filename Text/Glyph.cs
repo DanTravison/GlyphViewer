@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Text;
 
+using SkiaSharp;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
@@ -28,7 +29,6 @@ public sealed class Glyph : IEquatable<Glyph>
     {
         Text = string.Empty;
         Code = string.Empty;
-        Char = '\0';
         IsEmpty = true;
         Range = Unicode.Range.Empty;
     }
@@ -37,7 +37,7 @@ public sealed class Glyph : IEquatable<Glyph>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="fontFamily">The containing <see cref="FontFamily"/>.</param>
-    /// <param name="ch">The <see cref="Char"/></param>
+    /// <param name="rune">The <see cref="Rune"/>.</param>
     /// <param name="category">The <see cref="UnicodeCategory"/>.</param>
     /// <param name="range">The <see cref="Unicode.Range"/> that contains the glyph.</param>
     /// <param name="name">The optional name of the glyph.</param>
@@ -46,35 +46,30 @@ public sealed class Glyph : IEquatable<Glyph>
     public Glyph
     (
         FontFamily fontFamily,
-        char ch,
+        Rune rune,
         UnicodeCategory category,
         Unicode.Range range,
         string name = null
     )
     {
         ArgumentNullException.ThrowIfNull(fontFamily, nameof(fontFamily));
+        
         if (range.IsEmpty)
         {
             throw new ArgumentOutOfRangeException(nameof(range));
         }
 
         FontFamily = fontFamily;
-        Text = char.ConvertFromUtf32(ch);
-        Char = ch;
         Category = category;
-        IsEmpty = false;
-        StringBuilder sb = new();
-        foreach (char c in Text)
-        {
-            if (sb.Length > 0)
-            {
-                sb.Append(',');
-            }
-            sb.AppendFormat("U+{0:X4}", (int)c);
-        }
-        Code = sb.ToString();
         Range = range;
+
+        Codepoint = rune.Value;
+        Code = $"U+{Codepoint:X4}";
+        
+        Text = rune.ToString();
+        
         Name = name ?? string.Empty;
+        IsEmpty = false;
     }
 
     #endregion Constructors
@@ -90,9 +85,17 @@ public sealed class Glyph : IEquatable<Glyph>
     }
 
     /// <summary>
-    /// Gets the font family to use to draw the <see cref="Text"/>.
+    /// Gets the <see cref="FontFamily"/> that contains the <see cref="Glyph"/>.
     /// </summary>
     public FontFamily FontFamily
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the codepoint for the glyph.
+    /// </summary>
+    public int Codepoint
     {
         get;
     }
@@ -113,14 +116,6 @@ public sealed class Glyph : IEquatable<Glyph>
     /// in the font; otherwise, <see cref="string.Empty"/>.
     /// </value>
     public string Name
-    {
-        get;
-    }
-
-    /// <summary>
-    /// Gets the unicode character for the glyph.
-    /// </summary>
-    public Char Char
     {
         get;
     }
@@ -181,9 +176,9 @@ public sealed class Glyph : IEquatable<Glyph>
         (
             glyph is not null
             &&
-            Code == glyph.Code
+            Codepoint == glyph.Codepoint
             &&
-            FontFamily == glyph.FontFamily
+            string.Equals(FontFamily.Name, glyph.FontFamily.Name, StringComparison.Ordinal)
         );
     }
 
@@ -193,7 +188,7 @@ public sealed class Glyph : IEquatable<Glyph>
     /// <returns>A hash code for this instance.</returns>
     public override int GetHashCode()
     {
-        return HashCode.Combine(Code, FontFamily);
+        return HashCode.Combine(Code, FontFamily.Name);
     }
 
     #endregion Equality

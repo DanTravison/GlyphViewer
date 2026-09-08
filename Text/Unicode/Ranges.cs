@@ -8,7 +8,7 @@ namespace GlyphViewer.Text.Unicode;
 internal class Ranges
 {
     static readonly List<Range> _ranges = [];
-    static readonly Dictionary<uint, Range> _codeTable = [];
+    static readonly Dictionary<int, Range> _codeTable = [];
     static readonly Dictionary<string, Range> _nameTable = [];
 
     class RangeComparer : IComparer<Range>
@@ -46,17 +46,17 @@ internal class Ranges
     }
 
     /// <summary>
-    /// Find the <see cref="Range"/> contianing the specified <paramref name="codePoint"/>.
+    /// Find the <see cref="Range"/> contianing the specified <paramref name="codepoint"/>.
     /// </summary>
-    /// <param name="codePoint">The code point to query.</param>
+    /// <param name="codepoint">The codepoint to query.</param>
     /// <returns>
-    /// The <see cref="Range"/> containing the specified <paramref name="codePoint"/>;
+    /// The <see cref="Range"/> containing the specified <paramref name="codepoint"/>;
     /// otherwise, <see cref="Range.Empty"/>.
     /// </returns>
-    public static Range Find(ushort codePoint)
+    public static Range Find(int codepoint)
     {
         Range range = Range.Empty;
-        int index = _ranges.BinarySearch(new Range(string.Empty, codePoint, codePoint), RangeComparer.Comparer);
+        int index = _ranges.BinarySearch(new Range(string.Empty, codepoint, codepoint), RangeComparer.Comparer);
         do
         {
             if (index >= 0)

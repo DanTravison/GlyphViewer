@@ -4,10 +4,11 @@ using GlyphViewer.Text.Unicode;
 using HarfBuzzSharp;
 using SkiaSharp;
 using SkiaSharp.HarfBuzz;
+using System.Buffers.Binary;
 using System.Collections;
 using System.Diagnostics;
 using System.Globalization;
-
+using System.Text;
 using HarfBuzzFont = HarfBuzzSharp.Font;
 using UnicodeRange = GlyphViewer.Text.Unicode.Range;
 
@@ -145,68 +146,66 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
         {
             return null;
         }
-        HarfBuzzFont hbFont = OpenFont(fontFamily);
-        bool hasGlyphNames = false;
-
+        
         List<Glyph> glyphs = new();
         List<UnicodeRange> unicodeRanges = [];
         UnicodeRange previousRange = UnicodeRange.Empty;
+        bool hasGlyphNames = false;
 
-        for (ushort unicode = 0; unicode < 0xFFFF; unicode++)
+        using (HarfBuzzFont hbFont = OpenFont(fontFamily))
         {
-            char ch = (char)unicode;
-            ushort codepoint = typeface.GetGlyph(ch);
-            if (codepoint == 0)
+            foreach ((int codepoint, uint glyphId) in OpenType.EnumerateCmap(typeface))
             {
-                continue;
-            }
-            UnicodeCategory category = char.GetUnicodeCategory(ch);
-            if (filter != null && filter.Length > 0)
-            {
-                if (filter.Contains(category))
+                if (glyphId == 0)
                 {
                     continue;
                 }
-            }
-            UnicodeRange unicodeRange = Ranges.Find((ushort)ch);
-            if (unicodeRange.IsEmpty)
-            {
-                continue;
-            }
-            if (unicodeRange != previousRange)
-            {
-                unicodeRanges.Add(unicodeRange);
-                previousRange = unicodeRange;
-            }
+                Rune rune = new(codepoint);
+                UnicodeCategory category = Rune.GetUnicodeCategory(rune);
+                UnicodeRange range = UnicodeRange.Empty;
 
-            string name = string.Empty;
-            if (hbFont is not null)
-            {
-                if (GetGlyphName(hbFont, unicode, out name))
+                if (codepoint <= int.MaxValue)
+                {
+                    range = Ranges.Find(codepoint);
+                    if (range.IsEmpty)
+                    {
+                        continue;
+                    }
+
+                    if (range != previousRange)
+                    {
+                        unicodeRanges.Add(range);
+                        previousRange = range;
+                    }
+                }
+
+                if (!hbFont.TryGetGlyphName(glyphId, out string name))
+                {
+                    name = string.Empty;
+                }
+                else
                 {
                     hasGlyphNames = true;
                 }
+
+                Glyph glyph = new
+                (
+                    fontFamily,
+                    rune,
+                    category,
+                    range,
+                    name
+                );
+
+                glyphs.Add(glyph);
             }
-            Glyph glyph = new(fontFamily, ch, category, unicodeRange, name);
-            glyphs.Add(glyph);
         }
-        hbFont?.Dispose();
         return new GlyphCollection(fontFamily, glyphs, unicodeRanges, hasGlyphNames);
     }
 
     #endregion CreateInstance
 
     #region HarfBuzzSharp
-
-    static bool GetGlyphName(HarfBuzzFont font, ushort unicode, out string name)
-    {
-        if (font.TryGetGlyph(unicode, out uint glyph) && font.TryGetGlyphName(glyph, out name))
-        {
-            return true;
-        }
-        name = string.Empty;
-        return false;
-    }
 
     static HarfBuzzFont OpenFont(FontFamily fontFamily)
     {
