@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.Text.OpenType;
 using GlyphViewer.Text.Unicode;
 using HarfBuzzSharp;
 using SkiaSharp;
@@ -141,20 +142,32 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     /// <exception cref="ArgumentNullException"><paramref name="fontFamily"/> is a null reference.</exception>
     public static GlyphCollection CreateInstance(FontFamily fontFamily, params UnicodeCategory[] filter)
     {
-        SKTypeface typeface = fontFamily.GetTypeface(SKFontStyle.Normal);
-        if (typeface is null)
+        FontReader reader;
+        if (fontFamily is FileFontFamily file)
         {
-            return null;
+            reader = FontReader.CreateInstance(file.FilePath);
         }
-        
-        List<Glyph> glyphs = new();
-        List<UnicodeRange> unicodeRanges = [];
-        UnicodeRange previousRange = UnicodeRange.Empty;
-        bool hasGlyphNames = false;
-
-        using (HarfBuzzFont hbFont = OpenFont(fontFamily))
+        else
         {
-            foreach ((int codepoint, uint glyphId) in OpenType.EnumerateCmap(typeface))
+            SKTypeface typeface = fontFamily.GetTypeface(SKFontStyle.Normal);
+            if (typeface is null)
+            {
+                return null;
+            }
+            reader = FontReader.CreateInstance(typeface);
+        }
+
+        using (reader)
+        {
+            IReadOnlyList<string> glyphNames = reader.GetGlyphNames();
+            bool hasGlyphNames = glyphNames is not null;
+
+            List<Glyph> glyphs = new();
+            List<UnicodeRange> unicodeRanges = [];
+            UnicodeRange previousRange = UnicodeRange.Empty;
+            
+            // TODO: 
+            foreach ((int codepoint, uint glyphId) in OpenTypeParser.EnumerateCmap(reader, reader.FaceIndex))
             {
                 if (glyphId == 0)
                 {
@@ -179,14 +192,10 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
                     }
                 }
 
-                if (!hbFont.TryGetGlyphName(glyphId, out string name))
-                {
-                    name = string.Empty;
-                }
-                else
-                {
-                    hasGlyphNames = true;
-                }
+                string name = hasGlyphNames
+                    ? name = glyphNames[(int)glyphId]
+                    : string.Empty;
+              
 
                 Glyph glyph = new
                 (
@@ -199,8 +208,9 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
 
                 glyphs.Add(glyph);
             }
+            
+            return new GlyphCollection(fontFamily, glyphs, unicodeRanges, hasGlyphNames);
         }
-        return new GlyphCollection(fontFamily, glyphs, unicodeRanges, hasGlyphNames);
     }
 
     #endregion CreateInstance
