@@ -315,6 +315,10 @@ internal static class OpenTypeParser
     #endregion Utilities
 
 #if (false)
+    // NOTE: If we encounter the case where a stream is not seekable,
+    // use this logic to create a MemoryStream from it and provide another
+    // IFontStream implementation to support it.
+
     static byte[] ReadAll(SKStream stream)
     {
         // Read all bytes from SKStream into a byte[] (SKStream is not System.IO.Stream)
