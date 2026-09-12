@@ -39,6 +39,8 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
         public static readonly int FormatFixed =
             OffsetOf(nameof(Raw.FormatFixed));
 
+#if (false)
+
         public static readonly int ItalicAngle =
             OffsetOf(nameof(Raw.ItalicAngle));
 
@@ -62,12 +64,13 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
 
         public static readonly int MaxMemType1 =
             OffsetOf(nameof(Raw.MaxMemType1));
+#endif
 
         public static readonly int NumGlyphs =
             OffsetOf(nameof(Raw.NumGlyphs));
     }
 
-    #endregion Raw Struct
+#endregion Raw Struct
 
     #region Constructor
 
@@ -89,7 +92,7 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
     /// Post table is used explicitly for retrieving glyph names and requires
     /// format 2.0;  otherwise, <see cref="Read"/> will reeturn a null reference.
     /// </remarks>
-    public uint Format => ReadUInt32(Offsets.FormatFixed) >> 16;
+    public uint Format { get; private set; }
 
     /// <summary>
     /// Gets the number of glyphs.
@@ -97,7 +100,7 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
     /// <remarks>
     /// Consumers should use the glyphId as the index.
     /// </remarks>
-    public ushort Count => ReadUInt16(Offsets.NumGlyphs);
+    public ushort Count { get; private set; }
 
     /// <summary>
     /// Gets the list of glyph names.
@@ -127,23 +130,30 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
         {
             return null;
         }
-        reader.Seek(postOffset);
-        
-        var table = new PostTable();
 
-        //
-        // Read fixed-size struct
-        //
-       table.ReadBytes(reader);
+        PostTable table = new();
+        table.Initialize(reader, postOffset);
 
-        uint format = table.Format;
         // Only format 2.0 contains glyph names
-        if (format != 2)
+        if (table.Format != 2)
         {
             return null;
         }
 
-        ushort numGlyphs = table.Count;
+        return table;
+    }
+
+    protected override void OnInitialize(FontReader reader)
+    {
+        Format = ReadUInt32(Offsets.FormatFixed) >> 16;
+        Count = ReadUInt16(Offsets.NumGlyphs);
+
+        if (Format != 2)
+        {
+            return;
+        }
+
+        ushort numGlyphs = Count;
         //
         // Read glyph name index array
         //
@@ -154,9 +164,10 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
         }
 
         //
-        // Read Pascal strings for glyph names
+        // Read glyph names
         //
         var names = new List<string>(numGlyphs);
+
         // Buffer for reading the name length.
         Span<byte> bufferLen = stackalloc byte[1];
 
@@ -184,9 +195,7 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
             }
         }
 
-        table.Names = names;
-
-        return table;
+        Names = names;
     }
 
     #endregion Read
