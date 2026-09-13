@@ -15,6 +15,12 @@ public readonly struct Range : IEquatable<Range>
     /// </summary>
     public static readonly Range Empty = new();
 
+
+    /// <summary>
+    /// Gets the <see cref="Range"/> for a codepoint this is not in a range.
+    /// </summary>
+    public static readonly Range Unknown = new(0, 0, "Unknown");
+
     /// <summary>
     /// Gets the first codepoint in the range.
     /// </summary>

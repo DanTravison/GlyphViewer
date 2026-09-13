@@ -66,7 +66,7 @@ internal class Ranges
     /// </returns>
     public static Range Find(int codepoint)
     {
-        Range range = Range.Empty;
+        Range range = Range.Unknown;
         int index = _ranges.BinarySearch(new Range(string.Empty, codepoint, codepoint), RangeComparer.Comparer);
         do
         {
