@@ -3,7 +3,7 @@
 using System.Runtime.InteropServices;
 
 /// <summary>
-/// Represents the OpenType 'OS/2' table.
+/// Represents the OpenType <see cref="Tag.OS2"/> table.
 /// </summary>
 internal sealed class Os2Table : OpenTypeStruct<Os2Table.Raw>
 {
@@ -70,6 +70,12 @@ internal sealed class Os2Table : OpenTypeStruct<Os2Table.Raw>
 
     #region Read
 
+    /// <summary>
+    /// Reads the table from the specified <see cref="FontReader"/>.
+    /// </summary>
+    /// <param name="reader">The <see cref="FontReader"/> to read.</param>
+    /// <param name="faceIndex">The zero-based face index.</param>
+    /// <returns>A new instance of a <see cref="Os2Table"/>; otherwise, a null reference if the name table could not be found.</returns>
     internal static Os2Table Read(FontReader reader, int faceIndex)
     {
         long faceOffset = reader.Faces[faceIndex];

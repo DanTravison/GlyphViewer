@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 /// <summary>
-/// Represents the OpenType 'post' table.
+/// Represents the OpenType <see cref="Tag.Post"/> table.
 /// </summary>
 internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
 {
@@ -115,7 +115,7 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
     #region Read
 
     /// <summary>
-    /// Reads the 'post' table from the specified <see cref="FontReader"/>.
+    /// Reads the table from the specified <see cref="FontReader"/>.
     /// </summary>
     /// <param name="reader">The reader positioned at the start of the 'post' table.</param>
     /// <param name="faceIndex">The zero-based index of the font face to read.</param>
