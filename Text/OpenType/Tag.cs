@@ -192,7 +192,10 @@ internal readonly struct Tag : IEquatable<Tag>
     /// Defines the <see cref="Tag"/> for the 'OS/2' table.
     /// </summary>
     public static readonly Tag OS2 = new("OS/2");
-
+    /// <summary>
+    /// Defines the <see cref="Tag"/> for the 'head' table.
+    /// </summary>
+    public static readonly Tag Head = new("head");
 
     #endregion public Fields     
 }
