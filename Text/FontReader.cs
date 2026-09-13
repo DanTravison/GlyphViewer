@@ -21,7 +21,7 @@ public sealed class FontReader : IDisposable
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="stream">The <see cref="IFontStream"/> to read.</param>
-    internal FontReader(IFontStream stream)
+    private FontReader(IFontStream stream)
     {
         ArgumentNullException.ThrowIfNull(stream, nameof(stream));
         _stream = stream;
