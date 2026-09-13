@@ -37,6 +37,17 @@ internal class Ranges
                 _nameTable.Add(range.Name, range);
             }
         }
+
+        foreach (FieldInfo field in typeof(Extended).GetFields(BindingFlags.Public | BindingFlags.Static))
+        {
+            if (field.FieldType == typeof(Range))
+            {
+                Range range = (Range)field.GetValue(null);
+                _ranges.Add(range);
+                _codeTable.Add(range.Id, range);
+                _nameTable.Add(range.Name, range);
+            }
+        }
         _ranges.Sort(RangeComparer.Comparer);
     }
 
