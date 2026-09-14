@@ -49,10 +49,18 @@ public sealed class FontReader : IDisposable
     }
 
     /// <summary>
+    /// Gets the offsets to each face in the font file.
+    /// </summary>
+    public IReadOnlyList<long> Faces
+    {
+        get;
+    }
+
+    /// <summary>
     /// Gets the current position in the content.
     /// </summary>
     /// <exception cref="ObjectDisposedException">This instance is disposed.</exception>
-    public long Position
+    internal long Position
     {
         get
         {
@@ -67,7 +75,7 @@ public sealed class FontReader : IDisposable
     /// <value>
     /// The length of the content.
     /// </value>
-    public long Length
+    internal long Length
     {
         get
         {
@@ -77,19 +85,11 @@ public sealed class FontReader : IDisposable
     }
 
     /// <summary>
-    /// Gets the offsets to each face in the font file.
-    /// </summary>
-    public IReadOnlyList<long> Faces
-    {
-        get;
-    }
-
-    /// <summary>
     /// Gets the value indicating if the end of the content has been reached.
     /// </summary>
     /// <value>true if the end of the content has been reached; otherwise, false.</value>
     /// <exception cref="ObjectDisposedException">This instance is disposed.</exception>
-    public bool IsEndOfContent
+    internal bool IsEndOfContent
     {
         get
         {
@@ -98,6 +98,52 @@ public sealed class FontReader : IDisposable
     }
 
     #endregion Properties
+
+    #region public methods
+
+    /// <summary>
+    /// Gets the glyph names for the font.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="IReadOnlyDictionary{Uint32, String}"/> of glyph id to string;
+    /// otherwise a null refernce if the font does not define glyph names.
+    /// </returns>
+    public IReadOnlyDictionary<uint, string> GetGlyphNames()
+    {
+        return GetGlyphNames(FaceIndex);
+    }
+
+    /// <summary>
+    /// Gets the glyph names for the font.
+    /// </summary>
+    /// <returns>
+    /// An <see cref="IReadOnlyDictionary{Uint32, String}"/> of glyph id to string;
+    /// otherwise a null refernce if the font does not define glyph names.
+    /// </returns>
+    public IReadOnlyDictionary<uint, string> GetGlyphNames(int faceIndex)
+    {
+        if (faceIndex < -0 || faceIndex >= Faces.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(faceIndex), faceIndex, null);
+        }
+        return OpenTypeParser.ReadGlyphNames(this, faceIndex);
+    }
+
+    public IEnumerable<GlyphInfo> GetGlyphs(int faceIndex)
+    {
+        if (faceIndex < -0 || faceIndex >= Faces.Count)
+        {
+            throw new ArgumentOutOfRangeException(nameof(faceIndex), faceIndex, null);
+        }
+        return OpenTypeParser.GetGlyphs(this, faceIndex);
+    }
+
+    public IEnumerable<GlyphInfo> GetGlyphs()
+    {
+        return GetGlyphs(FaceIndex);
+    }
+
+    #endregion public methods
 
     #region Seek
 
@@ -281,34 +327,6 @@ public sealed class FontReader : IDisposable
     }
 
     #endregion Read
-
-    public IEnumerable<(uint codepoint, uint glyphId)> EnumerateCmap()
-    {
-        return OpenTypeParser.EnumerateCmap(this, FaceIndex);
-    }
-
-    public IEnumerable<(uint codepoint, uint glyphId)> EnumerateCmap(int faceIndex)
-    {
-        if (faceIndex < -0 || faceIndex >= Faces.Count)
-        {
-            throw new ArgumentOutOfRangeException(nameof(faceIndex), faceIndex, null);
-        }
-        return OpenTypeParser.EnumerateCmap(this, FaceIndex);
-    }
-
-    public IReadOnlyDictionary<uint, string> GetGlyphNames()
-    {
-        return OpenTypeParser.ReadGlyphNames(this, this.FaceIndex);
-    }
-
-    public IReadOnlyDictionary<uint, string> GetGlyphNames(int faceIndex)
-    {
-        if (faceIndex < -0 || faceIndex >= Faces.Count)
-        {
-            throw new ArgumentOutOfRangeException(nameof(faceIndex), faceIndex, null);
-        }
-        return OpenTypeParser.ReadGlyphNames(this, faceIndex);
-    }
 
     #region Dispose
 

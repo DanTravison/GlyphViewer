@@ -196,6 +196,10 @@ internal readonly struct Tag : IEquatable<Tag>
     /// Defines the <see cref="Tag"/> for the 'head' table.
     /// </summary>
     public static readonly Tag Head = new("head");
+    /// <summary>
+    /// Defines the <see cref="Tag"/> for the 'maxp' table.
+    /// </summary>
+    public static readonly Tag Maxp = new("maxp");
 
     #endregion public Fields     
 }

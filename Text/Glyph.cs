@@ -1,14 +1,12 @@
 ﻿namespace GlyphViewer.Text;
 
-using SkiaSharp;
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
 /// <summary>
 /// Defines a font family and text for a glyph.
 /// </summary>
-[DebuggerDisplay("({Code,nq}) {Text}")]
+[System.Diagnostics.DebuggerDisplay("({Code,nq}) {Text}")]
 public sealed class Glyph : IEquatable<Glyph>
 {
     #region Fields
@@ -32,6 +30,32 @@ public sealed class Glyph : IEquatable<Glyph>
         IsEmpty = true;
         Range = Unicode.Range.Empty;
     }
+
+    public Glyph(FontFamily fontFamily, OpenType.GlyphInfo info)
+    {
+        ArgumentNullException.ThrowIfNull(fontFamily, nameof(fontFamily));
+        ArgumentNullException.ThrowIfNull(info, nameof(info));
+
+        FontFamily = fontFamily;
+        Range = info.Range;
+        Category = info.Category;
+        Codepoint = info.CodePoint;
+        HasCodePoint = info.HasCodePoint;
+        Name = info.Name;
+
+        Code = HasCodePoint ? $"U+{Codepoint:X4}" : string.Empty;
+        if (HasCodePoint)
+        {
+            Rune rune = new(Codepoint);
+            Text = rune.ToString();
+        }
+        else
+        {
+            Text = string.Empty;
+        }
+        IsEmpty = false;
+    }
+
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -63,7 +87,7 @@ public sealed class Glyph : IEquatable<Glyph>
         Category = category;
         Range = range;
 
-        Codepoint = rune.Value;
+        Codepoint = (uint)rune.Value;
         Code = $"U+{Codepoint:X4}";
         
         Text = rune.ToString();
@@ -93,9 +117,20 @@ public sealed class Glyph : IEquatable<Glyph>
     }
 
     /// <summary>
+    /// Gets the value indicating if the glyph has an associated <see cref="Codepoint"/>
+    /// </summary>
+    /// <value>true if the glyph has a <see cref="Codepoint"/>; otherwise, false.</value>
+    public bool HasCodePoint
+    {
+        get;
+    }
+    /// <summary>
     /// Gets the codepoint for the glyph.
     /// </summary>
-    public int Codepoint
+    /// <value>
+    /// The codepoint for the glyph, if <see cref="HasCodePoint"/> is true; otherwise, a non-deterministic value.
+    /// </value>
+    public uint Codepoint
     {
         get;
     }

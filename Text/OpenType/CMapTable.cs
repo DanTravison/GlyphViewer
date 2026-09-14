@@ -1,10 +1,8 @@
 ﻿namespace GlyphViewer.Text.OpenType;
 
-using GlyphViewer.Text.Unicode;
-using HarfBuzzSharp;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Range = GlyphViewer.Text.Unicode.Range;
 
 /// <summary>
 /// Represents the OpenType <see cref="Tag.Cmap"/> table.
@@ -33,16 +31,16 @@ internal sealed class CmapTable : OpenTypeStruct<CmapTable.Raw>
 
     #region Fields
 
-    private readonly Dictionary<uint, CmapGlyphInfo> _glyphs = [];
+    private readonly Dictionary<uint, GlyphInfo> _glyphs = [];
 
     #endregion Fields
 
     #region Properties
 
     /// <summary>
-    /// Gets <see cref="CmapGlyphInfo"/> dictionary.
+    /// Gets <see cref="GlyphInfo"/> dictionary.
     /// </summary>
-    public IReadOnlyDictionary<uint, CmapGlyphInfo> Glyphs
+    public IReadOnlyDictionary<uint, GlyphInfo> Glyphs
     {
         get => _glyphs;
     }
@@ -186,8 +184,14 @@ internal sealed class CmapTable : OpenTypeStruct<CmapTable.Raw>
             for (uint codepoint = startCharCode; codepoint <= endCharCode; codepoint++)
             {
                 uint glyphId = startGlyphId + (codepoint - startCharCode);
-                CmapGlyphInfo info = new(glyphId, codepoint);
-                _glyphs.Add(info.Id, info);
+                GlyphInfo info = new(glyphId, codepoint);
+                // NOTE: Two codepoints can map to the same glyphid.
+                // As such, we can ignore the duplicates since the outline will
+                // be the same.
+                if (!_glyphs.ContainsKey(glyphId))
+                {
+                    _glyphs.Add(info.Id, info);
+                }
             }
 
             p += 12;
@@ -270,7 +274,7 @@ internal sealed class CmapTable : OpenTypeStruct<CmapTable.Raw>
 
                 if (glyphId != 0)
                 {
-                    CmapGlyphInfo info = new(glyphId, codepoint);
+                    GlyphInfo info = new(glyphId, codepoint);
                     _glyphs.Add(info.Id, info);
                 }
             }
