@@ -7,7 +7,7 @@ internal static class OpenTypeParser
 {
     #region EnumerateCmap
 
-    public static IEnumerable<(int codepoint, uint glyphId)> EnumerateCmap(FontReader reader, int faceIndex)
+    public static IEnumerable<(uint codepoint, uint glyphId)> EnumerateCmap(FontReader reader, int faceIndex)
     {
         long faceOffset = reader.Faces[faceIndex];
 
@@ -26,7 +26,7 @@ internal static class OpenTypeParser
         ushort format = reader.ReadUInt16(unicodeSubtableOffset);
         if (format == 4)
         {
-            foreach ((int codepoint, uint glyphId) in ParseCmapFormat4(reader, unicodeSubtableOffset))
+            foreach ((uint codepoint, uint glyphId) in ParseCmapFormat4(reader, unicodeSubtableOffset))
             {
                 if (glyphId != 0)
                 {
@@ -36,7 +36,7 @@ internal static class OpenTypeParser
         }
         else if (format == 12)
         {
-            foreach ((int codepoint, uint glyphId) in ParseCmapFormat12(reader, unicodeSubtableOffset))
+            foreach ((uint codepoint, uint glyphId) in ParseCmapFormat12(reader, unicodeSubtableOffset))
             {
                 if (glyphId != 0)
                 {
@@ -120,7 +120,7 @@ internal static class OpenTypeParser
         return -1;
     }
 
-    static IEnumerable<(int Codepoint, uint GlyphId)> ParseCmapFormat12(FontReader reader, long offset)
+    static IEnumerable<(uint Codepoint, uint GlyphId)> ParseCmapFormat12(FontReader reader, long offset)
     {
         // format (u16) + reserved (u16) + length (u32) + language (u32) + nGroups (u32)
         if (offset + 16 > reader.Length)
@@ -145,14 +145,14 @@ internal static class OpenTypeParser
             for (uint codepoint = startCharCode; codepoint <= endCharCode; codepoint++)
             {
                 uint glyphId = startGlyphId + (codepoint - startCharCode);
-                yield return ((int)codepoint, glyphId);
+                yield return ((uint)codepoint, glyphId);
             }
 
             p += 12;
         }
     }
 
-    static IEnumerable<(int Codepoint, uint GlyphId)> ParseCmapFormat4(FontReader reader, long offset)
+    static IEnumerable<(uint Codepoint, uint GlyphId)> ParseCmapFormat4(FontReader reader, long offset)
     {
         // format(2)
         // length(2)
@@ -183,8 +183,8 @@ internal static class OpenTypeParser
             yield break;
         }
 
-        int[] endCode = new int[segCount];
-        int[] startCode = new int[segCount];
+        uint[] endCode = new uint[segCount];
+        uint[] startCode = new uint[segCount];
         int[] idDelta = new int[segCount];
         int[] idRangeOffset = new int[segCount];
 
@@ -198,12 +198,12 @@ internal static class OpenTypeParser
 
         for (int i = 0; i < segCount; i++)
         {
-            int start = startCode[i];
-            int end = endCode[i];
+            uint start = startCode[i];
+            uint end = endCode[i];
             if (start == 0xFFFF) continue;
             if (start > end) continue;
 
-            for (int codepoint = start; codepoint <= end; codepoint++)
+            for (uint codepoint = start; codepoint <= end; codepoint++)
             {
                 uint glyphId = 0;
                 if (idRangeOffset[i] == 0)
@@ -238,13 +238,13 @@ internal static class OpenTypeParser
 
     #region ReadGlyphNames
 
-    internal static IReadOnlyList<string> ReadGlyphNames(FontReader reader)
+    internal static IReadOnlyDictionary<uint, string> ReadGlyphNames(FontReader reader)
     {
         PostTable table = PostTable.Read(reader, reader.FaceIndex);
         return table?.Names;
     }
 
-    internal static IReadOnlyList<string> ReadGlyphNames(FontReader reader, int faceIndex)
+    internal static IReadOnlyDictionary<uint, string> ReadGlyphNames(FontReader reader, int faceIndex)
     {
         PostTable table = PostTable.Read(reader, faceIndex);
         return table?.Names;

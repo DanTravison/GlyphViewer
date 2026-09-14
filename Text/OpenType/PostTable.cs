@@ -82,33 +82,13 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
 
     #region Properties (Fixed Fields)
 
-    // NOTE: most fields are not exposed as properties since they are
-    // not used for typical usage.
-
     /// <summary>
-    /// Gets the format.
+    /// Gets the set of glyphId to name.
     /// </summary>
     /// <remarks>
-    /// Post table is used explicitly for retrieving glyph names and requires
-    /// format 2.0;  otherwise, <see cref="Read"/> will reeturn a null reference.
+    /// Consumers should use the glyphId as the key to  retrieve the associated name.
     /// </remarks>
-    public uint Format { get; private set; }
-
-    /// <summary>
-    /// Gets the number of glyphs.
-    /// </summary>
-    /// <remarks>
-    /// Consumers should use the glyphId as the index.
-    /// </remarks>
-    public ushort Count { get; private set; }
-
-    /// <summary>
-    /// Gets the list of glyph names.
-    /// </summary>
-    /// <remarks>
-    /// Consumers should use the glyphId as the index to the associated name.
-    /// </remarks>
-    public IReadOnlyList<string> Names { get; private set; }
+    public IReadOnlyDictionary<uint, string> Names { get; private set; }
 
     #endregion Properties
 
@@ -135,7 +115,7 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
         table.Initialize(reader, postOffset);
 
         // Only format 2.0 contains glyph names
-        if (table.Format != 2)
+        if (table.Names is null)
         {
             return null;
         }
@@ -145,15 +125,14 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
 
     protected override void OnInitialize(FontReader reader)
     {
-        Format = ReadUInt32(Offsets.FormatFixed) >> 16;
-        Count = ReadUInt16(Offsets.NumGlyphs);
+        uint format = ReadUInt32(Offsets.FormatFixed) >> 16;
+        ushort numGlyphs = ReadUInt16(Offsets.NumGlyphs);
 
-        if (Format != 2)
+        if (format != 2)
         {
             return;
         }
 
-        ushort numGlyphs = Count;
         //
         // Read glyph name index array
         //
@@ -166,32 +145,29 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
         //
         // Read glyph names
         //
-        var names = new List<string>(numGlyphs);
+        Dictionary<uint, string> names = [];
 
         // Buffer for reading the name length.
         Span<byte> bufferLen = stackalloc byte[1];
 
         // Standard Mac glyph names (first 258 entries)
-        // You can embed the standard list or reference your existing one.
-        for (int i = 0; i < numGlyphs; i++)
+        for (uint i = 0; i < numGlyphs; i++)
         {
             ushort idx = nameIndex[i];
 
             if (idx < 258)
             {
-                names.Add(MacGlyphNames[idx]);
+                names.Add(i, MacGlyphNames[idx]);
             }
             else
             {
-                int customIndex = idx - 258;
-
                 // Read the name length.
                 reader.ReadBytes(bufferLen);
                 int len = bufferLen[0];
 
                 // Read the ASCII text.
                 string name = reader.ReadText(len);
-                names.Add(name);
+                names.Add(i, name);
             }
         }
 

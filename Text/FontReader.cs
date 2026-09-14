@@ -282,12 +282,12 @@ public sealed class FontReader : IDisposable
 
     #endregion Read
 
-    public IEnumerable<(int codepoint, uint glyphId)> EnumerateCmap()
+    public IEnumerable<(uint codepoint, uint glyphId)> EnumerateCmap()
     {
         return OpenTypeParser.EnumerateCmap(this, FaceIndex);
     }
 
-    public IEnumerable<(int codepoint, uint glyphId)> EnumerateCmap(int faceIndex)
+    public IEnumerable<(uint codepoint, uint glyphId)> EnumerateCmap(int faceIndex)
     {
         if (faceIndex < -0 || faceIndex >= Faces.Count)
         {
@@ -296,12 +296,12 @@ public sealed class FontReader : IDisposable
         return OpenTypeParser.EnumerateCmap(this, FaceIndex);
     }
 
-    public IReadOnlyList<string> GetGlyphNames()
+    public IReadOnlyDictionary<uint, string> GetGlyphNames()
     {
         return OpenTypeParser.ReadGlyphNames(this, this.FaceIndex);
     }
 
-    public IReadOnlyList<string> GetGlyphNames(int faceIndex)
+    public IReadOnlyDictionary<uint, string> GetGlyphNames(int faceIndex)
     {
         if (faceIndex < -0 || faceIndex >= Faces.Count)
         {

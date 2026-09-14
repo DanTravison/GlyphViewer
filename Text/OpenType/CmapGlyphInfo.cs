@@ -6,7 +6,7 @@ using System.Globalization;
 using Range = GlyphViewer.Text.Unicode.Range;
 
 /// <summary>
-/// Provides inforamtion for a glyph id parsed from the <see cref="CMapTable"/>.
+/// Provides inforamtion for a glyph id parsed from the <see cref="CmapTable"/>.
 /// </summary>
 internal sealed class CmapGlyphInfo : IEquatable<CmapGlyphInfo>
 {
@@ -17,14 +17,14 @@ internal sealed class CmapGlyphInfo : IEquatable<CmapGlyphInfo>
     /// </summary>
     /// <param name="glyphId">The font-specific glyph <see cref="Id"/>.</param>
     /// <param name="codepoint">The <see cref="CodePoint"/>.</param>
-    public CmapGlyphInfo(uint glyphId, int codepoint)
+    public CmapGlyphInfo(uint glyphId, uint codepoint)
     {
         Id = glyphId;
         CodePoint = codepoint;
         Range = Ranges.Find(codepoint);
         if (UnicodeUtility.IsValidCodePoint((uint)codepoint))
         {
-            Category = CharUnicodeInfo.GetUnicodeCategory(codepoint);
+            Category = CharUnicodeInfo.GetUnicodeCategory((int)codepoint);
         }
         else
         {
@@ -47,7 +47,7 @@ internal sealed class CmapGlyphInfo : IEquatable<CmapGlyphInfo>
     /// <value>
     /// The code point for the glyph.
     /// </value>
-    public int CodePoint { get; }
+    public uint CodePoint { get; }
 
     /// <summary>
     /// Gets the <see cref="UnicodeCategory"/>

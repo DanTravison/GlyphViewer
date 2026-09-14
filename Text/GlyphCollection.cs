@@ -159,7 +159,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
 
         using (reader)
         {
-            IReadOnlyList<string> glyphNames = reader.GetGlyphNames();
+            IReadOnlyDictionary<uint, string> glyphNames = reader.GetGlyphNames();
             bool hasGlyphNames = glyphNames is not null;
 
             List<Glyph> glyphs = new();
@@ -167,7 +167,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
             UnicodeRange previousRange = UnicodeRange.Empty;
             
             // TODO: 
-            foreach ((int codepoint, uint glyphId) in OpenTypeParser.EnumerateCmap(reader, reader.FaceIndex))
+            foreach ((uint codepoint, uint glyphId) in OpenTypeParser.EnumerateCmap(reader, reader.FaceIndex))
             {
                 if (glyphId == 0)
                 {
@@ -193,10 +193,9 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
                 }
 
                 string name = hasGlyphNames
-                    ? name = glyphNames[(int)glyphId]
+                    ? name = glyphNames[glyphId]
                     : string.Empty;
               
-
                 Glyph glyph = new
                 (
                     fontFamily,

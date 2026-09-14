@@ -186,7 +186,7 @@ internal sealed class CmapTable : OpenTypeStruct<CmapTable.Raw>
             for (uint codepoint = startCharCode; codepoint <= endCharCode; codepoint++)
             {
                 uint glyphId = startGlyphId + (codepoint - startCharCode);
-                CmapGlyphInfo info = new(glyphId, (int)codepoint);
+                CmapGlyphInfo info = new(glyphId, codepoint);
                 _glyphs.Add(info.Id, info);
             }
 
@@ -225,8 +225,8 @@ internal sealed class CmapTable : OpenTypeStruct<CmapTable.Raw>
             return;
         }
 
-        int[] endCode = new int[segCount];
-        int[] startCode = new int[segCount];
+        uint[] endCode = new uint[segCount];
+        uint[] startCode = new uint[segCount];
         int[] idDelta = new int[segCount];
         int[] idRangeOffset = new int[segCount];
 
@@ -240,12 +240,12 @@ internal sealed class CmapTable : OpenTypeStruct<CmapTable.Raw>
 
         for (int i = 0; i < segCount; i++)
         {
-            int start = startCode[i];
-            int end = endCode[i];
+            uint start = startCode[i];
+            uint end = endCode[i];
             if (start == 0xFFFF) continue;
             if (start > end) continue;
 
-            for (int codepoint = start; codepoint <= end; codepoint++)
+            for (uint codepoint = start; codepoint <= end; codepoint++)
             {
                 uint glyphId = 0;
                 if (idRangeOffset[i] == 0)

@@ -19,17 +19,17 @@ public readonly struct Range : IEquatable<Range>
     /// <summary>
     /// Gets the <see cref="Range"/> for a codepoint this is not in a range.
     /// </summary>
-    public static readonly Range Unknown = new(0, 0, "Unknown");
+    public static readonly Range None = new(uint.MaxValue, uint.MaxValue, "None");
 
     /// <summary>
     /// Gets the first codepoint in the range.
     /// </summary>
-    public readonly int First;
+    public readonly uint First;
 
     /// <summary>
     /// Gets the first codepoint in the range.
     /// </summary>
-    public readonly int Last;
+    public readonly uint Last;
 
     /// <summary>
     /// Gets the number of codepoints in the range.
@@ -47,7 +47,7 @@ public readonly struct Range : IEquatable<Range>
     /// <summary>
     /// Gets the identifier for the range.
     /// </summary>
-    public int Id
+    public uint Id
     {
         get => First;
     }
@@ -80,7 +80,7 @@ public readonly struct Range : IEquatable<Range>
     /// <param name="name">The name of the range.</param>
     /// <param name="first">The first codepoint in the range.</param>
     /// <param name="last">The last codepoint in the range.</param>
-    internal Range(string name, int first, int last)
+    internal Range(string name, uint first, uint last)
         : this(first, last, name)
     {
     }
@@ -92,7 +92,7 @@ public readonly struct Range : IEquatable<Range>
     /// <param name="last">The last codepoint in the range.</param>
     /// <param name="name">The name of the range.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="last"/> is less than <paramref name="first"/>.</exception>
-    internal Range(int first, int last, string name)
+    internal Range(uint first, uint last, string name)
     {
         if (last < first)
         {
@@ -100,7 +100,7 @@ public readonly struct Range : IEquatable<Range>
         }
         First = first;
         Last = last;
-        Length = last - first + 1;
+        Length = (int)(last - first + 1);
         Name = name;
     }
 
