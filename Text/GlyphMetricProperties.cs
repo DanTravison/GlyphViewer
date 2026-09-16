@@ -52,14 +52,15 @@ public sealed class GlyphMetricProperties
     {
         List<NamedValue> properties = [];
 
+        properties.Add(new(nameof(Glyph.GlyphId), metric.Glyph.GlyphId));
+        properties.Add(new(nameof(Glyph.Codepoint), metric.Glyph.Code));
         properties.Add(new(nameof(metric.FontSize), metric.FontSize));
-        properties.Add(new(nameof(Glyph.Code), metric.Glyph.Code));
         properties.Add(new(nameof(metric.Size.Width), metric.Size.Width));
         properties.Add(new(nameof(metric.Size.Height), metric.Size.Height));
         properties.Add(new(nameof(GlyphMetrics.Ascent), metric.Ascent));
         properties.Add(new(nameof(GlyphMetrics.Descent), metric.Descent));
         properties.Add(new(nameof(GlyphMetrics.Left), metric.Left));
-        properties.Add(new(nameof(GlyphMetrics.TextWidth), Math.Round(metric.TextWidth, 2)));
+        properties.Add(new(nameof(GlyphMetrics.Width), Math.Round(metric.Width, 2)));
 
         return properties;
     }

@@ -139,7 +139,7 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
         using (reader)
         {
             List<Glyph> glyphs = [];
-            HashSet<Range> ranges = [];
+            HashSet<Range> ranges = new(RangeComparer.Comparer);
 
             foreach (OpenType.GlyphInfo info in reader.GetGlyphs())
             {

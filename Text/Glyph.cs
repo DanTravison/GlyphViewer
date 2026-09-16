@@ -1,12 +1,13 @@
 ﻿namespace GlyphViewer.Text;
 
+using GlyphViewer.Text.OpenType;
 using System.Globalization;
 using System.Text;
 
 /// <summary>
 /// Defines a font family and text for a glyph.
 /// </summary>
-[System.Diagnostics.DebuggerDisplay("({Code,nq}) {Text}")]
+[System.Diagnostics.DebuggerDisplay("({GlyphId,nq} {Code,nq}) {Text}")]
 public sealed class Glyph : IEquatable<Glyph>
 {
     #region Fields
@@ -31,7 +32,7 @@ public sealed class Glyph : IEquatable<Glyph>
         Range = Unicode.Range.Empty;
     }
 
-    public Glyph(FontFamily fontFamily, OpenType.GlyphInfo info)
+    internal Glyph(FontFamily fontFamily, OpenType.GlyphInfo info)
     {
         ArgumentNullException.ThrowIfNull(fontFamily, nameof(fontFamily));
         ArgumentNullException.ThrowIfNull(info, nameof(info));
@@ -42,6 +43,7 @@ public sealed class Glyph : IEquatable<Glyph>
         Codepoint = info.CodePoint;
         HasCodePoint = info.HasCodePoint;
         Name = info.Name;
+        GlyphId = info.Id;
 
         Code = HasCodePoint ? $"U+{Codepoint:X4}" : string.Empty;
         if (HasCodePoint)
@@ -53,46 +55,6 @@ public sealed class Glyph : IEquatable<Glyph>
         {
             Text = string.Empty;
         }
-        IsEmpty = false;
-    }
-
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="fontFamily">The containing <see cref="FontFamily"/>.</param>
-    /// <param name="rune">The <see cref="Rune"/>.</param>
-    /// <param name="category">The <see cref="UnicodeCategory"/>.</param>
-    /// <param name="range">The <see cref="Unicode.Range"/> that contains the glyph.</param>
-    /// <param name="name">The optional name of the glyph.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="fontFamily"/> is a null reference or empty string.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="range"/> equals <see cref="Unicode.Range.Empty"/>.</exception>
-    public Glyph
-    (
-        FontFamily fontFamily,
-        Rune rune,
-        UnicodeCategory category,
-        Unicode.Range range,
-        string name = null
-    )
-    {
-        ArgumentNullException.ThrowIfNull(fontFamily, nameof(fontFamily));
-        
-        if (range.IsEmpty)
-        {
-            throw new ArgumentOutOfRangeException(nameof(range));
-        }
-
-        FontFamily = fontFamily;
-        Category = category;
-        Range = range;
-
-        Codepoint = (uint)rune.Value;
-        Code = $"U+{Codepoint:X4}";
-        
-        Text = rune.ToString();
-        
-        Name = name ?? string.Empty;
         IsEmpty = false;
     }
 
@@ -131,6 +93,14 @@ public sealed class Glyph : IEquatable<Glyph>
     /// The codepoint for the glyph, if <see cref="HasCodePoint"/> is true; otherwise, a non-deterministic value.
     /// </value>
     public uint Codepoint
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the glyph id for the glyph.
+    /// </summary>
+    public uint GlyphId
     {
         get;
     }
@@ -211,9 +181,11 @@ public sealed class Glyph : IEquatable<Glyph>
         (
             glyph is not null
             &&
+            GlyphId == glyph.GlyphId
+            &&
             Codepoint == glyph.Codepoint
             &&
-            string.Equals(FontFamily.Name, glyph.FontFamily.Name, StringComparison.Ordinal)
+            FontFamily == glyph.FontFamily
         );
     }
 
@@ -223,7 +195,7 @@ public sealed class Glyph : IEquatable<Glyph>
     /// <returns>A hash code for this instance.</returns>
     public override int GetHashCode()
     {
-        return HashCode.Combine(Code, FontFamily.Name);
+        return HashCode.Combine(GlyphId, Codepoint, FontFamily.Name);
     }
 
     #endregion Equality
