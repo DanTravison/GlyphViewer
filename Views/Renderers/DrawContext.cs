@@ -247,7 +247,7 @@ sealed class DrawContext : IDisposable
                 using (SKFont font = SKTypeface.Default.ToFont(ItemFontSize))
                 {
                     SKTextMetrics metrics = new("W", font);
-                    float dimension = Math.Max(metrics.TextWidth, metrics.Size.Width);
+                    float dimension = Math.Max(metrics.Width, metrics.Size.Width);
                     MinimumGlyphSize = new SKSize(dimension, dimension);
                 }
             }

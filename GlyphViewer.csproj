@@ -82,10 +82,8 @@
 
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="15.0.1" />
-		<PackageReference Include="HarfBuzzSharp" Version="14.2.1.102" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.100" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.11" />
-		<PackageReference Include="SkiaSharp.HarfBuzz" Version="4.151.2" />
 		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="4.151.2" />
 	</ItemGroup>
 

@@ -2,6 +2,7 @@
 
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Text;
+using GlyphViewer.Text.Unicode;
 using SkiaSharp;
 using System.ComponentModel;
 using Diag = System.Diagnostics;
@@ -250,7 +251,7 @@ internal class GlyphsViewRenderer : ObservableObject
                 }
                 _glyphs.Add(glyph, renderer);
 
-                if (glyph.Range != unicodeRange)
+                if (glyph.Range.Id != unicodeRange.Id || renderers is null)
                 {
                     renderers = _glyphRanges.Add(glyph.Range);
                     unicodeRange = glyph.Range;
@@ -261,6 +262,7 @@ internal class GlyphsViewRenderer : ObservableObject
 
                 renderers.Add(renderer);
             }
+            _glyphRanges.Sort();
             Invalidate(RenderState.Layout);
         }
 
@@ -662,7 +664,7 @@ internal class GlyphsViewRenderer : ObservableObject
     {
         #region Fields
 
-        readonly Dictionary<UnicodeRange, GlyphRenderers> _glyphRenderers = [];
+        readonly Dictionary<uint, GlyphRenderers> _glyphRenderers = [];
         readonly List<UnicodeRange> _unicodeRanges = [];
 
         #endregion Fields
@@ -703,7 +705,7 @@ internal class GlyphsViewRenderer : ObservableObject
         {
             get
             {
-                _glyphRenderers.TryGetValue(unicodeRange, out GlyphRenderers glyphRange);
+                _glyphRenderers.TryGetValue(unicodeRange.Id, out GlyphRenderers glyphRange);
                 return glyphRange;
             }
         }
@@ -736,14 +738,22 @@ internal class GlyphsViewRenderer : ObservableObject
             {
                 throw new ArgumentOutOfRangeException(nameof(unicodeRange));
             }
-            if (_glyphRenderers.TryGetValue(unicodeRange, out GlyphRenderers glyphRange))
+            if (_glyphRenderers.TryGetValue(unicodeRange.Id, out GlyphRenderers glyphRenders))
             {
-                return glyphRange;
+                return glyphRenders;
             }
-            glyphRange = new(unicodeRange);
-            _glyphRenderers.Add(unicodeRange, glyphRange);
+            glyphRenders = new(unicodeRange);
+            _glyphRenderers.Add(unicodeRange.Id, glyphRenders);
             _unicodeRanges.Add(unicodeRange);
-            return glyphRange;
+            return glyphRenders;
+        }
+
+        /// <summary>
+        /// Sorts the ranges by id.
+        /// </summary>
+        public void Sort()
+        {
+            _unicodeRanges.Sort(RangeComparer.Comparer);
         }
 
         #endregion Methods
