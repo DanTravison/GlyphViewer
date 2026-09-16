@@ -272,7 +272,7 @@ internal sealed class CmapTable : OpenTypeStruct<CmapTable.Raw>
                     }
                 }
 
-                if (glyphId != 0)
+                if (glyphId != 0 && !_glyphs.ContainsKey(glyphId))
                 {
                     GlyphInfo info = new(glyphId, codepoint);
                     _glyphs.Add(info.Id, info);

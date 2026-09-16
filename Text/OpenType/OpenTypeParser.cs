@@ -24,6 +24,8 @@ internal static class OpenTypeParser
     internal static IEnumerable<GlyphInfo> GetGlyphs(FontReader reader, int faceIndex)
     {
         IReadOnlyDictionary<uint, string> glyphNames = ReadGlyphNames(reader, faceIndex);
+        bool hasGlyphNames = glyphNames is not null;
+
         CmapTable cmap = CmapTable.Read(reader, faceIndex);
         if (cmap is null)
         {
@@ -42,7 +44,7 @@ internal static class OpenTypeParser
                 glyph = new(glyphId);
             }
 
-            if (glyphNames.TryGetValue(glyphId, out string name))
+            if (hasGlyphNames && glyphNames.TryGetValue(glyphId, out string name))
             {
                 glyph.Name = name;
             }

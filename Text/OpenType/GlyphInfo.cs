@@ -16,7 +16,7 @@ public sealed class GlyphInfo : IEquatable<GlyphInfo>
     /// Initializes a new instance of this class for a glyph that doesn't have a <see cref="CodePoint"/>. 
     /// </summary>
     /// <param name="glyphId">The font-specific glyph <see cref="Id"/>.</param>
-    public GlyphInfo(uint glyphId)
+    internal GlyphInfo(uint glyphId)
     {
         Id = glyphId;
         Range = Range.None;
