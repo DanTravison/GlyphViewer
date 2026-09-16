@@ -6,20 +6,21 @@ using System.Diagnostics;
 /// Defines a Unicode range.
 /// </summary>
 [DebuggerDisplay("{Name, nq}[{Length,nq}]")]
-public readonly struct Range : IEquatable<Range>
+public struct Range : IEquatable<Range>
 {
     #region Fields
 
     /// <summary>
     /// Gets the empty range.
     /// </summary>
-    public static readonly Range Empty = new();
+    public static readonly Range Empty = new(false);
 
+    const string NoRange = "None";
 
     /// <summary>
-    /// Gets the <see cref="Range"/> for a codepoint this is not in a range.
+    /// Gets the <see cref="Range"/> for a codepoint or glyph that is not in a range.
     /// </summary>
-    public static readonly Range None = new(uint.MaxValue, uint.MaxValue, "None");
+    public static readonly Range None = new(true);
 
     /// <summary>
     /// Gets the first codepoint in the range.
@@ -57,7 +58,7 @@ public readonly struct Range : IEquatable<Range>
     /// </summary>
     public bool IsEmpty
     {
-        get => Length == 0;
+        get;
     }
 
     #endregion Fields
@@ -67,11 +68,21 @@ public readonly struct Range : IEquatable<Range>
     /// <summary>
     /// Initializes an <see cref="Empty"/> instance of this class.
     /// </summary>
-    public Range()
+    private Range(bool isNone)
     {
         First = Last = 0;
         Length = 0;
-        Name = string.Empty;
+        
+        if (isNone)
+        {
+            Name = NoRange;
+            First = Last = uint.MaxValue;
+        }
+        else
+        {
+            IsEmpty = true;
+            Name = string.Empty;
+        }
     }
 
     /// <summary>
@@ -111,9 +122,9 @@ public readonly struct Range : IEquatable<Range>
     /// </summary>
     /// <param name="codepoint">The codepoint to query.</param>
     /// <returns>true if the range contains a specified <paramref name="codepoint"/>; otherwise, false.</returns>
-    public bool Contains(int codepoint)
+    public readonly bool Contains(uint codepoint)
     {
-        return (uint)codepoint >= First && (uint)codepoint <= Last;
+        return codepoint >= First && codepoint <= Last;
     }
 
     #region Equality
@@ -126,7 +137,7 @@ public readonly struct Range : IEquatable<Range>
     /// <paramref name="obj"/> is a <see cref="Glyph"/> equal to this instance;
     /// otherwise, false.
     /// </returns>
-    public override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         if (obj is Range range)
         {
@@ -140,16 +151,19 @@ public readonly struct Range : IEquatable<Range>
     /// </summary>
     /// <param name="other">The <see cref="Range"/> to compare with the current instance.</param>
     /// <returns>true if the specified <paramref name="other"/> is equal to the current instance; otherwise, false.</returns>
-    public bool Equals(Range other)
+    public readonly bool Equals(Range other)
     {
-        return First == other.First && Length == other.Length;
+        return
+        (
+            First == other.First && Length == other.Length
+        );
     }
 
     /// <summary>
     ///  Gets a hash code for this instance.
     /// </summary>
     /// <returns>A hash code for this instance.</returns>
-    public override int GetHashCode()
+    public readonly override int GetHashCode()
     {
         return HashCode.Combine(First, Length);
     }
