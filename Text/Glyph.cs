@@ -1,6 +1,5 @@
 ﻿namespace GlyphViewer.Text;
 
-using GlyphViewer.Text.OpenType;
 using System.Globalization;
 using System.Text;
 
