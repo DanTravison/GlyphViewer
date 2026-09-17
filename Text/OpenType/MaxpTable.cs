@@ -39,7 +39,7 @@ internal class MaxpTable : OpenTypeStruct<MaxpTable.Raw>
     /// </summary>
     /// <param name="reader">The <see cref="FontReader"/> to read.</param>
     /// <param name="faceIndex">The zero-based face index.</param>
-    /// <returns>A new instance of a <see cref="NameTable"/>; otherwise, a null reference if the name table could not be found.</returns>
+    /// <returns>A new instance of a <see cref="MaxpTable"/>; otherwise, a null reference if the name table could not be found.</returns>
     static internal MaxpTable Read(FontReader reader, int faceIndex)
     {
         long faceOffset = reader.Faces[faceIndex];

@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Text.OpenType;
 
+using GlyphViewer.Diagnostics;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -24,7 +25,7 @@ internal abstract class OpenTypeStruct<T> where T : struct
     /// </summary>
     /// <param name="reader">The <see cref="FontReader"/> to read.</param>
     /// <param name="startPosition">The zero-based offset into the font contents where the <typeparamref name="T"/> is located.</param>
-    protected void Initialize(FontReader reader, long startPosition)
+    protected bool Initialize(FontReader reader, long startPosition)
     {
         if (_isInitialized)
         {
@@ -32,9 +33,15 @@ internal abstract class OpenTypeStruct<T> where T : struct
         }
         _isInitialized = true;
         StartPosition = startPosition;
+        if (startPosition + _buffer.Length > reader.Length)
+        {
+            Trace.Error(TraceFlag.Font, typeof(T), nameof(Initialize), "Table offset plus table size exceeds the length of the reader");
+            return false;
+        }
         reader.Seek(startPosition);
         reader.ReadBytes(_buffer);
         OnInitialize(reader);
+        return true;
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 ﻿namespace GlyphViewer.Text.OpenType;
 
+using GlyphViewer.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -12,7 +13,7 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
     #region Raw Struct
 
     /// <summary>
-    /// Defines the raw binary layout of the 'post' table.
+    /// Defines the raw binary layout of the version 1.0 'post' table.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     internal struct Raw
@@ -27,8 +28,6 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
         public uint MaxMemType42;
         public uint MinMemType1;
         public uint MaxMemType1;
-
-        public ushort NumGlyphs;
     }
 
     /// <summary>
@@ -66,11 +65,9 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
             OffsetOf(nameof(Raw.MaxMemType1));
 #endif
 
-        public static readonly int NumGlyphs =
-            OffsetOf(nameof(Raw.NumGlyphs));
     }
 
-#endregion Raw Struct
+    #endregion Raw Struct
 
     #region Constructor
 
@@ -125,13 +122,13 @@ internal sealed class PostTable : OpenTypeStruct<PostTable.Raw>
 
     protected override void OnInitialize(FontReader reader)
     {
-        uint format = ReadUInt32(Offsets.FormatFixed) >> 16;
-        ushort numGlyphs = ReadUInt16(Offsets.NumGlyphs);
-
+        ushort format = ReadUInt16(Offsets.FormatFixed);
         if (format != 2)
         {
             return;
         }
+
+        ushort numGlyphs = reader.ReadUInt16();
 
         //
         // Read glyph name index array
