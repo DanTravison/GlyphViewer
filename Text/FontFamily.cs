@@ -151,6 +151,11 @@ public class FontFamily : IEquatable<FontFamily>
         // Determine if the caller is requesting a a custom font (embedded resource or local file system font).
         FontResource resource = FontLoader.Resolve(Name);
 
+        SKTypeface typeface = SKFontManager.Default.MatchFamily
+        (
+            resource is null ? Name : resource.FamilyName
+        );
+#if (false)
         // First try to load the system installed font.  We prefer the system installed font since
         // it allows us to apply SKFontStyle.
         SKTypeface typeface = SKTypeface.FromFamilyName
@@ -158,6 +163,7 @@ public class FontFamily : IEquatable<FontFamily>
             resource is null ? Name : resource.FamilyName,
             style
         );
+#endif
         // If the request is not for a custom font...
         if (resource is null)
         {
@@ -199,7 +205,7 @@ public class FontFamily : IEquatable<FontFamily>
         return GetTypeface(attributes.ToFontStyle());
     }
 
-    #endregion GetTypeface
+#endregion GetTypeface
 
     #region CreateInstance
 
@@ -280,4 +286,30 @@ public class FontFamily : IEquatable<FontFamily>
     }
 
     #endregion Equality
+
+    #region Operator overloads
+
+    /// <summary>
+    /// Tests whether two <see cref="FontFamily"/> structures are equal.
+    /// </summary>
+    /// <param name="left">The <see cref="FontFamily"/> structure that is to the left of the equality operator.</param>
+    /// <param name="right">The <see cref="FontFamily"/> structure that is to the right of the equality operator.</param>
+    /// <returns>true if the two <see cref="FontFamily"/> structures are equal; otherwise, false.</returns>
+    public static bool operator ==(FontFamily left, FontFamily right)
+    {
+        return left is not null && left.Equals(right);
+    }
+
+    /// <summary>
+    /// Tests whether two <see cref="FontFamily"/> structures are not equal.
+    /// </summary>
+    /// <param name="left">The <see cref="FontFamily"/> structure that is to the left of the equality operator.</param>
+    /// <param name="right">The <see cref="FontFamily"/> structure that is to the right of the equality operator.</param>
+    /// <returns>true if the two <see cref="FontFamily"/> structures are not equal; otherwise, false.</returns>
+    public static bool operator !=(FontFamily left, FontFamily right)
+    {
+        return !(left is not null && left.Equals(right));
+    }
+
+    #endregion Operator overloads
 }

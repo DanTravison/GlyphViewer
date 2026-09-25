@@ -44,7 +44,7 @@ internal class MaxpTable : OpenTypeStruct<MaxpTable.Raw>
     {
         long faceOffset = reader.Faces[faceIndex];
 
-        long nameTableOffset = OpenTypeParser.FindTableOffset(reader, faceOffset, Tag.Name);
+        long nameTableOffset = OpenTypeParser.FindTableOffset(reader, faceOffset, Tag.Maxp);
         if (nameTableOffset < 0)
         {
             return null;
