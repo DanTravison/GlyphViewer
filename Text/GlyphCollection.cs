@@ -1,20 +1,16 @@
 ﻿namespace GlyphViewer.Text;
 
 using GlyphViewer.Text.Unicode;
-using HarfBuzzSharp;
+using GlyphViewer.Diagnostics;
 using SkiaSharp;
-using SkiaSharp.HarfBuzz;
 using System.Collections;
-using System.Diagnostics;
 using System.Globalization;
-
-using HarfBuzzFont = HarfBuzzSharp.Font;
 using UnicodeRange = GlyphViewer.Text.Unicode.Range;
 
 /// <summary>
 /// Provides a <see cref="Glyph"/> searchable collection for the glyphs in a <see cref="SKTypeface"/>.
 /// </summary>
-[DebuggerDisplay("{FamilyName,nq}[{Count,nq}]")]
+[System.Diagnostics.DebuggerDisplay("{FamilyName,nq}[{Count,nq}]")]
 public sealed class GlyphCollection : IReadOnlyList<Glyph>
 {
     #region Fields
@@ -29,14 +25,11 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     /// </summary>
     /// <param name="fontFamily">The <see cref="Text.FontFamily"/> defining the glyph.</param>
     /// <param name="glyphs">The list of glyphs in the <paramref name="fontFamily"/>.</param>
-    /// <param name="hasGlyphNames">true if some or all of the <paramref name="glyphs"/> has
-    /// a <see cref="Glyph.Name"/>; otherwise, false.</param>
-    private GlyphCollection(FontFamily fontFamily, List<Glyph> glyphs, List<UnicodeRange> unicodeRanges, bool hasGlyphNames)
+    private GlyphCollection(FontFamily fontFamily, List<Glyph> glyphs, HashSet<Range> ranges)
     {
         _glyphs = glyphs;
-        HasGlyphNames = hasGlyphNames;
         FontFamily = fontFamily;
-        UnicodeRanges = unicodeRanges;
+        UnicodeRanges = new List<Range>(ranges);
         _searchTable = new(glyphs);
     }
 
@@ -66,18 +59,6 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     public Glyph this[int index]
     {
         get => _glyphs[index];
-    }
-
-    /// <summary>
-    /// Gets the value indicating if some or all of the glyphs in the collection.
-    /// </summary>
-    /// <value>
-    /// true if some or all of the glyphs in the collection have a <see cref="Glyph.Name"/>; 
-    /// otherwise, false.
-    /// </value>
-    public bool HasGlyphNames
-    {
-        get;
     }
 
     /// <summary>
@@ -140,109 +121,40 @@ public sealed class GlyphCollection : IReadOnlyList<Glyph>
     /// <exception cref="ArgumentNullException"><paramref name="fontFamily"/> is a null reference.</exception>
     public static GlyphCollection CreateInstance(FontFamily fontFamily, params UnicodeCategory[] filter)
     {
-        SKTypeface typeface = fontFamily.GetTypeface(SKFontStyle.Normal);
-        if (typeface is null)
+        FontReader reader;
+        if (fontFamily is FileFontFamily file)
         {
-            return null;
+            reader = FontReader.CreateInstance(file.FilePath);
         }
-        HarfBuzzFont hbFont = OpenFont(fontFamily);
-        bool hasGlyphNames = false;
-
-        List<Glyph> glyphs = new();
-        List<UnicodeRange> unicodeRanges = [];
-        UnicodeRange previousRange = UnicodeRange.Empty;
-
-        for (ushort unicode = 0; unicode < 0xFFFF; unicode++)
+        else
         {
-            char ch = (char)unicode;
-            ushort codepoint = typeface.GetGlyph(ch);
-            if (codepoint == 0)
+            SKTypeface typeface = fontFamily.GetTypeface(SKFontStyle.Normal);
+            if (typeface is null)
             {
-                continue;
+                return null;
             }
-            UnicodeCategory category = char.GetUnicodeCategory(ch);
-            if (filter != null && filter.Length > 0)
+            reader = FontReader.CreateInstance(typeface);
+        }
+
+        using (reader)
+        {
+            List<Glyph> glyphs = [];
+            HashSet<Range> ranges = new(RangeComparer.Comparer);
+
+            foreach (OpenType.GlyphInfo info in reader.GetGlyphs())
             {
-                if (filter.Contains(category))
+                if (!ranges.Contains(info.Range))
                 {
-                    continue;
+                    ranges.Add(info.Range);
                 }
-            }
-            UnicodeRange unicodeRange = Ranges.Find((ushort)ch);
-            if (unicodeRange.IsEmpty)
-            {
-                continue;
-            }
-            if (unicodeRange != previousRange)
-            {
-                unicodeRanges.Add(unicodeRange);
-                previousRange = unicodeRange;
+                Glyph glyph = new(fontFamily, info);
+
+                glyphs.Add(glyph);
             }
 
-            string name = string.Empty;
-            if (hbFont is not null)
-            {
-                if (GetGlyphName(hbFont, unicode, out name))
-                {
-                    hasGlyphNames = true;
-                }
-            }
-            Glyph glyph = new(fontFamily, ch, category, unicodeRange, name);
-            glyphs.Add(glyph);
+            return new GlyphCollection(fontFamily, glyphs, ranges);
         }
-        hbFont?.Dispose();
-        return new GlyphCollection(fontFamily, glyphs, unicodeRanges, hasGlyphNames);
     }
 
     #endregion CreateInstance
-
-    #region HarfBuzzSharp
-
-    static bool GetGlyphName(HarfBuzzFont font, ushort unicode, out string name)
-    {
-        if (font.TryGetGlyph(unicode, out uint glyph) && font.TryGetGlyphName(glyph, out name))
-        {
-            return true;
-        }
-        name = string.Empty;
-        return false;
-    }
-
-    static HarfBuzzFont OpenFont(FontFamily fontFamily)
-    {
-        try
-        {
-            int ttcIndex = 0;
-            Blob blob;
-            SKTypeface typeface = fontFamily.GetTypeface(SKFontStyle.Normal);
-            if (fontFamily is FileFontFamily fileFont)
-            {
-                blob = Blob.FromFile(fileFont.FilePath);
-            }
-            else
-            {
-                blob = typeface.OpenStream(out ttcIndex).ToHarfBuzzBlob();
-            }
-            using (blob)
-            {
-                using (Face face = new Face(blob, ttcIndex))
-                {
-                    face.Index = ttcIndex;
-                    face.UnitsPerEm = typeface.UnitsPerEm;
-                    HarfBuzzFont font = new(face);
-                    // TODO: ???
-                    font.SetScale(512, 512);
-                    font.SetFunctionsOpenType();
-                    return font;
-                }
-            }
-        }
-        catch (Exception)
-        {
-            Trace.TraceError($"Error opening font {fontFamily.Name} to get Glyph names.");
-        }
-        return null;
-    }
-
-    #endregion HarfBuzzSharp
 }

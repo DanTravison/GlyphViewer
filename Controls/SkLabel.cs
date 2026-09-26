@@ -333,7 +333,7 @@ internal class SkLabel : SKCanvasView
             _needsMetrics = false;
         }
 
-        float width = (float)Padding.HorizontalThickness + _metrics.TextWidth;
+        float width = (float)Padding.HorizontalThickness + _metrics.Width;
         float height = (float)Padding.VerticalThickness + _metrics.Size.Height;
         return new Size(width, height);
     }
@@ -394,10 +394,10 @@ internal class SkLabel : SKCanvasView
                 switch (HorizontalTextAlignment)
                 {
                     case TextAlignment.Center:
-                        x += (width - _metrics.TextWidth) / 2;
+                        x += (width - _metrics.Width) / 2;
                         break;
                     case TextAlignment.End:
-                        x += width - _metrics.TextWidth;
+                        x += width - _metrics.Width;
                         break;
                     default:
                         break;

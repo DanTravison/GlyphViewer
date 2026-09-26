@@ -49,11 +49,14 @@ public static class Fonts
     {
         Dictionary<string, FontFamily> table = new(StringComparer.InvariantCultureIgnoreCase);
         List<FontFamily> families = [];
-        foreach (string familyName in SKFontManager.Default.GetFontFamilies())
+
+        foreach (FontFamily family in FontManager.GetFontFamilies())
         {
-            FontFamily family = FontFamily.CreateInstance(familyName);
-            families.Add(family);
-            table.Add(familyName, family);
+            if (!table.ContainsKey(family.Name))
+            {
+                table.Add(family.Name, family);
+                families.Add(family);
+            }
         }
         foreach (FontResource resource in FontLoader.EmbeddedFonts)
         {

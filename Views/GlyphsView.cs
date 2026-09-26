@@ -193,7 +193,7 @@ public sealed class GlyphsView : SKCanvasView
         BindingMode.TwoWay,
         coerceValue: (bindable, value) =>
         {
-            if (bindable is GlyphsView view && value is Glyph selectedItem)
+            if (bindable is GlyphsView view && value is Glyph selectedItem && selectedItem.IsEmpty == false)
             {
                 if (view._renderer.Contains(selectedItem))
                 {
@@ -653,7 +653,7 @@ public sealed class GlyphsView : SKCanvasView
         nameof(SelectedUnicodeRange),
         typeof(UnicodeRange),
         typeof(GlyphsView),
-        UnicodeRange.Empty,
+        UnicodeRange.None,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
@@ -661,7 +661,7 @@ public sealed class GlyphsView : SKCanvasView
             {
                 return range;
             }
-            return UnicodeRange.Empty;
+            return UnicodeRange.None;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {

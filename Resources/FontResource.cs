@@ -25,7 +25,7 @@ public sealed class FontResource
     /// <summary>
     /// Gets the family name for the default font.
     /// </summary>
-    public const string DefaultFamilyName = "Open Sans";
+    public const string DefaultFamilyName = "OpenSans Regular";
 
     /// <summary>
     /// Gets the resource name for the default font.
@@ -40,7 +40,7 @@ public sealed class FontResource
     /// <summary>
     /// Gets the family name for the fluent ui font.
     /// </summary>
-    public const string FluentUIFamilyName= "FluentSystemIcons-Resizable";
+    public const string FluentUIFamilyName = "FluentSystemIcons-Resizable";
 
     /// <summary>
     /// Gets the resource name for the fluent ui font.

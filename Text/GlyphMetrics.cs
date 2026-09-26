@@ -31,9 +31,20 @@ public class GlyphMetrics : SKTextMetrics, IEquatable<GlyphMetrics>
     /// <exception cref="ArgumentNullException"><paramref name="font"/> is a null reference.</exception>
     /// <exception cref="ArgumentException"><paramref name="glyph"/> is a null reference or<see cref="Glyph.Empty"/> instance.</exception>
     GlyphMetrics(Glyph glyph, SKFont font)
-        : base(glyph.Text, font)
+        : base(font)
     {
         Glyph = glyph;
+        if (glyph.HasCodePoint)
+        {
+            Measure(font, glyph.Text);
+        }
+        else
+        {
+            Span<ushort> glyphs = [(ushort)glyph.GlyphId];
+            float[] widths = font.GetGlyphWidths(glyphs, out SKRect[] bounds, null);
+            Width = widths[0];
+            Bounds = bounds[0];
+        }
     }
 
     #endregion Constructors

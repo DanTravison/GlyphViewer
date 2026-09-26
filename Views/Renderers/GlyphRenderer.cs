@@ -1,5 +1,6 @@
 ﻿using GlyphViewer.Text;
 using SkiaSharp;
+using System.Net.NetworkInformation;
 
 namespace GlyphViewer.Views.Renderers;
 
@@ -21,9 +22,9 @@ internal class GlyphRenderer
         {
             // for characters such as space, height may be zero.
             // if so, use the text width.
-            height = Metrics.TextWidth;
+            height = Metrics.Width;
         }
-        PreferredSize = new(Metrics.TextWidth, height);
+        PreferredSize = new(Metrics.Width, height);
     }
 
     #region Properties
@@ -121,7 +122,42 @@ internal class GlyphRenderer
 
         paint.Style = SKPaintStyle.Fill;
         paint.Color = drawContext.ItemColor;
-        canvas.DrawText(drawContext.ItemFont, paint, Metrics.Glyph.Text, start, baseLine, SKTextAlign.Left);
+
+        if (Metrics.Glyph.HasCodePoint)
+        {
+            canvas.DrawText(drawContext.ItemFont, paint, Metrics.Glyph.Text, start, baseLine, SKTextAlign.Left);
+        }
+        else
+        {
+            SKPath path = drawContext.ItemFont.GetGlyphPath((ushort)Metrics.Glyph.GlyphId);
+            if (path is not null && path.Points.Length > 0)
+            {
+                SKMatrix matrix = SKMatrix.CreateTranslation(start, top - Metrics.Ascent);
+                path.Transform(matrix);
+                canvas.DrawPath(path, paint);
+            }
+            else
+            {
+                DrawPlaceholder(canvas, paint, Bounds);
+            }
+        }
+    }
+
+    void DrawPlaceholder (SKCanvas canvas, SKPaint paint, SKRect bounds)
+    {
+        bounds = new
+        (
+            bounds.Left + 5,
+            bounds.Top + 5,
+            bounds.Right - 5,
+            bounds.Bottom - 5
+        );
+        SKPathEffect save = paint.PathEffect;
+        paint.Style = SKPaintStyle.Stroke;
+        float[] intervals = { 5, 3 };
+        paint.PathEffect = SKPathEffect.CreateDash(intervals, phase: 0);
+        canvas.DrawRoundRect(bounds, 5, 5, paint);
+        paint.PathEffect = save;
     }
 
     #endregion Methods

@@ -1,13 +1,12 @@
 ﻿namespace GlyphViewer.Text;
 
-using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 
 /// <summary>
 /// Defines a font family and text for a glyph.
 /// </summary>
-[DebuggerDisplay("({Code,nq}) {Text}")]
+[System.Diagnostics.DebuggerDisplay("({GlyphId,nq} {Code,nq}) {Text}")]
 public sealed class Glyph : IEquatable<Glyph>
 {
     #region Fields
@@ -28,53 +27,34 @@ public sealed class Glyph : IEquatable<Glyph>
     {
         Text = string.Empty;
         Code = string.Empty;
-        Char = '\0';
         IsEmpty = true;
-        Range = Unicode.Range.Empty;
+        Range = Unicode.Range.None;
     }
 
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="fontFamily">The containing <see cref="FontFamily"/>.</param>
-    /// <param name="ch">The <see cref="Char"/></param>
-    /// <param name="category">The <see cref="UnicodeCategory"/>.</param>
-    /// <param name="range">The <see cref="Unicode.Range"/> that contains the glyph.</param>
-    /// <param name="name">The optional name of the glyph.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="fontFamily"/> is a null reference or empty string.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="range"/> equals <see cref="Unicode.Range.Empty"/>.</exception>
-    public Glyph
-    (
-        FontFamily fontFamily,
-        char ch,
-        UnicodeCategory category,
-        Unicode.Range range,
-        string name = null
-    )
+    internal Glyph(FontFamily fontFamily, OpenType.GlyphInfo info)
     {
         ArgumentNullException.ThrowIfNull(fontFamily, nameof(fontFamily));
-        if (range.IsEmpty)
-        {
-            throw new ArgumentOutOfRangeException(nameof(range));
-        }
+        ArgumentNullException.ThrowIfNull(info, nameof(info));
 
         FontFamily = fontFamily;
-        Text = char.ConvertFromUtf32(ch);
-        Char = ch;
-        Category = category;
-        IsEmpty = false;
-        StringBuilder sb = new();
-        foreach (char c in Text)
+        Range = info.Range;
+        Category = info.Category;
+        Codepoint = info.CodePoint;
+        HasCodePoint = info.HasCodePoint;
+        Name = info.Name;
+        GlyphId = info.Id;
+
+        Code = HasCodePoint ? $"U+{Codepoint:X4}" : string.Empty;
+        if (HasCodePoint)
         {
-            if (sb.Length > 0)
-            {
-                sb.Append(',');
-            }
-            sb.AppendFormat("U+{0:X4}", (int)c);
+            Rune rune = new(Codepoint);
+            Text = rune.ToString();
         }
-        Code = sb.ToString();
-        Range = range;
-        Name = name ?? string.Empty;
+        else
+        {
+            Text = string.Empty;
+        }
+        IsEmpty = false;
     }
 
     #endregion Constructors
@@ -90,9 +70,36 @@ public sealed class Glyph : IEquatable<Glyph>
     }
 
     /// <summary>
-    /// Gets the font family to use to draw the <see cref="Text"/>.
+    /// Gets the <see cref="FontFamily"/> that contains the <see cref="Glyph"/>.
     /// </summary>
     public FontFamily FontFamily
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the value indicating if the glyph has an associated <see cref="Codepoint"/>
+    /// </summary>
+    /// <value>true if the glyph has a <see cref="Codepoint"/>; otherwise, false.</value>
+    public bool HasCodePoint
+    {
+        get;
+    }
+    /// <summary>
+    /// Gets the codepoint for the glyph.
+    /// </summary>
+    /// <value>
+    /// The codepoint for the glyph, if <see cref="HasCodePoint"/> is true; otherwise, a non-deterministic value.
+    /// </value>
+    public uint Codepoint
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the glyph id for the glyph.
+    /// </summary>
+    public uint GlyphId
     {
         get;
     }
@@ -113,14 +120,6 @@ public sealed class Glyph : IEquatable<Glyph>
     /// in the font; otherwise, <see cref="string.Empty"/>.
     /// </value>
     public string Name
-    {
-        get;
-    }
-
-    /// <summary>
-    /// Gets the unicode character for the glyph.
-    /// </summary>
-    public Char Char
     {
         get;
     }
@@ -181,7 +180,9 @@ public sealed class Glyph : IEquatable<Glyph>
         (
             glyph is not null
             &&
-            Code == glyph.Code
+            GlyphId == glyph.GlyphId
+            &&
+            Codepoint == glyph.Codepoint
             &&
             FontFamily == glyph.FontFamily
         );
@@ -193,7 +194,7 @@ public sealed class Glyph : IEquatable<Glyph>
     /// <returns>A hash code for this instance.</returns>
     public override int GetHashCode()
     {
-        return HashCode.Combine(Code, FontFamily);
+        return HashCode.Combine(GlyphId, Codepoint, FontFamily.Name);
     }
 
     #endregion Equality

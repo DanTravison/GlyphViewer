@@ -81,7 +81,7 @@ internal class FileFontFamily : FontFamily
         lock (_lock)
         {
             // NOTE: File-based fonts do not support styles, so we can cache the typeface.
-            if (_typeface is null && _file is not null && !_typefaces.TryGetValue(_file.FullName, out _typeface))
+            if (_typeface is null && _file is not null)
             {
                 try
                 {

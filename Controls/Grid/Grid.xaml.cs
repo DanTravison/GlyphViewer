@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using MauiGrid = Microsoft.Maui.Controls.Grid;
+using Microsoft.Maui.Converters;
 
 /// <summary>
 /// Provides a data-bound <see cref="Grid"/>.

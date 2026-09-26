@@ -431,7 +431,22 @@ public class GlyphView : SKCanvasView
         paint.PathEffect = null;
         paint.Style = SKPaintStyle.Fill;
 
-        canvas.DrawText(font, paint, metrics.Glyph.Text, start, baseline, SKTextAlign.Left);
+        Glyph glyph = metrics.Glyph;
+
+        if (glyph.HasCodePoint)
+        {
+            canvas.DrawText(font, paint, metrics.Glyph.Text, start, baseline, SKTextAlign.Left);
+        }
+        else
+        {
+            SKPath path = font.GetGlyphPath((ushort)Metrics.Glyph.GlyphId);
+            if (path is not null && path.Points.Length > 0)
+            {
+                SKMatrix matrix = SKMatrix.CreateTranslation(start, top - metrics.Ascent);
+                path.Transform(matrix);
+                canvas.DrawPath(path, paint);
+            }
+        }
     }
 
     #endregion Draw

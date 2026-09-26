@@ -27,6 +27,10 @@ to the staff itself or notes, such as articulations, accidentals, tempo and dyna
 </p>
 
 # Status
+* Version 1.2
+    * Created a minimal Open Type parser to enumerate Glyphs in the font.
+    * Support rendering glyphs that do not have a codepoint.
+    * Update the unicode ranges
 * The basical functionality is complete.
   * The range of Unicode characters is currently limited to 0x0000-0xFFFF.
 * Testing is manual on Windows.

@@ -6,29 +6,36 @@ using System.Diagnostics;
 /// Defines a Unicode range.
 /// </summary>
 [DebuggerDisplay("{Name, nq}[{Length,nq}]")]
-public readonly struct Range : IEquatable<Range>
+public struct Range : IEquatable<Range>
 {
     #region Fields
 
     /// <summary>
     /// Gets the empty range.
     /// </summary>
-    public static readonly Range Empty = new();
+    public static readonly Range Empty = new(false);
+
+    const string NoRange = "None";
 
     /// <summary>
-    /// Gets the first code point in the range.
+    /// Gets the <see cref="Range"/> for a codepoint or glyph that is not in a range.
+    /// </summary>
+    public static readonly Range None = new(true);
+
+    /// <summary>
+    /// Gets the first codepoint in the range.
     /// </summary>
     public readonly uint First;
 
     /// <summary>
-    /// Gets the first code point in the range.
+    /// Gets the first codepoint in the range.
     /// </summary>
     public readonly uint Last;
 
     /// <summary>
-    /// Gets the number of code points in the range.
+    /// Gets the number of codepoints in the range.
     /// </summary>
-    public readonly uint Length;
+    public readonly int Length;
 
     /// <summary>
     /// Gets the name of the range.
@@ -51,7 +58,7 @@ public readonly struct Range : IEquatable<Range>
     /// </summary>
     public bool IsEmpty
     {
-        get => Length == 0;
+        get;
     }
 
     #endregion Fields
@@ -61,20 +68,30 @@ public readonly struct Range : IEquatable<Range>
     /// <summary>
     /// Initializes an <see cref="Empty"/> instance of this class.
     /// </summary>
-    public Range()
+    private Range(bool isNone)
     {
         First = Last = 0;
         Length = 0;
-        Name = string.Empty;
+        
+        if (isNone)
+        {
+            Name = NoRange;
+            First = Last = uint.MaxValue;
+        }
+        else
+        {
+            IsEmpty = true;
+            Name = string.Empty;
+        }
     }
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="name">The name of the range.</param>
-    /// <param name="first">The first code point in the range.</param>
-    /// <param name="last">The last code point in the range.</param>
-    internal Range(string name, ushort first, ushort last)
+    /// <param name="first">The first codepoint in the range.</param>
+    /// <param name="last">The last codepoint in the range.</param>
+    internal Range(string name, uint first, uint last)
         : this(first, last, name)
     {
     }
@@ -82,8 +99,8 @@ public readonly struct Range : IEquatable<Range>
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="first">The first code point in the range.</param>
-    /// <param name="last">The last code point in the range.</param>
+    /// <param name="first">The first codepoint in the range.</param>
+    /// <param name="last">The last codepoint in the range.</param>
     /// <param name="name">The name of the range.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="last"/> is less than <paramref name="first"/>.</exception>
     internal Range(uint first, uint last, string name)
@@ -94,20 +111,20 @@ public readonly struct Range : IEquatable<Range>
         }
         First = first;
         Last = last;
-        Length = last - first + 1;
+        Length = (int)(last - first + 1);
         Name = name;
     }
 
     #endregion Constructors
 
     /// <summary>
-    /// Gets the value indicating if the range contains a specified <paramref name="codePoint"/>.
+    /// Gets the value indicating if the range contains a specified <paramref name="codepoint"/>.
     /// </summary>
-    /// <param name="codePoint">The code point to query.</param>
-    /// <returns>true if the range contains a specified <paramref name="codePoint"/>; otherwise, false.</returns>
-    public bool Contains(ushort codePoint)
+    /// <param name="codepoint">The codepoint to query.</param>
+    /// <returns>true if the range contains a specified <paramref name="codepoint"/>; otherwise, false.</returns>
+    public readonly bool Contains(uint codepoint)
     {
-        return codePoint >= First && codePoint <= Last;
+        return codepoint >= First && codepoint <= Last;
     }
 
     #region Equality
@@ -120,7 +137,7 @@ public readonly struct Range : IEquatable<Range>
     /// <paramref name="obj"/> is a <see cref="Glyph"/> equal to this instance;
     /// otherwise, false.
     /// </returns>
-    public override bool Equals(object obj)
+    public override readonly bool Equals(object obj)
     {
         if (obj is Range range)
         {
@@ -134,16 +151,19 @@ public readonly struct Range : IEquatable<Range>
     /// </summary>
     /// <param name="other">The <see cref="Range"/> to compare with the current instance.</param>
     /// <returns>true if the specified <paramref name="other"/> is equal to the current instance; otherwise, false.</returns>
-    public bool Equals(Range other)
+    public readonly bool Equals(Range other)
     {
-        return First == other.First && Length == other.Length;
+        return
+        (
+            First == other.First && Length == other.Length
+        );
     }
 
     /// <summary>
     ///  Gets a hash code for this instance.
     /// </summary>
     /// <returns>A hash code for this instance.</returns>
-    public override int GetHashCode()
+    public readonly override int GetHashCode()
     {
         return HashCode.Combine(First, Length);
     }
