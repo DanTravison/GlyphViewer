@@ -19,7 +19,7 @@
         
     </ContentView.Resources>
 
-    <Grid RowDefinitions="Auto, Auto, *"
+    <Grid RowDefinitions="Auto, *"
           ColumnDefinitions="*, Auto"
           ColumnSpacing="5"
           >

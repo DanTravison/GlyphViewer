@@ -13,7 +13,7 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
-        Trace.TraceFlags = TraceFlag.Application | TraceFlag.Navigation;
+        Trace.TraceFlags = TraceFlag.Application | TraceFlag.Navigation | TraceFlag.Font;
 
         var builder = MauiApp.CreateBuilder();
         builder
