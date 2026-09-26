@@ -30,7 +30,7 @@ public sealed class RangeValueConverter : IValueConverter
     /// <param name="culture">Not used.</param>
     /// <returns>
     /// The <see cref="Range.Name"/> of the <paramref name="value"/>; otherwise, 
-    /// <see cref="Range.Empty"/> if <paramref name="value"/> is a null reference or not a <see cref="Range"/>
+    /// <see cref="Range.None"/> if <paramref name="value"/> is a null reference or not a <see cref="Range"/>
     /// </returns>
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -41,7 +41,7 @@ public sealed class RangeValueConverter : IValueConverter
                 return range.Name;
             }
         }
-        return nameof(Range.Empty);
+        return nameof(Range.None);
     }
 
     /// <summary>
@@ -68,6 +68,6 @@ public sealed class RangeValueConverter : IValueConverter
                 return value;
             }
         }
-        return Range.Empty;
+        return Range.None;
     }
 }

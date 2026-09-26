@@ -28,7 +28,7 @@ public sealed class Glyph : IEquatable<Glyph>
         Text = string.Empty;
         Code = string.Empty;
         IsEmpty = true;
-        Range = Unicode.Range.Empty;
+        Range = Unicode.Range.None;
     }
 
     internal Glyph(FontFamily fontFamily, OpenType.GlyphInfo info)

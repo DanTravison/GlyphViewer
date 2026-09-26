@@ -22,7 +22,7 @@ internal class Ranges
     static void Add(Range[] ranges)
     {
         foreach (Range range in ranges)
-        { 
+        {
             _ranges.Add(range);
             _codeTable.Add(range.Id, range);
             _nameTable.Add(range.Name, range);
@@ -40,7 +40,7 @@ internal class Ranges
     /// <param name="codepoint">The codepoint to query.</param>
     /// <returns>
     /// The <see cref="Range"/> containing the specified <paramref name="codepoint"/>;
-    /// otherwise, <see cref="Range.Empty"/>.
+    /// otherwise, <see cref="Range.None"/>.
     /// </returns>
     public static Range Find(uint codepoint)
     {
@@ -52,18 +52,18 @@ internal class Ranges
     /// </summary>
     /// <param name="name">The name of the <see cref="Range"/> to find.</param>
     /// <returns>The <see cref="Range"/> with the specified <paramref name="name"/>; otherwise, 
-    /// <see cref="Range.Empty"/>.
+    /// <see cref="Range.None"/>.
     /// </returns>
     public static Range Find(string name)
     {
         if (name is null)
         {
-            return Range.Empty;
+            return Range.None;
         }
         name = name.Trim();
         if (!_nameTable.TryGetValue(name, out Range range))
         {
-            range = Range.Empty;
+            range = Range.None;
         }
         return range;
     }

@@ -234,7 +234,7 @@ internal class GlyphsViewRenderer : ObservableObject
 
         if (hasContent)
         {
-            UnicodeRange unicodeRange = UnicodeRange.Empty;
+            UnicodeRange unicodeRange = UnicodeRange.None;
             GlyphRenderers renderers = null;
 
             for (int i = 0; i < _content.Count; i++)
@@ -731,12 +731,11 @@ internal class GlyphsViewRenderer : ObservableObject
         /// A new instance of a <see cref="GlyphRenderers"/> if <paramref name="unicodeRange"/>
         /// is not in the list; otherwise, the existing <see cref="GlyphRenderers"/>.
         /// </returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="unicodeRange"/> equals <see cref="UnicodeRange.Empty"/>.</exception>
         public GlyphRenderers Add(UnicodeRange unicodeRange)
         {
             if (unicodeRange.IsEmpty)
             {
-                throw new ArgumentOutOfRangeException(nameof(unicodeRange));
+                unicodeRange = Range.None;
             }
             if (_glyphRenderers.TryGetValue(unicodeRange.Id, out GlyphRenderers glyphRenders))
             {

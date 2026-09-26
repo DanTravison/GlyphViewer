@@ -12,14 +12,14 @@ internal sealed class RangeSearchComparer : IComparer<Range>
     { }
 
     public static Range Find(List<Range> ranges, uint codepoint)
-    { 
+    {
         Range key = new("", codepoint, codepoint);
         int index = ranges.BinarySearch(key, Comparer);
         if (index >= 0)
         {
             return ranges[index];
         }
-        return Range.Empty;
+        return Range.None;
     }
 
     /// <summary>

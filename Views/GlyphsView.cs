@@ -653,7 +653,7 @@ public sealed class GlyphsView : SKCanvasView
         nameof(SelectedUnicodeRange),
         typeof(UnicodeRange),
         typeof(GlyphsView),
-        UnicodeRange.Empty,
+        UnicodeRange.None,
         BindingMode.OneWay,
         coerceValue: (bindable, value) =>
         {
@@ -661,7 +661,7 @@ public sealed class GlyphsView : SKCanvasView
             {
                 return range;
             }
-            return UnicodeRange.Empty;
+            return UnicodeRange.None;
         },
         propertyChanged: (bindable, oldValue, newValue) =>
         {
