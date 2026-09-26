@@ -46,11 +46,17 @@
     <Grid ColumnDefinitions="1*,2*,1*"
           RowDefinitions="Auto, Auto"
           >
-        <Label Text="{x:Static res:Strings.ApplicationName}"
-               Style="{StaticResource TitleLabelStyle}"
-               Grid.Row="0"
-               Grid.Column="0"
-               />
+        <HorizontalStackLayout HorizontalOptions="Start"
+                               Spacing="5"
+                               Grid.Row="0"
+                               Grid.Column="0"
+                               >
+            <Label Text="{x:Static res:Strings.ApplicationName}"
+                   Style="{StaticResource TitleLabelStyle}"/>
+            
+            <ActivityIndicator IsRunning="{Binding Busy.IsBusy}" 
+                               Color="Red"/>
+        </HorizontalStackLayout>
 
         <HorizontalStackLayout HorizontalOptions="Center"
                                Spacing="5"
@@ -59,6 +65,7 @@
             <Label Text="{Binding Metrics.FontFamily.Name}"
                    Style="{StaticResource TitleLabelStyle}"
                    />
+
             <Button BindingContext="{Binding BookmarkCommand}"
                     Style="{StaticResource BookmarkButtonStyle}"
                     />

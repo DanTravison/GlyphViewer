@@ -1,4 +1,6 @@
 ﻿namespace GlyphViewer.ViewModels;
+
+using GlyphViewer.Diagnostics;
 using GlyphViewer.ObjectModel;
 using GlyphViewer.Settings;
 using GlyphViewer.Text;
@@ -21,7 +23,7 @@ internal sealed class MainViewModel : ObservableObject
         FontFamilies = new(UserSettings, Metrics);
 
         Settings = new SettingsViewModel(UserSettings, FontFamilies);
-
+        Busy = new();
     }
 
     #region Properties
@@ -74,46 +76,56 @@ internal sealed class MainViewModel : ObservableObject
         get;
     }
 
+    /// <summary>
+    /// Gets a busy scope for entering and leaving a CPU bound operation.
+    /// </summary>
+    public BusyScope Busy
+    {
+        get;
+    }
+
     #endregion Properties
 
     #region Font Info Loading
 
-    public void LoadFonts()
+    public async Task LoadFonts()
     {
-        FontFamilyGroupCollection families = FontFamilyGroupCollection.CreateInstance(Settings.UserSettings);
-        _ = Application.Current.Dispatcher.DispatchAsync(() =>
+        using (await Busy.EnterAsync(nameof(LoadFonts)))
         {
+            FontFamilyGroupCollection families = await Task.Run(() => FontFamilyGroupCollection.CreateInstance(Settings.UserSettings));
             FontFamilies.FontFamilyGroups = families;
-        });
-    }
-
-    void LoadGlyphs()
-    {
-        GlyphCollection glyphs = null;
-        if (Metrics.FontFamily is not null)
-        {
-            glyphs = GlyphCollection.CreateInstance(Metrics.FontFamily);
         }
-        _ = Application.Current.Dispatcher.DispatchAsync(() =>
-        {
-            FontGlyphs.Glyphs = glyphs;
-            // Intent: Clear the selected bookmark after selection to 
-            // ensure there are not two selections active in FontFamiliesView.
-            // We're doing it here to avoid reentrancy when a bookmark is selected
-            // in the FontFamiliesView.
-            FontFamilies.SelectedBookmark = null;
-        });
     }
 
     #endregion Font Info Loading
 
     #region Event Handlers
 
-    private void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
+    private async void OnMetricsPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         if (ReferenceEquals(e, MetricsViewModel.FontFamilyChangedEventArgs))
         {
-            Task.Run(() => LoadGlyphs());
+            using (await Busy.EnterAsync(nameof(OnMetricsPropertyChanged)))
+            {
+                GlyphCollection glyphs = null;
+
+                try
+                {
+                    if (Metrics.FontFamily is not null)
+                    {
+                        glyphs = await Task.Run(() => GlyphCollection.CreateInstance(Metrics.FontFamily));
+                    }
+                }
+                finally
+                {
+                    FontGlyphs.Glyphs = glyphs;
+                    // Intent: Clear the selected bookmark after selection to 
+                    // ensure there are not two selections active in FontFamiliesView.
+                    // We're doing it here to avoid reentrancy when a bookmark is selected
+                    // in the FontFamiliesView.
+                    FontFamilies.SelectedBookmark = null;
+                }
+            }
         }
     }
 
