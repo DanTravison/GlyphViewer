@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.11.12202.211
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlyphViewer", "GlyphViewer.csproj", "{708552F6-959C-4538-9ADA-B0AB13CC348F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GlyphViewer", "GlyphViewer\GlyphViewer.csproj", "{708552F6-959C-4538-9ADA-B0AB13CC348F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Typography", "Typography\Typography.csproj", "{CC4C9118-1B8E-4109-8609-E3874DCA5286}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,10 @@ Global
 		{708552F6-959C-4538-9ADA-B0AB13CC348F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{708552F6-959C-4538-9ADA-B0AB13CC348F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{708552F6-959C-4538-9ADA-B0AB13CC348F}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{CC4C9118-1B8E-4109-8609-E3874DCA5286}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC4C9118-1B8E-4109-8609-E3874DCA5286}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC4C9118-1B8E-4109-8609-E3874DCA5286}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC4C9118-1B8E-4109-8609-E3874DCA5286}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
